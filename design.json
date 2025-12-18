@@ -1,0 +1,564 @@
+{
+    "$schema": "./design.schema.json",
+    "meta": {
+        "name": "KidBiz Tools Design System",
+        "version": "1.0.0",
+        "description": "A playful, child-friendly design system for young entrepreneurs aged 9-13. Features vibrant colors, rounded shapes, and delightful animations that make learning business concepts fun and engaging.",
+        "audience": "Children aged 9-13, young entrepreneurs, students",
+        "platform": "Web (React + Tailwind CSS + shadcn/ui)"
+    },
+    "designPhilosophy": {
+        "coreValues": [
+            "Playful but Professional: Looks fun but teaches real skills",
+            "Encouraging: Celebrates every step of progress",
+            "Accessible: Easy for kids to understand and navigate",
+            "Delightful: Surprises with animations and micro-interactions",
+            "Trustworthy: Clean and organized so parents approve"
+        ],
+        "targetMood": "Excited, confident, creative, capable",
+        "visualMetaphors": [
+            "Rockets",
+            "Stars",
+            "Sparkles",
+            "Light bulbs",
+            "Achievement badges"
+        ]
+    },
+    "typography": {
+        "fontFamily": {
+            "primary": "Nunito",
+            "fallback": "sans-serif",
+            "googleFontUrl": "https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap"
+        },
+        "fontWeights": {
+            "regular": 400,
+            "medium": 500,
+            "semibold": 600,
+            "bold": 700,
+            "extrabold": 800,
+            "black": 900
+        },
+        "scale": {
+            "heroTitle": {
+                "size": "text-4xl md:text-6xl",
+                "weight": "font-black",
+                "usage": "Main landing page headings"
+            },
+            "sectionTitle": {
+                "size": "text-3xl md:text-4xl",
+                "weight": "font-black",
+                "usage": "Section headings"
+            },
+            "cardTitle": {
+                "size": "text-2xl",
+                "weight": "font-semibold",
+                "usage": "Card and component headings"
+            },
+            "componentTitle": {
+                "size": "text-lg",
+                "weight": "font-bold",
+                "usage": "Smaller card titles, tool names"
+            },
+            "bodyLarge": {
+                "size": "text-lg md:text-xl",
+                "weight": "font-normal",
+                "usage": "Hero subtitles, descriptions"
+            },
+            "body": {
+                "size": "text-base",
+                "weight": "font-medium",
+                "usage": "Standard body text, inputs"
+            },
+            "bodySmall": {
+                "size": "text-sm",
+                "weight": "font-normal",
+                "usage": "Descriptions, helper text"
+            },
+            "caption": {
+                "size": "text-xs",
+                "weight": "font-semibold",
+                "usage": "Badges, labels, small annotations"
+            }
+        },
+        "guidelines": [
+            "Use font-black for hero elements to create impact",
+            "Pair bold titles with lighter body text for hierarchy",
+            "Apply leading-relaxed for comfortable reading on descriptions",
+            "Use antialiased rendering for smooth text"
+        ]
+    },
+    "colors": {
+        "description": "A playful, child-friendly palette with vibrant teal primary, warm coral accent, and soft cream backgrounds. Designed to feel energetic and creative while maintaining readability.",
+        "semantic": {
+            "primary": {
+                "hsl": "174 72% 46%",
+                "description": "Vibrant teal - energetic & creative",
+                "usage": "Primary buttons, links, focus rings, key interactive elements",
+                "hover": "primary/90",
+                "glow": "0 0 30px hsl(174 72% 46% / 0.3)"
+            },
+            "accent": {
+                "hsl": "16 85% 65%",
+                "description": "Coral - playful warmth",
+                "usage": "Secondary CTAs, highlights, decorative elements",
+                "hover": "accent/90",
+                "glow": "0 0 30px hsl(16 85% 65% / 0.3)"
+            },
+            "success": {
+                "hsl": "145 65% 45%",
+                "description": "Green - achievements and positive feedback",
+                "usage": "Success states, completed tasks, achievements, available items"
+            },
+            "warning": {
+                "hsl": "38 92% 55%",
+                "description": "Amber - attention and in-progress states",
+                "usage": "Warnings, in-progress items, ratings, stars"
+            },
+            "destructive": {
+                "hsl": "0 72% 60%",
+                "description": "Red - errors and destructive actions",
+                "usage": "Error states, delete actions, critical warnings"
+            }
+        },
+        "surfaces": {
+            "background": {
+                "hsl": "45 33% 97%",
+                "description": "Warm cream background"
+            },
+            "card": {
+                "hsl": "0 0% 100%",
+                "description": "Pure white cards for contrast"
+            },
+            "secondary": {
+                "hsl": "250 50% 96%",
+                "description": "Soft lavender for secondary surfaces"
+            },
+            "muted": {
+                "hsl": "45 20% 93%",
+                "description": "Muted cream for subtle backgrounds"
+            }
+        },
+        "text": {
+            "foreground": {
+                "hsl": "220 25% 20%",
+                "description": "Dark navy for primary text"
+            },
+            "muted": {
+                "hsl": "220 15% 45%",
+                "description": "Gray for secondary text"
+            }
+        },
+        "darkMode": {
+            "enabled": true,
+            "background": "220 25% 12%",
+            "card": "220 25% 16%",
+            "foreground": "45 20% 95%",
+            "note": "Dark mode inverts surfaces while keeping accent colors vibrant"
+        }
+    },
+    "gradients": {
+        "hero": {
+            "css": "linear-gradient(135deg, hsl(174 72% 46%) 0%, hsl(190 80% 55%) 50%, hsl(200 85% 60%) 100%)",
+            "usage": "Hero sections, gradient text, primary decorative backgrounds"
+        },
+        "card": {
+            "css": "linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(45 33% 98%) 100%)",
+            "usage": "Subtle card backgrounds for depth"
+        },
+        "accent": {
+            "css": "linear-gradient(135deg, hsl(16 85% 65%) 0%, hsl(30 90% 60%) 100%)",
+            "usage": "Accent buttons, accent icon backgrounds"
+        },
+        "success": {
+            "css": "linear-gradient(135deg, hsl(145 65% 45%) 0%, hsl(160 70% 50%) 100%)",
+            "usage": "Success states, completed achievements"
+        },
+        "fun": {
+            "css": "linear-gradient(135deg, hsl(280 70% 65%) 0%, hsl(320 75% 65%) 50%, hsl(16 85% 65%) 100%)",
+            "usage": "Special celebrations, premium features"
+        },
+        "toolColors": {
+            "description": "Each tool has a signature gradient for identity",
+            "examples": [
+                "from-primary to-cyan-400 (Logo Maker)",
+                "from-accent to-orange-400 (Calculator)",
+                "from-warning to-yellow-400 (Name Generator)",
+                "from-success to-emerald-400 (Marketing)"
+            ]
+        }
+    },
+    "spacing": {
+        "baseUnit": "4px (Tailwind default)",
+        "scale": {
+            "xs": "0.5rem (8px) - px-2, py-1",
+            "sm": "0.75rem (12px) - px-3, py-2",
+            "md": "1rem (16px) - p-4, gap-4",
+            "lg": "1.5rem (24px) - p-6, gap-6",
+            "xl": "2rem (32px) - py-8",
+            "2xl": "3rem (48px) - py-12",
+            "3xl": "5rem (80px) - py-20"
+        },
+        "containerPadding": "1rem (16px)",
+        "maxWidth": "1400px (2xl breakpoint)",
+        "componentSpacing": {
+            "cardPadding": "p-5 (20px) for tool cards, p-6 (24px) for content cards",
+            "buttonPadding": "px-5 py-2 (default), px-8 py-6 (large)",
+            "inputPadding": "px-4 py-3",
+            "sectionGap": "gap-6 for card grids, gap-4 for content"
+        }
+    },
+    "borderRadius": {
+        "philosophy": "Heavily rounded corners create a friendly, approachable feel that's welcoming to children",
+        "scale": {
+            "sm": "calc(var(--radius) - 4px) - 12px",
+            "md": "calc(var(--radius) - 2px) - 14px",
+            "lg": "var(--radius) - 16px - Default for most components",
+            "xl": "calc(var(--radius) + 4px) - 20px - Buttons, inputs",
+            "2xl": "calc(var(--radius) + 8px) - 24px - Large cards, CTAs",
+            "full": "9999px - Badges, pills, avatars"
+        },
+        "baseRadius": "1rem (16px)",
+        "usage": {
+            "buttons": "rounded-xl (20px) default, rounded-2xl (24px) large",
+            "cards": "rounded-2xl (24px)",
+            "inputs": "rounded-xl (20px)",
+            "badges": "rounded-full (pill shape)",
+            "iconContainers": "rounded-2xl (24px)",
+            "modals": "sm:rounded-lg"
+        }
+    },
+    "shadows": {
+        "philosophy": "Subtle, soft shadows that create depth without being harsh. Glow effects add magic and delight.",
+        "scale": {
+            "sm": "0 2px 8px -2px hsl(220 25% 20% / 0.08)",
+            "md": "0 8px 24px -8px hsl(220 25% 20% / 0.12)",
+            "lg": "0 16px 48px -12px hsl(220 25% 20% / 0.16)"
+        },
+        "special": {
+            "glow": {
+                "css": "0 0 30px hsl(174 72% 46% / 0.3)",
+                "usage": "Primary button hover, active states, CTAs"
+            },
+            "accentGlow": {
+                "css": "0 0 30px hsl(16 85% 65% / 0.3)",
+                "usage": "Accent button hover, highlights"
+            }
+        }
+    },
+    "animations": {
+        "philosophy": "Animations should feel playful and rewarding. Use them to celebrate actions and guide attention without being distracting.",
+        "timing": {
+            "fast": "0.2s - Accordion, micro-interactions",
+            "default": "0.3s - Scale, fade transitions",
+            "medium": "0.4s - Pop-in animations",
+            "slow": "0.5s - Fade-in with movement, slide-up",
+            "celebration": "0.6s-1s - Bounce-in, confetti"
+        },
+        "easings": {
+            "default": "ease-out",
+            "bounce": "cubic-bezier(0.68, -0.55, 0.265, 1.55)",
+            "smooth": "ease-in-out"
+        },
+        "library": {
+            "fadeIn": {
+                "keyframes": "0%: opacity 0, translateY(10px) → 100%: opacity 1, translateY(0)",
+                "duration": "0.5s ease-out",
+                "usage": "Content appearing, page load"
+            },
+            "scaleIn": {
+                "keyframes": "0%: scale(0.95), opacity 0 → 100%: scale(1), opacity 1",
+                "duration": "0.3s ease-out",
+                "usage": "Modal opening, element focus"
+            },
+            "bounceIn": {
+                "keyframes": "0%: scale(0.3), opacity 0 → 50%: scale(1.05) → 70%: scale(0.9) → 100%: scale(1), opacity 1",
+                "duration": "0.6s bounce easing",
+                "usage": "Achievement unlocked, special moments"
+            },
+            "slideUp": {
+                "keyframes": "0%: translateY(20px), opacity 0 → 100%: translateY(0), opacity 1",
+                "duration": "0.5s ease-out",
+                "usage": "Cards appearing in sequence, staggered lists"
+            },
+            "popIn": {
+                "keyframes": "0%: scale(0.8), opacity 0 → 50%: scale(1.05) → 100%: scale(1), opacity 1",
+                "duration": "0.4s bounce easing",
+                "usage": "Badges, chips, notifications"
+            },
+            "float": {
+                "keyframes": "0%, 100%: translateY(0) → 50%: translateY(-10px)",
+                "duration": "3s ease-in-out infinite",
+                "usage": "Decorative background elements"
+            },
+            "wiggle": {
+                "keyframes": "0%, 100%: rotate(-3deg) → 50%: rotate(3deg)",
+                "duration": "0.5s ease-in-out infinite",
+                "usage": "Attention grabbing, playful emphasis"
+            },
+            "pulseGlow": {
+                "keyframes": "0%, 100%: box-shadow 20px glow → 50%: box-shadow 40px glow",
+                "duration": "2s ease-in-out infinite",
+                "usage": "Primary CTA buttons, important actions"
+            },
+            "confetti": {
+                "keyframes": "0%: translateY(0), rotate(0deg), opacity 1 → 100%: translateY(-100px), rotate(720deg), opacity 0",
+                "duration": "1s ease-out forwards",
+                "usage": "Celebrations, task completion"
+            },
+            "sparkle": {
+                "keyframes": "0%, 100%: opacity 0, scale(0) → 50%: opacity 1, scale(1)",
+                "duration": "1.5s ease-in-out infinite",
+                "usage": "Decorative sparkle effects"
+            }
+        },
+        "interactions": {
+            "bounceHover": {
+                "hover": "scale-105",
+                "active": "scale-95",
+                "duration": "0.2s",
+                "usage": "Buttons, interactive cards"
+            },
+            "funCard": {
+                "hover": "-translate-y-2, shadow-lg",
+                "duration": "0.3s",
+                "usage": "Hoverable cards, tool previews"
+            }
+        },
+        "staggering": {
+            "description": "Apply sequential delays to create cascading effects",
+            "pattern": "animationDelay: index * 0.1s",
+            "example": "0s, 0.1s, 0.2s, 0.3s for 4 items"
+        }
+    },
+    "components": {
+        "button": {
+            "base": "inline-flex items-center justify-center gap-2 rounded-xl text-sm font-bold transition-all duration-200 active:scale-95",
+            "variants": {
+                "default": "bg-primary text-primary-foreground hover:bg-primary/90 hover:shadow-glow",
+                "accent": "bg-accent text-accent-foreground hover:bg-accent/90 hover:shadow-accent-glow",
+                "success": "bg-success text-success-foreground hover:bg-success/90",
+                "outline": "border-2 border-border bg-card hover:bg-muted hover:border-primary/30",
+                "secondary": "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+                "ghost": "hover:bg-muted hover:text-foreground text-muted-foreground",
+                "destructive": "bg-destructive text-destructive-foreground hover:bg-destructive/90",
+                "link": "text-primary underline-offset-4 hover:underline"
+            },
+            "sizes": {
+                "default": "h-11 px-5 py-2",
+                "sm": "h-9 rounded-lg px-3 text-xs",
+                "lg": "h-14 rounded-2xl px-8 text-base",
+                "icon": "h-11 w-11 rounded-xl"
+            },
+            "specialFeatures": [
+                "Glow effect on hover for primary/accent variants",
+                "Active press animation (scale-95)",
+                "Focus ring with offset for accessibility"
+            ]
+        },
+        "card": {
+            "base": "rounded-lg border bg-card text-card-foreground shadow-sm",
+            "funCard": {
+                "class": "fun-card",
+                "hover": "-translate-y-2, shadow-lg",
+                "transition": "duration-300"
+            },
+            "layout": {
+                "header": "flex flex-col space-y-1.5 p-6",
+                "content": "p-6 pt-0",
+                "footer": "flex items-center p-6 pt-0"
+            },
+            "toolCard": {
+                "style": "p-5 rounded-2xl border-2 border-border bg-card",
+                "features": [
+                    "State badge at top",
+                    "Icon with colored background",
+                    "Hover border color change",
+                    "Group hover effects for icon scale"
+                ]
+            }
+        },
+        "badge": {
+            "base": "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors",
+            "stateBadges": {
+                "available": "bg-success/10 text-success",
+                "inProgress": "bg-warning/10 text-warning",
+                "used": "bg-primary/10 text-primary",
+                "comingSoon": "bg-muted text-muted-foreground",
+                "locked": "bg-muted text-muted-foreground"
+            },
+            "usage": "Tool status, feature labels, small annotations"
+        },
+        "input": {
+            "base": "flex h-12 w-full rounded-xl border-2 border-border bg-card px-4 py-3 text-base font-medium transition-all duration-200",
+            "focus": "focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:border-primary",
+            "placeholder": "placeholder:text-muted-foreground",
+            "features": [
+                "Generous height (h-12) for touch targets",
+                "Thick border (border-2) for visibility",
+                "Smooth focus transition"
+            ]
+        },
+        "dialog": {
+            "overlay": "fixed inset-0 z-50 bg-black/80",
+            "content": "fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] max-w-lg w-full border bg-background p-6 shadow-lg sm:rounded-lg",
+            "animations": {
+                "in": "fade-in-0 zoom-in-95 slide-in-from-left-1/2 slide-in-from-top-[48%]",
+                "out": "fade-out-0 zoom-out-95 slide-out-to-left-1/2 slide-out-to-top-[48%]"
+            }
+        },
+        "progress": {
+            "track": "relative h-4 w-full overflow-hidden rounded-full bg-secondary",
+            "indicator": "h-full w-full flex-1 bg-primary transition-all",
+            "animatedFill": "animate-progress (1s ease-out)"
+        },
+        "iconContainer": {
+            "small": "w-10 h-10 rounded-xl flex items-center justify-center",
+            "medium": "w-14 h-14 rounded-2xl flex items-center justify-center",
+            "large": "w-20 h-20 rounded-3xl flex items-center justify-center",
+            "coloredBackground": "bg-{color}/10 text-{color}",
+            "gradientBackground": "bg-gradient-to-br from-{color1} to-{color2}",
+            "hoverEffect": "transition-transform duration-300 group-hover:scale-110"
+        }
+    },
+    "patterns": {
+        "glassEffect": {
+            "class": "glass",
+            "css": "bg-card/80 backdrop-blur-md",
+            "usage": "Fixed headers, overlays, floating elements"
+        },
+        "gradientText": {
+            "class": "gradient-text",
+            "css": "bg-clip-text text-transparent background-image: var(--gradient-hero)",
+            "usage": "Hero highlights, special text emphasis"
+        },
+        "floatingDecorations": {
+            "description": "Decorative shapes that float in the background",
+            "shapes": [
+                "Rounded squares (rounded-2xl)",
+                "Circles (rounded-full)",
+                "Large rounded (rounded-3xl)"
+            ],
+            "colors": "Use semantic colors at 20% opacity (bg-accent/20, bg-primary/20, bg-success/20)",
+            "animation": "animate-float with staggered animationDelay"
+        },
+        "cardHoverGradient": {
+            "description": "Gradient background that appears on card hover",
+            "structure": "Absolute positioned gradient div with opacity-0 → group-hover:opacity-5",
+            "usage": "Tool cards, feature cards"
+        },
+        "iconBadge": {
+            "description": "Icon with a pill badge above it",
+            "structure": "Badge div above icon container, both in same card",
+            "spacing": "mb-4 between badge and icon, mb-4 between icon and title"
+        }
+    },
+    "layout": {
+        "container": {
+            "maxWidth": "1400px",
+            "padding": "1rem (px-4)",
+            "centering": "mx-auto"
+        },
+        "header": {
+            "height": "h-16 (64px)",
+            "position": "fixed top-0 left-0 right-0 z-50",
+            "style": "glass border-b border-border/50"
+        },
+        "heroSection": {
+            "topPadding": "pt-32 (accounts for fixed header)",
+            "bottomPadding": "pb-20",
+            "alignment": "text-center"
+        },
+        "contentSection": {
+            "padding": "py-20 px-4",
+            "altBackground": "bg-muted/50 for alternating sections"
+        },
+        "grid": {
+            "cards": "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6",
+            "features": "grid grid-cols-1 md:grid-cols-2 gap-6"
+        }
+    },
+    "iconography": {
+        "library": "Lucide React",
+        "sizes": {
+            "xs": "w-3 h-3 - Inside badges",
+            "sm": "w-4 h-4 - Inline with text, buttons",
+            "md": "w-5 h-5 - Button icons, navigation",
+            "lg": "w-6 h-6 - Header logos, standalone",
+            "xl": "w-7 h-7 - Card icons, feature highlights"
+        },
+        "commonIcons": {
+            "brand": [
+                "Sparkles (logo)",
+                "Rocket (young entrepreneurs)"
+            ],
+            "actions": [
+                "ArrowRight (CTAs)",
+                "X (close)",
+                "Lock (disabled)"
+            ],
+            "tools": [
+                "Palette (logo maker)",
+                "Calculator (profit calc)",
+                "Lightbulb (ideas)",
+                "MessageSquare (marketing)"
+            ],
+            "states": [
+                "Sparkles (available)",
+                "Clock (in progress)",
+                "CheckCircle (completed)",
+                "Lock (locked/coming soon)"
+            ],
+            "feedback": [
+                "Star (ratings)",
+                "Heart (favorites)"
+            ]
+        },
+        "styling": [
+            "Use fill-{color} for filled icons (stars)",
+            "Apply group-hover animations to icons in cards",
+            "Match icon color to semantic context"
+        ]
+    },
+    "accessibility": {
+        "focusRing": "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+        "disabledStates": "disabled:opacity-50 disabled:pointer-events-none disabled:cursor-not-allowed",
+        "srOnly": "Use sr-only class for screen reader text (e.g., close button labels)",
+        "colorContrast": "All text colors meet WCAG AA standards against their backgrounds",
+        "touchTargets": "Minimum 44x44px for interactive elements (h-11, h-12)"
+    },
+    "responsiveBreakpoints": {
+        "sm": "640px",
+        "md": "768px",
+        "lg": "1024px",
+        "xl": "1280px",
+        "2xl": "1400px (container max-width)"
+    },
+    "aiInstructions": {
+        "summary": "This is a playful, child-friendly design system. When creating new components or pages, prioritize rounded corners, vibrant colors, delightful animations, and encouraging language. Make sure kids feel excited and capable.",
+        "doThis": [
+            "Use generous border-radius (rounded-xl, rounded-2xl)",
+            "Apply glow effects on hover for primary actions",
+            "Add subtle animations for page load and interactions",
+            "Use gradient backgrounds for visual interest",
+            "Include floating decorative elements",
+            "Apply staggered animation delays for card grids",
+            "Use semantic color variants for different states",
+            "Keep text weights bold for important elements",
+            "Make touch targets large (min h-11, h-12 for inputs)"
+        ],
+        "dontDoThis": [
+            "Don't use sharp corners (below rounded-lg)",
+            "Don't use harsh colors or dark themes as default",
+            "Don't skip animations - they add personality",
+            "Don't use thin borders (use border-2 for visibility)",
+            "Don't forget hover and active states",
+            "Don't use small font sizes for primary text",
+            "Don't create overwhelming or cluttered layouts"
+        ],
+        "examples": {
+            "newButton": "Use Button component with appropriate variant, add hover:shadow-glow for emphasis",
+            "newCard": "Apply rounded-2xl, border-2, fun-card class, include icon container with bg-{color}/10",
+            "newPage": "Start with container mx-auto, add floating decorations, use animate-slide-up on content"
+        }
+    }
+}
