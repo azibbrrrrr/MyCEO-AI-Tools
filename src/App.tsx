@@ -10,6 +10,10 @@ import LogoMakerPage from "./pages/LogoMakerPage";
 import CalculatorPage from "./pages/CalculatorPage";
 import ToolsPage from "./pages/ToolsPage";
 import NotFound from "./pages/NotFound";
+import MapDashboardPage from "./pages/MapDashboardPage";
+import ProductIdeaPage from "./pages/ProductIdeaPage";
+import PackagingIdeaPage from "./pages/PackagingIdeaPage";
+import BoothReadyPage from "./pages/BoothReadyPage";
 
 const queryClient = new QueryClient();
 
@@ -26,6 +30,10 @@ const App = () => (
             <Route path="/logo-maker" element={<LogoMakerPage />} />
             <Route path="/calculator" element={<CalculatorPage />} />
             <Route path="/tools" element={<ToolsPage />} />
+            <Route path="/map-dashboard" element={<MapDashboardPage />} />
+            <Route path="/product-idea" element={<ProductIdeaPage />} />
+            <Route path="/packaging-idea" element={<PackagingIdeaPage />} />
+            <Route path="/booth-ready" element={<BoothReadyPage />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

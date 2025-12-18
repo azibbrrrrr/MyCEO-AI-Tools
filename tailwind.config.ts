@@ -15,6 +15,7 @@ export default {
     extend: {
       fontFamily: {
         sans: ['Nunito', 'sans-serif'],
+        fredoka: ['Fredoka', 'sans-serif'],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -68,6 +69,12 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        // Map Dashboard pastel colors
+        'pastel-sky': '#C4E4D8',
+        'pastel-green-light': '#B7E4C7',
+        'pastel-green-med': '#95D5B2',
+        'pastel-green-dark': '#74C69D',
+        'road-tan': '#E6CCA0',
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -82,6 +89,10 @@ export default {
         'lg': 'var(--shadow-lg)',
         'glow': 'var(--shadow-glow)',
         'accent-glow': 'var(--shadow-accent-glow)',
+        'cartoon': '0 4px 0px 0px rgba(0,0,0,0.1)',
+      },
+      dropShadow: {
+        'sticker': '0 8px 12px rgba(0,0,0,0.15)',
       },
       keyframes: {
         "accordion-down": {
