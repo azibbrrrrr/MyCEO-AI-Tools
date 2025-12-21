@@ -3,8 +3,15 @@ import { LanguageToggle } from "@/components/language-toggle"
 import { FloatingElements } from "@/components/floating-elements"
 import { ToolCard } from "@/components/tool-card"
 import { HelpBubble } from "@/components/help-bubble"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { useState, useEffect } from "react"
+import { useChildSession } from "@/hooks/useChildSession"
+import { DAILY_TIPS, AVAILABLE_TOOLS, COMING_SOON_TOOLS } from "@/constants"
+import { getChildLogos, checkQuota, getToolByKey, QUOTA_LIMITS, selectLogoAndUpdateCompany } from "@/lib/supabase/ai-tools"
+import type { ChildLogo } from "@/lib/supabase/types"
+import type { QuotaStatus } from "@/lib/supabase/ai-tools"
+import { LogoCard, LogoCardSkeleton } from "@/components/LogoCard"
+import { LogoZoomModal } from "@/components/LogoZoomModal"
 
 // Import tool icons
 import logoMakerIcon from "@/assets/logo-maker.png"
@@ -13,93 +20,109 @@ import calculatorIcon from "@/assets/calculator-icon.png"
 import productIdeaIcon from "@/assets/product-idea-icon.png"
 import packagingIcon from "@/assets/packaging-icon.png"
 
-// Tips that rotate daily
-const tips = {
-  EN: [
-    "Always smile when talking to customers - it makes them feel welcome! 😊",
-    "Keep your prices simple - round numbers are easier to remember! 💰",
-    "Make your booth colorful - bright colors attract attention! 🎨",
-    "Practice explaining your product in 10 seconds or less! ⏱️",
-    "Ask your customers what they like - it helps you improve! 💡",
-  ],
-  BM: [
-    "Sentiasa senyum bila bercakap dengan pelanggan - mereka akan rasa dihargai! 😊",
-    "Pastikan harga mudah - nombor bulat lebih senang diingat! 💰",
-    "Jadikan gerai anda berwarna-warni - warna cerah menarik perhatian! 🎨",
-    "Latih diri menerangkan produk dalam 10 saat! ⏱️",
-    "Tanya pelanggan apa yang mereka suka - ia membantu anda memperbaiki! 💡",
-  ],
+// Tool icon mapping
+const toolIcons: Record<string, string> = {
+  logoMaker: logoMakerIcon,
+  booth: boothIcon,
+  calculator: calculatorIcon,
+  productIdea: productIdeaIcon,
+  packaging: packagingIcon,
+}
+
+// Helper to format date
+function formatDate(dateStr: string): string {
+  const date = new Date(dateStr)
+  const now = new Date()
+  const diff = now.getTime() - date.getTime()
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24))
+  
+  if (days === 0) return "Today"
+  if (days === 1) return "Yesterday"
+  if (days < 7) return `${days} days ago`
+  return date.toLocaleDateString()
 }
 
 export default function Dashboard() {
   const { t, language } = useLanguage()
+  const { child, loading } = useChildSession()
+  const navigate = useNavigate()
   const [tipIndex, setTipIndex] = useState(0)
+  const [recentLogos, setRecentLogos] = useState<ChildLogo[]>([])
+  const [loadingLogos, setLoadingLogos] = useState(true)
+  const [premiumQuota, setPremiumQuota] = useState<QuotaStatus | null>(null)
+  const [zoomModalOpen, setZoomModalOpen] = useState(false)
+  const [zoomLogoIndex, setZoomLogoIndex] = useState<number | null>(null)
+
+  const openZoomModal = (index: number) => {
+    setZoomLogoIndex(index)
+    setZoomModalOpen(true)
+  }
+
+  const closeZoomModal = () => {
+    setZoomModalOpen(false)
+    setZoomLogoIndex(null)
+  }
+
+  // Redirect to dev login if not logged in
+  useEffect(() => {
+    if (!loading && !child) {
+      navigate('/dev/login')
+    }
+  }, [child, loading, navigate])
+
+  // Fetch recent logos and quota
+  useEffect(() => {
+    async function fetchData() {
+      if (child?.id) {
+        setLoadingLogos(true)
+        // Fetch logos
+        const logos = await getChildLogos(child.id)
+        setRecentLogos(logos.slice(0, 4))
+        setLoadingLogos(false)
+
+        // Fetch quota for premium plan (logo_maker)
+        const tool = await getToolByKey('logo_maker')
+        if (tool) {
+          const quota = await checkQuota(child.id, tool.id, 'premium')
+          setPremiumQuota(quota)
+        }
+      } else {
+        setLoadingLogos(false)
+      }
+    }
+    fetchData()
+  }, [child?.id])
 
   // Rotate tip based on day
   useEffect(() => {
     const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 86400000)
-    setTipIndex(dayOfYear % tips.EN.length)
+    setTipIndex(dayOfYear % DAILY_TIPS.EN.length)
   }, [])
 
-  // Mock user data
-  const user = {
-    name: "Ahmad",
-    avatar: "🧑‍💼",
-    companyName: "Ahmad's Cool Shop",
-    companyLogo: null,
+  // Loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-sky-gradient flex items-center justify-center">
+        <div className="text-2xl">Loading...</div>
+      </div>
+    )
   }
 
-  const tools = [
-    {
-      icon: "🎨",
-      iconImage: logoMakerIcon,
-      titleKey: "tool.logo",
-      descKey: "tool.logo.desc",
-      href: "/tools/logo-maker",
-      state: "available" as const,
-    },
-    {
-      icon: "🏪",
-      iconImage: boothIcon,
-      titleKey: "tool.booth",
-      descKey: "tool.booth.desc",
-      href: "/tools/booth-ready",
-      state: "available" as const,
-    },
-    {
-      icon: "💰",
-      iconImage: calculatorIcon,
-      titleKey: "tool.profit",
-      descKey: "tool.profit.desc",
-      href: "/tools/profit-calculator",
-      state: "available" as const,
-    },
-  ]
+  // No child - will redirect
+  if (!child) return null
 
-  const futureTools = [
-    {
-      icon: "💡",
-      iconImage: productIdeaIcon,
-      titleKey: "tool.product",
-      descKey: "tool.product.desc",
-      href: "#",
-      state: "comingSoon" as const,
-    },
-    {
-      icon: "📦",
-      iconImage: packagingIcon,
-      titleKey: "tool.packaging",
-      descKey: "tool.packaging.desc",
-      href: "#",
-      state: "comingSoon" as const,
-    },
-  ]
+  // Use child session data
+  const user = {
+    name: child.name,
+    avatar: child.age && child.age < 10 ? "👦" : "🧑‍💼",
+    companyName: child.companies?.[0]?.company_name || `${child.name}'s Company`,
+    companyLogo: child.companies?.[0]?.logo_url || null,
+    level: child.current_level,
+    xp: child.total_xp,
+  }
 
-  const recentCreations = [
-    { type: "logo", preview: "🏷️", name: "Cool Logo v1", date: "Today" },
-    { type: "product", preview: "🧁", name: "Cupcake Idea", date: "Yesterday" },
-    { type: "booth", preview: "🏪", name: "Booth Design", date: "2 days ago" },
-  ]
+  // Get tips for current language
+  const tips = DAILY_TIPS[language as keyof typeof DAILY_TIPS] || DAILY_TIPS.EN
 
   return (
     <div className="min-h-screen bg-sky-gradient relative overflow-hidden">
@@ -111,68 +134,91 @@ export default function Dashboard() {
           to="/"
           className="flex items-center gap-2 bg-white rounded-full px-4 py-2 shadow-[var(--shadow-low)] hover:shadow-[var(--shadow-medium)] transition-all"
         >
-          <span>←</span>
-          <span className="font-semibold text-[var(--text-primary)] text-sm">{t("common.back")} 🏠</span>
+          <span className="text-2xl">🏠</span>
+          <span className="font-bold text-[var(--text-primary)] hidden sm:inline">Home</span>
         </Link>
 
         <div className="flex items-center gap-4">
           <LanguageToggle />
           <div className="flex items-center gap-2 bg-white rounded-full px-4 py-2 shadow-[var(--shadow-low)]">
-            <span className="text-2xl">{user.avatar}</span>
-            <span className="font-semibold text-[var(--text-primary)] hidden sm:block">{user.name}</span>
+            <span className="text-xl">{user.avatar}</span>
+            <span className="font-semibold text-[var(--text-primary)]">{user.name}</span>
           </div>
         </div>
       </header>
 
-      <main className="relative z-10 px-4 md:px-8 py-6 md:py-8">
-        <div className="max-w-6xl mx-auto">
-          {/* Welcome Section */}
-          <div className="flex flex-col md:flex-row gap-6 mb-8">
-            {/* Welcome Card */}
-            <div className="flex-1 bg-white rounded-3xl p-6 shadow-[var(--shadow-medium)]">
-              <div className="flex items-center gap-4">
-                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[var(--sunshine-orange)] to-[var(--golden-yellow)] flex items-center justify-center text-3xl shadow-[var(--shadow-low)]">
-                  {user.avatar}
+      {/* Main Content */}
+      <main className="relative z-10 px-4 md:px-8 pb-8 pt-4">
+        <div className="max-w-7xl mx-auto">
+          {/* Kid's Company Header */}
+          <section className="mb-8">
+            <div className="bg-white rounded-3xl p-6 md:p-8 shadow-[var(--shadow-medium)]">
+              <div className="flex flex-col md:flex-row items-center gap-6">
+                {/* Company Logo/Avatar */}
+                <div className="relative">
+                  <div className="w-24 h-24 rounded-full bg-gradient-to-br from-[var(--sky-blue-light)] to-[var(--sky-blue)] flex items-center justify-center text-4xl shadow-[var(--shadow-float)]">
+                    {user.companyLogo ? (
+                      <img src={user.companyLogo} alt="Company logo" className="w-full h-full rounded-full object-cover" />
+                    ) : (
+                      "🏢"
+                    )}
+                  </div>
+                  <div className="absolute -bottom-2 -right-2 w-10 h-10 rounded-full bg-[var(--golden-yellow)] flex items-center justify-center text-white text-sm font-bold shadow-md">
+                    Lv{user.level}
+                  </div>
                 </div>
-                <div>
-                  <h1 className="text-2xl md:text-3xl font-extrabold">
-                    <span className="text-[var(--sky-blue)]">{t("dashboard.welcome")}</span>{" "}
-                    <span className="text-[var(--sunshine-orange)]">{user.name}!</span>
-                  </h1>
-                  <p className="text-[var(--text-secondary)] mt-1">👑 Young CEO</p>
-                </div>
-              </div>
-            </div>
 
-            {/* Company Card */}
-            <div className="md:w-72 bg-white rounded-3xl p-6 shadow-[var(--shadow-medium)]">
-              <h3 className="text-sm font-semibold text-[var(--text-muted)] mb-3">{t("dashboard.company")}</h3>
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-xl bg-[var(--muted)] flex items-center justify-center text-2xl">
-                  {user.companyLogo || "🏢"}
+                {/* Company Info */}
+                <div className="text-center md:text-left">
+                  <h1 className="text-2xl md:text-3xl font-extrabold text-[var(--text-primary)] mb-1">
+                    {user.companyName}
+                  </h1>
+                  <p className="text-[var(--text-secondary)]">
+                    {t("dashboard.welcome")} <span className="font-semibold">{user.name}</span>! 🎉
+                  </p>
                 </div>
-                <div>
-                  <p className="font-bold text-[var(--text-primary)]">{user.companyName}</p>
+
+                {/* Stats - Simple & Kid-Friendly */}
+                <div className="flex gap-3 md:ml-auto">
+                  {/* XP */}
+                  <div className="flex items-center gap-2 px-4 py-3 bg-gradient-to-r from-[var(--sky-blue)] to-[var(--sky-blue-light)] rounded-2xl shadow-md">
+                    <span className="text-2xl">⭐</span>
+                    <div>
+                      <p className="text-2xl font-extrabold text-white leading-none">{user.xp}</p>
+                      <p className="text-xs font-bold text-white/80">XP</p>
+                    </div>
+                  </div>
+
+                  {/* AI Credits */}
+                  <div className="flex items-center gap-2 px-4 py-3 bg-gradient-to-r from-[var(--sunshine-orange)] to-[var(--golden-yellow)] rounded-2xl shadow-md">
+                    <span className="text-2xl">🎨</span>
+                    <div>
+                      <p className="text-2xl font-extrabold text-white leading-none">
+                        {premiumQuota ? (premiumQuota.generationsRemaining === -1 ? '∞' : premiumQuota.generationsRemaining) : 5}/{QUOTA_LIMITS.premium.maxGenerations}
+                      </p>
+                      <p className="text-xs font-bold text-white/80">Credits</p>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          </section>
 
           {/* Tip of the Day */}
           <div className="bg-gradient-to-r from-[var(--sky-blue-light)] to-[var(--mint-green)] rounded-3xl p-6 shadow-[var(--shadow-medium)] mb-8">
             <h3 className="font-bold text-[var(--text-primary)] mb-2">{t("dashboard.tip.title")}</h3>
-            <p className="text-[var(--text-primary)]">{tips[language][tipIndex]}</p>
+            <p className="text-[var(--text-primary)]">{tips[tipIndex]}</p>
           </div>
 
           {/* Tools Grid */}
           <section className="mb-8">
             <h2 className="text-xl md:text-2xl font-bold text-[var(--text-primary)] mb-6">🛠️ {t("dashboard.tools")}</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
-              {tools.map((tool) => (
+              {AVAILABLE_TOOLS.map((tool) => (
                 <ToolCard
                   key={tool.titleKey}
                   icon={tool.icon}
-                  iconImage={tool.iconImage}
+                  iconImage={toolIcons[tool.iconImageKey]}
                   titleKey={tool.titleKey}
                   descKey={tool.descKey}
                   href={tool.href}
@@ -184,11 +230,11 @@ export default function Dashboard() {
             {/* Coming Soon Tools */}
             <h3 className="text-lg font-bold text-[var(--text-muted)] mt-8 mb-4">🔮 Coming Soon</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {futureTools.map((tool) => (
+              {COMING_SOON_TOOLS.map((tool) => (
                 <ToolCard
                   key={tool.titleKey}
                   icon={tool.icon}
-                  iconImage={tool.iconImage}
+                  iconImage={toolIcons[tool.iconImageKey]}
                   titleKey={tool.titleKey}
                   descKey={tool.descKey}
                   href={tool.href}
@@ -199,38 +245,92 @@ export default function Dashboard() {
           </section>
 
           {/* Recent Creations */}
-          <section>
+          <section className="mb-8">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl md:text-2xl font-bold text-[var(--text-primary)]">✨ {t("dashboard.recent")}</h2>
-              <button className="text-[var(--sky-blue)] font-semibold hover:underline">
+              <h2 className="text-xl md:text-2xl font-bold text-[var(--text-primary)]">
+                ✨ {t("dashboard.recent")}
+              </h2>
+              <Link 
+                to="/creations"
+                className="text-sm font-semibold text-[var(--sky-blue)] hover:underline"
+              >
                 {t("dashboard.seeMore")} →
-              </button>
+              </Link>
             </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {recentCreations.map((creation, index) => (
-                <div
-                  key={index}
-                  className="bg-white rounded-2xl p-4 shadow-[var(--shadow-low)] hover:shadow-[var(--shadow-medium)] transition-all cursor-pointer"
+            
+            {loadingLogos ? (
+              <div className="grid grid-cols-4 gap-4">
+                {[1, 2, 3, 4].map((i) => (
+                  <LogoCardSkeleton key={i} />
+                ))}
+              </div>
+            ) : recentLogos.length > 0 ? (
+              <div className="grid grid-cols-4 gap-4">
+                {recentLogos.slice(0, 4).map((logo, index) => (
+                  <LogoCard
+                    key={logo.id}
+                    imageUrl={logo.image_url}
+                    title={logo.company_name || "My Logo"}
+                    subtitle={`${logo.business_type || ''} • ${logo.logo_style || ''}`}
+                    showDate
+                    date={formatDate(logo.created_at)}
+                    planType={logo.plan_type as 'free' | 'premium'}
+                    onClick={() => openZoomModal(index)}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="bg-white/50 rounded-2xl p-8 text-center">
+                <p className="text-[var(--text-muted)]">No creations yet. Start by making a logo! 🎨</p>
+                <Link 
+                  to="/tools/logo-maker"
+                  className="inline-block mt-4 px-6 py-2 bg-[var(--sky-blue)] text-white font-bold rounded-full hover:scale-105 transition-transform"
                 >
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-xl bg-[var(--muted)] flex items-center justify-center text-2xl">
-                      {creation.preview}
-                    </div>
-                    <div>
-                      <p className="font-semibold text-[var(--text-primary)]">{creation.name}</p>
-                      <p className="text-xs text-[var(--text-muted)]">{creation.date}</p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+                  Create Logo
+                </Link>
+              </div>
+            )}
           </section>
+
+          {/* Zoom Modal for Recent Creations */}
+          {zoomLogoIndex !== null && recentLogos[zoomLogoIndex] && (
+            <LogoZoomModal
+              isOpen={zoomModalOpen}
+              imageUrl={recentLogos[zoomLogoIndex].image_url}
+              title={recentLogos[zoomLogoIndex].company_name || "My Logo"}
+              subtitle={`Created ${formatDate(recentLogos[zoomLogoIndex].created_at)}`}
+              onClose={closeZoomModal}
+              showPickButton={true}
+              pickButtonLabel="Set as Company Logo ✨"
+              onPick={async () => {
+                const logo = recentLogos[zoomLogoIndex]
+                console.log('🔵 Set Company Logo clicked:', { logoId: logo.id, childId: child?.id, companyId: child?.companies?.[0]?.id })
+                if (child?.id && child.companies?.[0]?.id) {
+                  try {
+                    const result = await selectLogoAndUpdateCompany(
+                      child.id,
+                      logo.id,
+                      logo.image_url,
+                      child.companies[0].id
+                    )
+                    console.log('🔵 selectLogoAndUpdateCompany result:', result)
+                    closeZoomModal()
+                    window.location.reload() // Force page refresh
+                  } catch (err) {
+                    console.error('🔴 Error setting company logo:', err)
+                    closeZoomModal()
+                  }
+                } else {
+                  console.warn('🟡 Missing child or company ID:', { childId: child?.id, companyId: child?.companies?.[0]?.id })
+                }
+              }}
+            />
+          )}
+
+          {/* Help Bubble */}
+          <HelpBubble />
         </div>
       </main>
-
-      {/* Help Bubble */}
-      <HelpBubble />
     </div>
   )
 }

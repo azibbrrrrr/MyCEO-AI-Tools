@@ -71,14 +71,12 @@ const SYMBOL_PROMPTS: Record<string, string> = {
 // ============================================
 
 function buildPrompt(data: LogoWizardData): string {
-    // Map raw keys to descriptions
     const businessType = BUSINESS_TYPE_PROMPTS[data.businessType as BusinessType] || data.businessType
     const logoStyle = LOGO_STYLE_PROMPTS[data.logoStyle as LogoStyle] || 'modern'
     const vibe = VIBE_PROMPTS[data.vibe as VibeType] || 'friendly'
     const colors = data.colorPalette ? COLOR_PALETTE_PROMPTS[data.colorPalette as ColorPalette] : 'vibrant colors'
     const symbol = data.icon ? SYMBOL_PROMPTS[data.icon as IconType] : 'No symbol, text-based logo only'
 
-    // Structured Prompt Template for Flux Schnell
     const prompt = `
 Design one ${logoStyle} logo for a ${businessType} business named "${data.businessName}".
 Overall vibe: ${vibe} — friendly, age-appropriate, and engaging for young entrepreneurs.
@@ -114,39 +112,8 @@ Output quality:
     return prompt
 }
 
-const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
-
-async function retryWithBackoff<T>(
-    fn: () => Promise<T>,
-    maxRetries: number = 3,
-    baseDelay: number = 10000
-): Promise<T> {
-    for (let i = 0; i < maxRetries; i++) {
-        try {
-            return await fn()
-        } catch (error: any) {
-            const isRateLimitError = error?.response?.status === 429
-            const isLastRetry = i === maxRetries - 1
-
-            if (isRateLimitError && !isLastRetry) {
-                const retryAfter = error?.response?.headers?.get?.('retry-after')
-                const delayMs = retryAfter
-                    ? parseInt(retryAfter) * 1000 + 1000
-                    : baseDelay * Math.pow(2, i)
-
-                console.log(`Rate limited. Retrying after ${delayMs}ms...`)
-                await delay(delayMs)
-                continue
-            }
-
-            throw error
-        }
-    }
-    throw new Error('Max retries exceeded')
-}
-
 // ============================================
-// API Handler
+// Handler - Start Predictions (Non-blocking)
 // ============================================
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -160,100 +127,104 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             plan: LogoGenerationPlan
         }
 
-        if (!logoWizardData || !logoWizardData.businessName) {
+        if (!logoWizardData?.businessName) {
             return res.status(400).json({ error: 'Business name is required' })
         }
 
-        const replicate = new Replicate({
-            auth: process.env.REPLICATE_API_TOKEN,
-        })
-
+        const replicate = new Replicate({ auth: process.env.REPLICATE_API_TOKEN })
         const basePrompt = buildPrompt(logoWizardData)
 
-        const logos: Array<{
-            id: string
-            imageUrl: string
-            prompt: string
-            createdAt: string
-            plan: string
-        }> = []
-
         if (plan === 'premium') {
-            console.log('Using premium model: ideogram-ai/ideogram-v3-turbo')
+            // ==========================================
+            // PREMIUM (Ideogram) - Fire 3 separate predictions in PARALLEL
+            // ==========================================
+            console.log('Starting 3 Ideogram jobs...')
 
-            for (let i = 0; i < 3; i++) {
-                const output = await retryWithBackoff(async () => {
-                    return await replicate.run('ideogram-ai/ideogram-v3-turbo', {
-                        input: {
-                            prompt: `${basePrompt}, variation ${i + 1}`,
-                            aspect_ratio: '1:1',
-                        },
-                    })
-                })
-
-                const imageUrl = typeof output === 'string' ? output : (output as any).url?.() || String(output)
-
-                logos.push({
-                    id: `logo-${i + 1}-${Date.now()}`,
-                    imageUrl,
-                    prompt: basePrompt,
-                    createdAt: new Date().toISOString(),
-                    plan: 'premium',
-                })
-
-                console.log(`Premium logo ${i + 1} generated`)
-            }
-        } else {
-            console.log('Using free model: black-forest-labs/flux-schnell')
-
-            const output = await retryWithBackoff(async () => {
-                return await replicate.run('black-forest-labs/flux-schnell', {
+            const predictionPromises = [1, 2, 3].map(async (i) => {
+                return await replicate.predictions.create({
+                    model: 'ideogram-ai/ideogram-v3-turbo',
                     input: {
-                        prompt: basePrompt,
+                        prompt: `${basePrompt}, variation ${i}`,
                         aspect_ratio: '1:1',
-                        output_format: 'webp',
-                        output_quality: 80,
-                        num_outputs: 3,
-                        num_inference_steps: 4,
-                        go_fast: true,
-                        disable_safety_checker: false,
-                    },
+                    }
                 })
             })
 
-            if (Array.isArray(output)) {
-                for (let i = 0; i < output.length; i++) {
-                    const item = output[i]
-                    const imageUrl = typeof item === 'string' ? item : (item as any).url?.() || String(item)
+            const predictions = await Promise.all(predictionPromises)
 
-                    logos.push({
-                        id: `logo-${i + 1}-${Date.now()}`,
-                        imageUrl,
-                        prompt: basePrompt,
-                        createdAt: new Date().toISOString(),
-                        plan: 'free',
-                    })
-                }
-            } else {
-                const imageUrl = typeof output === 'string' ? output : (output as any).url?.() || String(output)
-                logos.push({
-                    id: `logo-1-${Date.now()}`,
-                    imageUrl,
+            // Return 3 IDs so frontend tracks them individually
+            return res.status(200).json({
+                mode: 'individual', // Track these 3 separately
+                ids: predictions.map(p => p.id)
+            })
+
+        } else {
+            // ==========================================
+            // FREE (Flux Schnell) - Fire 1 prediction with num_outputs: 3
+            // ==========================================
+            console.log('Starting Flux batch job...')
+
+            const prediction = await replicate.predictions.create({
+                model: 'black-forest-labs/flux-schnell',
+                input: {
                     prompt: basePrompt,
-                    createdAt: new Date().toISOString(),
-                    plan: 'free',
+                    aspect_ratio: '1:1',
+                    output_format: 'webp',
+                    output_quality: 80,
+                    num_outputs: 3,
+                    num_inference_steps: 4,
+                    go_fast: true,
+                    disable_safety_checker: false,
+                },
+            })
+
+            // Return 1 ID (batch mode - will give 3 images)
+            return res.status(200).json({
+                mode: 'batch', // Track this 1 ID, it will give 3 images
+                ids: [prediction.id]
+            })
+        }
+
+    } catch (error: unknown) {
+        console.error('Error starting prediction:', error)
+
+        // Handle specific error types
+        if (error && typeof error === 'object' && 'response' in error) {
+            const apiError = error as { response?: { status?: number }; message?: string }
+            const status = apiError.response?.status
+
+            if (status === 429) {
+                // Rate limit error
+                return res.status(429).json({
+                    error: 'Our AI is a bit busy right now! Please wait a moment and try again.',
+                    code: 'RATE_LIMITED',
+                    retryAfter: 15
                 })
             }
 
-            console.log(`Free logos generated: ${logos.length}`)
+            if (status === 402) {
+                // Payment/credit error
+                return res.status(402).json({
+                    error: 'Generation credits temporarily unavailable. Please try again later.',
+                    code: 'INSUFFICIENT_CREDITS'
+                })
+            }
+
+            if (status === 401 || status === 403) {
+                // Auth error
+                return res.status(500).json({
+                    error: 'Service configuration error. Please contact support.',
+                    code: 'AUTH_ERROR'
+                })
+            }
         }
 
-        return res.status(200).json({ logos, plan })
-    } catch (error) {
-        console.error('Error generating logos:', error)
+        // Generic fallback
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error'
         return res.status(500).json({
-            error: 'Failed to generate logos',
-            details: error instanceof Error ? error.message : 'Unknown error',
+            error: 'Failed to start generation. Please try again.',
+            code: 'GENERATION_ERROR',
+            details: process.env.NODE_ENV === 'development' ? errorMessage : undefined
         })
     }
 }

@@ -7,6 +7,7 @@ interface WizardNavProps {
   isLastStep?: boolean
   isFirstStep?: boolean
   loading?: boolean
+  nextLabel?: string
 }
 
 export function WizardNav({
@@ -16,6 +17,7 @@ export function WizardNav({
   isLastStep = false,
   isFirstStep = false,
   loading = false,
+  nextLabel,
 }: WizardNavProps) {
   const { t } = useLanguage()
 
@@ -46,6 +48,8 @@ export function WizardNav({
             <span className="animate-spin">⏳</span>
             {t("wizard.generating")}
           </>
+        ) : nextLabel ? (
+          nextLabel
         ) : isLastStep ? (
           <>{t("common.finish")} ✨</>
         ) : (
@@ -55,3 +59,4 @@ export function WizardNav({
     </div>
   )
 }
+
