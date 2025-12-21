@@ -24,7 +24,7 @@ function formatDate(dateStr: string): string {
 
 export default function CreationsPage() {
   const { t } = useLanguage()
-  const { child, loading } = useChildSession()
+  const { child, loading, updateCompanyLogoUrl } = useChildSession()
   const navigate = useNavigate()
   const [logos, setLogos] = useState<ChildLogo[]>([])
   const [loadingLogos, setLoadingLogos] = useState(true)
@@ -185,8 +185,10 @@ export default function CreationsPage() {
                   child.companies[0].id
                 )
                 console.log('🔵 selectLogoAndUpdateCompany result:', result)
+                if (result) {
+                  updateCompanyLogoUrl(logo.image_url) // Update session without refresh
+                }
                 closeZoomModal()
-                window.location.reload() // Force page refresh
               } catch (err) {
                 console.error('🔴 Error setting company logo:', err)
                 closeZoomModal()

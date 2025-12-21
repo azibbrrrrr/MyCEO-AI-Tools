@@ -18,6 +18,7 @@ interface ChildSessionContextType {
   isDevMode: boolean
   login: (childId: string) => Promise<boolean>
   logout: () => void
+  updateCompanyLogoUrl: (logoUrl: string) => void
 }
 
 const ChildSessionContext = createContext<ChildSessionContextType | undefined>(undefined)
@@ -104,6 +105,25 @@ export function ChildSessionProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem(STORAGE_KEY)
   }, [])
 
+  // Update company logo URL in session without full refresh
+  const updateCompanyLogoUrl = useCallback((logoUrl: string) => {
+    setChild(prev => {
+      if (!prev || !prev.companies?.[0]) return prev
+      
+      const updatedChild: ChildWithCompany = {
+        ...prev,
+        companies: prev.companies.map((company, index) => 
+          index === 0 ? { ...company, logo_url: logoUrl } : company
+        )
+      }
+      
+      // Persist to localStorage
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedChild))
+      console.log('✅ Session updated with new logo URL:', logoUrl)
+      return updatedChild
+    })
+  }, [])
+
   return (
     <ChildSessionContext.Provider
       value={{
@@ -112,6 +132,7 @@ export function ChildSessionProvider({ children }: { children: ReactNode }) {
         isDevMode: true, // Always true for now
         login,
         logout,
+        updateCompanyLogoUrl,
       }}
     >
       {children}

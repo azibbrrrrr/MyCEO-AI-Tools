@@ -15,8 +15,9 @@ export {
     COLOR_PALETTE_PROMPTS,
     VIBE_PROMPTS,
     SYMBOL_PROMPTS,
+    COLOR_HEX_MAP,
 } from './logo-wizard'
-export type { PlanType, Logo, LogoWizardData } from './logo-wizard'
+export type { PlanType, Logo, LogoWizardData, ColorPalette } from './logo-wizard'
 
 // Tips
 export { DAILY_TIPS } from './tips'

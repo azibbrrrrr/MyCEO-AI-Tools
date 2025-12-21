@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useLanguage } from "@/components/language-provider"
 import { WizardLayout } from "@/components/wizard-layout"
 import { StepCard } from "@/components/step-card"
@@ -12,10 +12,11 @@ import {
   VIBES,
   COLOR_PRESETS,
   SYMBOLS,
+  COLOR_HEX_MAP,
 } from "@/constants"
-import type { PlanType, Logo } from "@/constants"
+import type { PlanType, Logo, ColorPalette } from "@/constants"
 import { useChildSession } from "@/hooks/useChildSession"
-import { saveLogos, getToolByKey, selectLogoAndUpdateCompany } from "@/lib/supabase/ai-tools"
+import { saveLogos, getToolByKey, selectLogoAndUpdateCompany, checkQuota, QUOTA_LIMITS } from "@/lib/supabase/ai-tools"
 import { LogoZoomModal } from "@/components/LogoZoomModal"
 import { LogoCard } from "@/components/LogoCard"
 
@@ -23,6 +24,9 @@ export default function LogoMakerPage() {
   const { t } = useLanguage()
   const { child } = useChildSession()
   const [step, setStep] = useState(1)
+
+  // Premium credits
+  const [premiumCreditsLeft, setPremiumCreditsLeft] = useState<number | null>(null)
 
   // Step 1 inputs
   const [shopName, setShopName] = useState("")
@@ -50,6 +54,24 @@ export default function LogoMakerPage() {
 
   // Polling state for progressive loading
   const [cardProgress, setCardProgress] = useState<number[]>([0, 0, 0]) // Progress % for each card
+
+  // Fetch premium credits on mount
+  useEffect(() => {
+    async function fetchPremiumCredits() {
+      if (child?.id) {
+        try {
+          const tool = await getToolByKey('logo_maker')
+          if (tool) {
+            const quota = await checkQuota(child.id, tool.id, 'premium')
+            setPremiumCreditsLeft(quota.generationsRemaining)
+          }
+        } catch (err) {
+          console.warn('Failed to fetch premium credits:', err)
+        }
+      }
+    }
+    fetchPremiumCredits()
+  }, [child?.id])
 
   // Zoom modal state (simplified - most logic is in LogoZoomModal)
   const [zoomModalOpen, setZoomModalOpen] = useState(false)
@@ -190,6 +212,7 @@ export default function LogoMakerPage() {
           try {
             const tool = await getToolByKey('logo_maker')
             if (tool) {
+              const hexColors = COLOR_HEX_MAP[colorPreset as ColorPalette] || { primary: '#6B4EFF', secondary: '#FFD54F', tertiary: '#45B7D1' }
               const logosToSave = generatedLogos.map((logo: Logo) => ({
                 child_id: child.id,
                 tool_id: tool.id,
@@ -198,7 +221,12 @@ export default function LogoMakerPage() {
                 business_type: businessType,
                 logo_style: logoStyle,
                 vibe: vibe,
-                color_palette: { preset: colorPreset },
+                color_palette: { 
+                  preset: colorPreset,
+                  primary: hexColors.primary,
+                  secondary: hexColors.secondary,
+                  tertiary: hexColors.tertiary,
+                },
                 slogan: slogan || null,
                 symbol: symbol || null,
                 image_url: logo.imageUrl,
@@ -489,9 +517,17 @@ export default function LogoMakerPage() {
                   <span className="text-[var(--golden-yellow)]">★</span>
                   Better text & detail rendering
                 </li>
-                <li className="flex items-center gap-2 text-[var(--text-secondary)]">
+                <li className="flex items-center gap-2 font-semibold">
                   <span className="text-[var(--golden-yellow)]">★</span>
-                  5 generations included
+                  {premiumCreditsLeft !== null ? (
+                    <span className={premiumCreditsLeft > 0 ? 'text-[var(--mint-green)]' : 'text-red-500'}>
+                      {premiumCreditsLeft} of {QUOTA_LIMITS.premium.maxGenerations} generations left
+                    </span>
+                  ) : (
+                    <span className="text-[var(--text-secondary)]">
+                      {QUOTA_LIMITS.premium.maxGenerations} generations included
+                    </span>
+                  )}
                 </li>
               </ul>
               {plan === "premium" && (

@@ -67,6 +67,15 @@ export const COLOR_PRESETS: Array<{ name: string; colors: [string, string, strin
     { name: "Premium", colors: ["#2C3E50", "#C9A961", "#1A1A2E"], key: "premium" },
 ]
 
+// Helper to get hex colors from preset key (primary, secondary, tertiary)
+export const COLOR_HEX_MAP: Record<ColorPalette, { primary: string; secondary: string; tertiary: string }> = {
+    pastel: { primary: "#FFD1DC", secondary: "#B5EAD7", tertiary: "#C7CEEA" },
+    bold: { primary: "#FF6B6B", secondary: "#4ECDC4", tertiary: "#45B7D1" },
+    earth: { primary: "#8B7355", secondary: "#A8C686", tertiary: "#E6D5B8" },
+    bright: { primary: "#FF1493", secondary: "#00CED1", tertiary: "#FFD700" },
+    premium: { primary: "#2C3E50", secondary: "#C9A961", tertiary: "#1A1A2E" },
+}
+
 export const SYMBOLS: Array<{ icon: string; key: IconType }> = [
     { icon: "⭐", key: "star" },
     { icon: "🔥", key: "fire" },

@@ -136,16 +136,25 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         if (plan === 'premium') {
             // ==========================================
-            // PREMIUM (Ideogram) - Fire 3 separate predictions in PARALLEL
+            // PREMIUM (Ideogram V3 Turbo) - Optimized for logos
             // ==========================================
             console.log('Starting 3 Ideogram jobs...')
 
-            const predictionPromises = [1, 2, 3].map(async (i) => {
+            // Map user vibe/style to Ideogram Style Presets
+            let stylePreset = "None"
+            if (logoWizardData.vibe === 'minimal') stylePreset = "Minimal Illustration"
+            if (logoWizardData.logoStyle === 'mascot') stylePreset = "Flat Vector"
+            if (logoWizardData.vibe === 'traditional') stylePreset = "Vintage Poster"
+
+            const predictionPromises = [1, 2, 3].map(async () => {
                 return await replicate.predictions.create({
                     model: 'ideogram-ai/ideogram-v3-turbo',
                     input: {
-                        prompt: `${basePrompt}, variation ${i}`,
+                        prompt: basePrompt,
                         aspect_ratio: '1:1',
+                        style_type: 'Design',        // Optimized for text/logos
+                        magic_prompt_option: 'Auto', // Improves prompt adherence
+                        style_preset: stylePreset,   // Uses official presets
                     }
                 })
             })

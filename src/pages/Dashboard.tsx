@@ -7,11 +7,10 @@ import { Link, useNavigate } from "react-router-dom"
 import { useState, useEffect } from "react"
 import { useChildSession } from "@/hooks/useChildSession"
 import { DAILY_TIPS, AVAILABLE_TOOLS, COMING_SOON_TOOLS } from "@/constants"
-import { getChildLogos, checkQuota, getToolByKey, QUOTA_LIMITS, selectLogoAndUpdateCompany } from "@/lib/supabase/ai-tools"
+import { getChildLogos, checkQuota, getToolByKey, QUOTA_LIMITS } from "@/lib/supabase/ai-tools"
 import type { ChildLogo } from "@/lib/supabase/types"
 import type { QuotaStatus } from "@/lib/supabase/ai-tools"
 import { LogoCard, LogoCardSkeleton } from "@/components/LogoCard"
-import { LogoZoomModal } from "@/components/LogoZoomModal"
 
 // Import tool icons
 import logoMakerIcon from "@/assets/logo-maker.png"
@@ -50,18 +49,6 @@ export default function Dashboard() {
   const [recentLogos, setRecentLogos] = useState<ChildLogo[]>([])
   const [loadingLogos, setLoadingLogos] = useState(true)
   const [premiumQuota, setPremiumQuota] = useState<QuotaStatus | null>(null)
-  const [zoomModalOpen, setZoomModalOpen] = useState(false)
-  const [zoomLogoIndex, setZoomLogoIndex] = useState<number | null>(null)
-
-  const openZoomModal = (index: number) => {
-    setZoomLogoIndex(index)
-    setZoomModalOpen(true)
-  }
-
-  const closeZoomModal = () => {
-    setZoomModalOpen(false)
-    setZoomLogoIndex(null)
-  }
 
   // Redirect to dev login if not logged in
   useEffect(() => {
@@ -266,7 +253,7 @@ export default function Dashboard() {
               </div>
             ) : recentLogos.length > 0 ? (
               <div className="grid grid-cols-4 gap-4">
-                {recentLogos.slice(0, 4).map((logo, index) => (
+                {recentLogos.slice(0, 4).map((logo) => (
                   <LogoCard
                     key={logo.id}
                     imageUrl={logo.image_url}
@@ -275,7 +262,7 @@ export default function Dashboard() {
                     showDate
                     date={formatDate(logo.created_at)}
                     planType={logo.plan_type as 'free' | 'premium'}
-                    onClick={() => openZoomModal(index)}
+                    onClick={() => navigate('/creations')}
                   />
                 ))}
               </div>
@@ -292,40 +279,6 @@ export default function Dashboard() {
             )}
           </section>
 
-          {/* Zoom Modal for Recent Creations */}
-          {zoomLogoIndex !== null && recentLogos[zoomLogoIndex] && (
-            <LogoZoomModal
-              isOpen={zoomModalOpen}
-              imageUrl={recentLogos[zoomLogoIndex].image_url}
-              title={recentLogos[zoomLogoIndex].company_name || "My Logo"}
-              subtitle={`Created ${formatDate(recentLogos[zoomLogoIndex].created_at)}`}
-              onClose={closeZoomModal}
-              showPickButton={true}
-              pickButtonLabel="Set as Company Logo ✨"
-              onPick={async () => {
-                const logo = recentLogos[zoomLogoIndex]
-                console.log('🔵 Set Company Logo clicked:', { logoId: logo.id, childId: child?.id, companyId: child?.companies?.[0]?.id })
-                if (child?.id && child.companies?.[0]?.id) {
-                  try {
-                    const result = await selectLogoAndUpdateCompany(
-                      child.id,
-                      logo.id,
-                      logo.image_url,
-                      child.companies[0].id
-                    )
-                    console.log('🔵 selectLogoAndUpdateCompany result:', result)
-                    closeZoomModal()
-                    window.location.reload() // Force page refresh
-                  } catch (err) {
-                    console.error('🔴 Error setting company logo:', err)
-                    closeZoomModal()
-                  }
-                } else {
-                  console.warn('🟡 Missing child or company ID:', { childId: child?.id, companyId: child?.companies?.[0]?.id })
-                }
-              }}
-            />
-          )}
 
           {/* Help Bubble */}
           <HelpBubble />
