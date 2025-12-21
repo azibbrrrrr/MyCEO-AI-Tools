@@ -1,0 +1,902 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* ============================================
+   ADVENTURE QUEST DESIGN SYSTEM v1.0
+   A playful, gamified design system for children's
+   entrepreneurship education
+   ============================================ */
+
+:root {
+  /* ===========================================
+     PRIMARY COLORS
+     =========================================== */
+  --sky-blue: #60b5f4; /* Primary brand color, main CTAs, headers */
+  --sky-blue-light: #a8d5f7; /* Hover states, secondary buttons */
+  --sky-blue-dark: #4a9de0; /* Active states */
+
+  /* ===========================================
+     SECONDARY COLORS
+     =========================================== */
+  --sunshine-orange: #ffb84d; /* Accent color, coins, highlights */
+  --golden-yellow: #ffc850; /* Floating coins, rewards, sparkles */
+  --orange-dark: #ff9d42; /* Orange text emphasis */
+
+  /* ===========================================
+     TEXT COLORS
+     =========================================== */
+  --text-primary: #2d5f8d; /* Main headings, important text */
+  --text-secondary: #5b9bd5; /* Body text, descriptions */
+  --text-accent: #ff9d42; /* Orange accent text */
+  --text-muted: #9cabba; /* Placeholder, disabled, subtle labels */
+
+  /* ===========================================
+     DECORATIVE COLORS
+     =========================================== */
+  --coral-pink: #ffb6c1; /* Decorative floating elements */
+  --mint-green: #a8e6cf; /* Success states, positive feedback */
+  --soft-purple: #c9b8e8; /* Additional decorative variety */
+
+  /* ===========================================
+     BACKGROUND COLORS
+     =========================================== */
+  --card-white: #ffffff;
+  --bg-cream: #fff9e6;
+  --bg-sky-light: #f0f8ff;
+  --bg-sky-lighter: #e8f4fc;
+  --bg-muted: #f5f8fa;
+
+  /* ===========================================
+     BORDER COLORS
+     =========================================== */
+  --border-light: #e0e9f0;
+  --border-focus: #60b5f4;
+  --border-dashed: #a8d5f7;
+
+  /* ===========================================
+     SHADOWS (Adventure Quest elevation system)
+     =========================================== */
+  --shadow-low: 0 2px 8px rgba(45, 95, 141, 0.08);
+  --shadow-medium: 0 4px 20px rgba(45, 95, 141, 0.12);
+  --shadow-high: 0 8px 32px rgba(45, 95, 141, 0.16);
+  --shadow-float: 0 6px 24px rgba(96, 181, 244, 0.2);
+  --shadow-glow-blue: 0 0 20px rgba(96, 181, 244, 0.3);
+  --shadow-glow-orange: 0 0 20px rgba(255, 184, 77, 0.3);
+
+  /* ===========================================
+     SPACING SCALE (8px base unit)
+     =========================================== */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+  --space-3xl: 64px;
+
+  /* ===========================================
+     BORDER RADIUS SCALE
+     =========================================== */
+  --radius-sm: 8px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-xl: 32px;
+  --radius-full: 9999px;
+
+  /* ===========================================
+     TYPOGRAPHY SCALE
+     =========================================== */
+  --font-size-caption: 12px;
+  --font-size-small: 14px;
+  --font-size-body: 16px;
+  --font-size-body-lg: 18px;
+  --font-size-h2: 24px;
+  --font-size-h1: 32px;
+  --font-size-hero: 48px;
+  --font-size-hero-lg: 64px;
+
+  /* ===========================================
+     ANIMATION TIMING
+     =========================================== */
+  --timing-fast: 150ms;
+  --timing-standard: 300ms;
+  --timing-slow: 600ms;
+  --timing-float: 3000ms;
+
+  /* ===========================================
+     SEMANTIC TOKENS (shadcn/ui compatible)
+     =========================================== */
+  --background: #f0f8ff;
+  --foreground: #2d5f8d;
+  --card: #ffffff;
+  --card-foreground: #2d5f8d;
+  --popover: #ffffff;
+  --popover-foreground: #2d5f8d;
+  --primary: #60b5f4;
+  --primary-foreground: #ffffff;
+  --secondary: #ffb84d;
+  --secondary-foreground: #ffffff;
+  --muted: #e8f4fc;
+  --muted-foreground: #9cabba;
+  --accent: #ffb84d;
+  --accent-foreground: #ffffff;
+  --destructive: #ff6b6b;
+  --destructive-foreground: #ffffff;
+  --success: #a8e6cf;
+  --success-foreground: #2d5f8d;
+  --border: #e0e9f0;
+  --input: #e0e9f0;
+  --ring: #60b5f4;
+  --radius: 1rem;
+
+  /* Chart colors for data visualizations */
+  --chart-1: #60b5f4;
+  --chart-2: #ffb84d;
+  --chart-3: #a8e6cf;
+  --chart-4: #ffb6c1;
+  --chart-5: #c9b8e8;
+
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --radius: 0.625rem;
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.145 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.145 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.985 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.396 0.141 25.723);
+  --destructive-foreground: oklch(0.637 0.237 25.331);
+  --border: oklch(0.269 0 0);
+  --input: oklch(0.269 0 0);
+  --ring: oklch(0.439 0 0);
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(0.269 0 0);
+  --sidebar-ring: oklch(0.439 0 0);
+}
+
+/* ===========================================
+   THEME INLINE (Tailwind v4 compatible)
+   =========================================== */
+@theme inline {
+  --font-sans: "Nunito", "Nunito Fallback", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Geist Mono", "Geist Mono Fallback", ui-monospace, monospace;
+
+  /* Semantic color mappings */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* Radius scale */
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  /* Adventure Quest custom colors for Tailwind */
+  --color-sky-blue: var(--sky-blue);
+  --color-sky-blue-light: var(--sky-blue-light);
+  --color-sky-blue-dark: var(--sky-blue-dark);
+  --color-sunshine-orange: var(--sunshine-orange);
+  --color-golden-yellow: var(--golden-yellow);
+  --color-orange-dark: var(--orange-dark);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-accent: var(--text-accent);
+  --color-text-muted: var(--text-muted);
+  --color-coral-pink: var(--coral-pink);
+  --color-mint-green: var(--mint-green);
+  --color-soft-purple: var(--soft-purple);
+  --color-card-white: var(--card-white);
+  --color-bg-cream: var(--bg-cream);
+  --color-bg-sky-light: var(--bg-sky-light);
+  --color-bg-muted: var(--bg-muted);
+  --color-success: var(--success);
+
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+/* ===========================================
+   BASE STYLES
+   =========================================== */
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: var(--font-sans);
+  }
+
+  /* Focus states - important for accessibility */
+  :focus-visible {
+    outline: 3px solid var(--sky-blue);
+    outline-offset: 2px;
+  }
+
+  /* Selection styling */
+  ::selection {
+    background-color: var(--sky-blue-light);
+    color: var(--text-primary);
+  }
+}
+
+/* ===========================================
+   KEYFRAME ANIMATIONS
+   =========================================== */
+
+/* Gentle floating animation for decorative elements */
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* Slower float with subtle rotation */
+@keyframes float-slow {
+  0%,
+  100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-15px) rotate(5deg);
+  }
+}
+
+/* Float with horizontal drift */
+@keyframes float-drift {
+  0%,
+  100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  25% {
+    transform: translate(5px, -8px) rotate(3deg);
+  }
+  50% {
+    transform: translate(0, -12px) rotate(-2deg);
+  }
+  75% {
+    transform: translate(-5px, -6px) rotate(2deg);
+  }
+}
+
+/* Pulse glow for emphasis */
+@keyframes pulse-glow {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.02);
+    opacity: 0.95;
+  }
+}
+
+/* Gentle bounce */
+@keyframes bounce-gentle {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+/* Coin spin animation */
+@keyframes coin-spin {
+  0% {
+    transform: rotateY(0deg);
+  }
+  100% {
+    transform: rotateY(360deg);
+  }
+}
+
+/* Sparkle animation */
+@keyframes sparkle {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(0.8);
+  }
+}
+
+/* Celebration confetti fall */
+@keyframes celebration {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+/* Shake animation for errors */
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  10%,
+  30%,
+  50%,
+  70%,
+  90% {
+    transform: translateX(-4px);
+  }
+  20%,
+  40%,
+  60%,
+  80% {
+    transform: translateX(4px);
+  }
+}
+
+/* Fade up entrance */
+@keyframes fade-up {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Scale in entrance */
+@keyframes scale-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Progress bar fill */
+@keyframes progress-fill {
+  0% {
+    width: 0%;
+  }
+  100% {
+    width: var(--progress-width, 100%);
+  }
+}
+
+/* Wiggle for attention */
+@keyframes wiggle {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-3deg);
+  }
+  75% {
+    transform: rotate(3deg);
+  }
+}
+
+/* ===========================================
+   ANIMATION UTILITY CLASSES
+   =========================================== */
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-float-slow {
+  animation: float-slow 4s ease-in-out infinite;
+}
+
+.animate-float-drift {
+  animation: float-drift 5s ease-in-out infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.animate-bounce-gentle {
+  animation: bounce-gentle 2s ease-in-out infinite;
+}
+
+.animate-coin-spin {
+  animation: coin-spin 2s linear infinite;
+}
+
+.animate-sparkle {
+  animation: sparkle 1.5s ease-in-out infinite;
+}
+
+.animate-celebration {
+  animation: celebration 2.5s ease-in forwards;
+}
+
+.animate-shake {
+  animation: shake 0.5s ease-in-out;
+}
+
+.animate-fade-up {
+  animation: fade-up 0.5s ease-out forwards;
+}
+
+.animate-scale-in {
+  animation: scale-in 0.4s ease-out forwards;
+}
+
+.animate-wiggle {
+  animation: wiggle 0.5s ease-in-out;
+}
+
+/* Animation delay utilities */
+.animation-delay-100 {
+  animation-delay: 100ms;
+}
+.animation-delay-200 {
+  animation-delay: 200ms;
+}
+.animation-delay-300 {
+  animation-delay: 300ms;
+}
+.animation-delay-500 {
+  animation-delay: 500ms;
+}
+.animation-delay-700 {
+  animation-delay: 700ms;
+}
+.animation-delay-1000 {
+  animation-delay: 1000ms;
+}
+
+/* ===========================================
+   GRADIENT BACKGROUNDS
+   =========================================== */
+
+/* Main sky gradient background */
+.bg-sky-gradient {
+  background: linear-gradient(180deg, #e8f4fc 0%, #f0f8ff 50%, #fff9e6 100%);
+}
+
+/* Alternative sky gradient (more blue) */
+.bg-sky-gradient-blue {
+  background: linear-gradient(180deg, #d0e8f7 0%, #e8f4fc 50%, #f0f8ff 100%);
+}
+
+/* Warm sunset gradient */
+.bg-sunset-gradient {
+  background: linear-gradient(180deg, #fff9e6 0%, #ffe8cc 50%, #ffd6a8 100%);
+}
+
+/* Card highlight gradient */
+.bg-card-gradient {
+  background: linear-gradient(135deg, #ffffff 0%, #f8fcff 100%);
+}
+
+/* Button gradient */
+.bg-button-gradient {
+  background: linear-gradient(135deg, #60b5f4 0%, #4a9de0 100%);
+}
+
+/* Orange accent gradient */
+.bg-orange-gradient {
+  background: linear-gradient(135deg, #ffb84d 0%, #ff9d42 100%);
+}
+
+/* ===========================================
+   TEXT GRADIENTS
+   =========================================== */
+
+/* Hero text gradient (blue to orange) */
+.text-gradient-hero {
+  background: linear-gradient(90deg, #60b5f4 0%, #ffb84d 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Blue gradient text */
+.text-gradient-blue {
+  background: linear-gradient(90deg, #60b5f4 0%, #4a9de0 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Orange gradient text */
+.text-gradient-orange {
+  background: linear-gradient(90deg, #ffb84d 0%, #ff9d42 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ===========================================
+   SHADOW UTILITY CLASSES
+   =========================================== */
+.shadow-adventure-low {
+  box-shadow: var(--shadow-low);
+}
+
+.shadow-adventure-medium {
+  box-shadow: var(--shadow-medium);
+}
+
+.shadow-adventure-high {
+  box-shadow: var(--shadow-high);
+}
+
+.shadow-adventure-float {
+  box-shadow: var(--shadow-float);
+}
+
+.shadow-glow-blue {
+  box-shadow: var(--shadow-glow-blue);
+}
+
+.shadow-glow-orange {
+  box-shadow: var(--shadow-glow-orange);
+}
+
+/* ===========================================
+   CARD STYLES
+   =========================================== */
+
+/* Standard adventure card */
+.card-adventure {
+  background: var(--card-white);
+  border-radius: var(--radius-xl);
+  padding: var(--space-xl);
+  box-shadow: var(--shadow-medium);
+  transition: transform var(--timing-standard) ease, box-shadow var(--timing-standard) ease;
+}
+
+.card-adventure:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-high);
+}
+
+/* Welcome card with dashed border */
+.card-welcome {
+  background: var(--card-white);
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl);
+  border: 3px dashed var(--border-dashed);
+}
+
+/* Selection card (like character selection) */
+.card-selection {
+  background: var(--card-white);
+  border-radius: var(--radius-md);
+  padding: var(--space-lg);
+  border: 3px solid transparent;
+  transition: all var(--timing-fast) ease;
+  cursor: pointer;
+}
+
+.card-selection:hover {
+  border-color: var(--sky-blue);
+  box-shadow: var(--shadow-float);
+}
+
+.card-selection.active {
+  border-color: var(--sunshine-orange);
+  box-shadow: var(--shadow-glow-orange);
+}
+
+/* ===========================================
+   BUTTON STYLES
+   =========================================== */
+
+/* Primary adventure button (pill style) */
+.btn-adventure {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  padding: 14px 32px;
+  font-size: var(--font-size-body);
+  font-weight: 700;
+  color: white;
+  background: var(--sky-blue);
+  border: none;
+  border-radius: var(--radius-full);
+  box-shadow: var(--shadow-medium);
+  cursor: pointer;
+  transition: all var(--timing-fast) ease;
+}
+
+.btn-adventure:hover {
+  background: var(--sky-blue-dark);
+  transform: scale(1.02);
+  box-shadow: var(--shadow-high);
+}
+
+.btn-adventure:active {
+  transform: scale(0.98);
+}
+
+/* Secondary button (outlined) */
+.btn-adventure-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  padding: 14px 32px;
+  font-size: var(--font-size-body);
+  font-weight: 700;
+  color: var(--sky-blue);
+  background: white;
+  border: 2px solid var(--sky-blue);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: all var(--timing-fast) ease;
+}
+
+.btn-adventure-secondary:hover {
+  background: var(--bg-sky-light);
+}
+
+/* Orange accent button */
+.btn-adventure-orange {
+  background: var(--sunshine-orange);
+}
+
+.btn-adventure-orange:hover {
+  background: var(--orange-dark);
+}
+
+/* ===========================================
+   INPUT STYLES
+   =========================================== */
+
+/* Adventure text input */
+.input-adventure {
+  width: 100%;
+  padding: 14px 20px;
+  font-size: var(--font-size-body);
+  color: var(--text-primary);
+  background: white;
+  border: 2px solid var(--border-light);
+  border-radius: var(--radius-md);
+  transition: border-color var(--timing-fast) ease, box-shadow var(--timing-fast) ease;
+}
+
+.input-adventure::placeholder {
+  color: var(--text-muted);
+}
+
+.input-adventure:focus {
+  outline: none;
+  border-color: var(--sky-blue);
+  box-shadow: 0 0 0 3px rgba(96, 181, 244, 0.1);
+}
+
+/* Input with icon prefix */
+.input-adventure-with-icon {
+  padding-left: 48px;
+}
+
+/* ===========================================
+   BADGE STYLES
+   =========================================== */
+
+/* Pill badge */
+.badge-adventure {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: 6px 16px;
+  font-size: var(--font-size-small);
+  font-weight: 600;
+  color: var(--text-primary);
+  background: var(--muted);
+  border-radius: var(--radius-full);
+}
+
+.badge-adventure-blue {
+  background: var(--sky-blue-light);
+  color: var(--text-primary);
+}
+
+.badge-adventure-orange {
+  background: rgba(255, 184, 77, 0.2);
+  color: var(--orange-dark);
+}
+
+.badge-adventure-success {
+  background: rgba(168, 230, 207, 0.3);
+  color: #2d8f6f;
+}
+
+/* ===========================================
+   PROGRESS BAR
+   =========================================== */
+
+.progress-adventure {
+  width: 100%;
+  height: 12px;
+  background: var(--muted);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.progress-adventure-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--sky-blue) 0%, var(--sunshine-orange) 100%);
+  border-radius: var(--radius-full);
+  transition: width var(--timing-standard) ease;
+}
+
+/* ===========================================
+   CUSTOM RANGE SLIDER
+   =========================================== */
+
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 12px;
+  background: var(--muted);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: white;
+  border: 3px solid var(--sky-blue);
+  cursor: pointer;
+  box-shadow: var(--shadow-medium);
+  transition: transform var(--timing-fast) ease, border-color var(--timing-fast) ease;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.1);
+  border-color: var(--sunshine-orange);
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: white;
+  border: 3px solid var(--sky-blue);
+  cursor: pointer;
+  box-shadow: var(--shadow-medium);
+}
+
+/* ===========================================
+   TOOLTIP
+   =========================================== */
+
+.tooltip-adventure {
+  position: relative;
+}
+
+.tooltip-adventure::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 8px 16px;
+  font-size: var(--font-size-small);
+  color: white;
+  background: var(--text-primary);
+  border-radius: var(--radius-md); /* Fixed the incomplete line */
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity var(--timing-fast) ease, visibility var(--timing-fast) ease;
+  z-index: 10; /* Ensure tooltip is above other content */
+}
+
+.tooltip-adventure:hover::after {
+  opacity: 1;
+  visibility: visible;
+}
