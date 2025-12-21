@@ -44,6 +44,7 @@ export interface Database {
                     is_active?: boolean
                     created_at?: string
                 }
+                Relationships: []
             }
 
             ai_tool_usage: {
@@ -83,6 +84,22 @@ export interface Database {
                     created_at?: string
                     updated_at?: string
                 }
+                Relationships: [
+                    {
+                        foreignKeyName: "ai_tool_usage_child_id_fkey"
+                        columns: ["child_id"]
+                        isOneToOne: false
+                        referencedRelation: "children"
+                        referencedColumns: ["id"]
+                    },
+                    {
+                        foreignKeyName: "ai_tool_usage_tool_id_fkey"
+                        columns: ["tool_id"]
+                        isOneToOne: false
+                        referencedRelation: "ai_tools"
+                        referencedColumns: ["id"]
+                    }
+                ]
             }
 
             child_logos: {
@@ -140,11 +157,23 @@ export interface Database {
                     is_selected?: boolean
                     created_at?: string
                 }
+                Relationships: [
+                    {
+                        foreignKeyName: "child_logos_child_id_fkey"
+                        columns: ["child_id"]
+                        isOneToOne: false
+                        referencedRelation: "children"
+                        referencedColumns: ["id"]
+                    },
+                    {
+                        foreignKeyName: "child_logos_company_id_fkey"
+                        columns: ["company_id"]
+                        isOneToOne: false
+                        referencedRelation: "companies"
+                        referencedColumns: ["id"]
+                    }
+                ]
             }
-
-            // ==========================================
-            // Core Tables (from existing schema)
-            // ==========================================
 
             users: {
                 Row: {
@@ -171,6 +200,7 @@ export interface Database {
                     created_at?: string
                     updated_at?: string
                 }
+                Relationships: []
             }
 
             parents: {
@@ -204,6 +234,15 @@ export interface Database {
                     created_at?: string
                     updated_at?: string
                 }
+                Relationships: [
+                    {
+                        foreignKeyName: "parents_user_id_fkey"
+                        columns: ["user_id"]
+                        isOneToOne: true
+                        referencedRelation: "users"
+                        referencedColumns: ["id"]
+                    }
+                ]
             }
 
             children: {
@@ -255,6 +294,15 @@ export interface Database {
                     updated_at?: string
                     deleted_at?: string | null
                 }
+                Relationships: [
+                    {
+                        foreignKeyName: "children_parent_id_fkey"
+                        columns: ["parent_id"]
+                        isOneToOne: false
+                        referencedRelation: "parents"
+                        referencedColumns: ["id"]
+                    }
+                ]
             }
 
             companies: {
@@ -300,6 +348,15 @@ export interface Database {
                     created_at?: string
                     updated_at?: string
                 }
+                Relationships: [
+                    {
+                        foreignKeyName: "companies_child_id_fkey"
+                        columns: ["child_id"]
+                        isOneToOne: false
+                        referencedRelation: "children"
+                        referencedColumns: ["id"]
+                    }
+                ]
             }
 
             modules: {
