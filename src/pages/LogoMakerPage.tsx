@@ -158,6 +158,72 @@ export default function LogoMakerPage() {
     }
   }
 
+  // Helper to upload images to permanent storage
+  const uploadImages = async (tempUrls: string[]) => {
+    const permanentUrls: string[] = []
+    for (let i = 0; i < tempUrls.length; i++) {
+      try {
+        const uploadRes = await fetch('/api/upload-image', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            tempUrl: tempUrls[i],
+            childId: child?.id || 'anonymous',
+            filename: `logo-${Date.now()}-${i}`,
+          }),
+        })
+        if (uploadRes.ok) {
+          const { permanentUrl } = await uploadRes.json()
+          permanentUrls.push(permanentUrl)
+        } else {
+          console.warn('Upload failed, using temp URL')
+          permanentUrls.push(tempUrls[i])
+        }
+      } catch (err) {
+        console.warn('Upload error, using temp URL:', err)
+        permanentUrls.push(tempUrls[i])
+      }
+    }
+    return permanentUrls
+  }
+
+  // Helper to save logos to database
+  const saveLogosToDb = async (logos: Logo[]) => {
+    if (!child?.id) return
+    try {
+      const tool = await getToolByKey('logo_maker')
+      if (tool) {
+        const hexColors = COLOR_HEX_MAP[colorPreset as ColorPalette] || { primary: '#6B4EFF', secondary: '#FFD54F', tertiary: '#45B7D1' }
+        const logosToSave = logos.map((logo) => ({
+          child_id: child.id,
+          tool_id: tool.id,
+          plan_type: plan as 'free' | 'premium',
+          company_name: shopName,
+          business_type: businessType,
+          logo_style: logoStyle,
+          vibe: vibe,
+          color_palette: { 
+            preset: colorPreset,
+            primary: hexColors.primary,
+            secondary: hexColors.secondary,
+            tertiary: hexColors.tertiary,
+          },
+          slogan: slogan || null,
+          symbol: symbol || null,
+          image_url: logo.imageUrl,
+          is_selected: false,
+        }))
+        const savedRecords = await saveLogos(logosToSave)
+        if (savedRecords) {
+          setSavedLogoIds(savedRecords.map(r => r.id))
+          console.log('✅ Logos saved to Supabase', savedRecords.map(r => r.id))
+        }
+      }
+    } catch (err) {
+      console.warn('Failed to save logos to DB:', err)
+    }
+  }
+
   const handleNext = async () => {
     if (step === 4 && plan) {
       // Generate logos with polling
@@ -194,10 +260,13 @@ export default function LogoMakerPage() {
         const { mode, ids } = await response.json()
 
         // Step 2: Poll for results with progress updates
-        const imageUrls = await pollPredictions(mode, ids)
+        const tempUrls = await pollPredictions(mode, ids)
         
-        // Convert to Logo format
-        const generatedLogos: Logo[] = imageUrls.map((url, i) => ({
+        // Step 3: Upload to permanent storage
+        const permanentUrls = await uploadImages(tempUrls)
+        
+        // Step 4: Convert to Logo format
+        const generatedLogos: Logo[] = permanentUrls.map((url, i) => ({
           id: `logo-${Date.now()}-${i}`,
           imageUrl: url,
           prompt: '',
@@ -207,41 +276,8 @@ export default function LogoMakerPage() {
 
         setLogos(generatedLogos)
 
-        // Save logos to Supabase if child is logged in
-        if (child?.id) {
-          try {
-            const tool = await getToolByKey('logo_maker')
-            if (tool) {
-              const hexColors = COLOR_HEX_MAP[colorPreset as ColorPalette] || { primary: '#6B4EFF', secondary: '#FFD54F', tertiary: '#45B7D1' }
-              const logosToSave = generatedLogos.map((logo: Logo) => ({
-                child_id: child.id,
-                tool_id: tool.id,
-                plan_type: plan as 'free' | 'premium',
-                company_name: shopName,
-                business_type: businessType,
-                logo_style: logoStyle,
-                vibe: vibe,
-                color_palette: { 
-                  preset: colorPreset,
-                  primary: hexColors.primary,
-                  secondary: hexColors.secondary,
-                  tertiary: hexColors.tertiary,
-                },
-                slogan: slogan || null,
-                symbol: symbol || null,
-                image_url: logo.imageUrl,
-                is_selected: false,
-              }))
-              const savedRecords = await saveLogos(logosToSave)
-              if (savedRecords) {
-                setSavedLogoIds(savedRecords.map(r => r.id))
-                console.log('✅ Logos saved to Supabase', savedRecords.map(r => r.id))
-              }
-            }
-          } catch (saveErr) {
-            console.warn('Failed to save logos to DB:', saveErr)
-          }
-        }
+        // Step 5: Save logos to Supabase
+        await saveLogosToDb(generatedLogos)
 
         setGenerating(false)
         setStep(6)
@@ -653,45 +689,24 @@ export default function LogoMakerPage() {
                     throw new Error('Failed to start regeneration')
                   }
 
-                  const { mode, ids } = await response.json()
-                  const imageUrls = await pollPredictions(mode, ids)
-                  
-                  const generatedLogos: Logo[] = imageUrls.map((url, i) => ({
-                    id: `logo-${Date.now()}-${i}`,
-                    imageUrl: url,
-                    prompt: '',
-                    createdAt: new Date().toISOString(),
-                    plan: plan,
-                  }))
+                    const { mode, ids } = await response.json()
+                    const tempUrls = await pollPredictions(mode, ids)
+                    
+                    // Upload to permanent storage
+                    const permanentUrls = await uploadImages(tempUrls)
+                    
+                    const generatedLogos: Logo[] = permanentUrls.map((url, i) => ({
+                      id: `logo-${Date.now()}-${i}`,
+                      imageUrl: url,
+                      prompt: '',
+                      createdAt: new Date().toISOString(),
+                      plan: plan,
+                    }))
 
-                  setLogos(generatedLogos)
+                    setLogos(generatedLogos)
 
-                  // Save to DB
-                  if (child?.id) {
-                    try {
-                      const tool = await getToolByKey('logo_maker')
-                      if (tool) {
-                        const logosToSave = generatedLogos.map((logo: Logo) => ({
-                          child_id: child.id,
-                          tool_id: tool.id,
-                          plan_type: plan as 'free' | 'premium',
-                          company_name: shopName,
-                          business_type: businessType,
-                          logo_style: logoStyle,
-                          vibe: vibe,
-                          color_palette: { preset: colorPreset },
-                          slogan: slogan || null,
-                          symbol: symbol || null,
-                          image_url: logo.imageUrl,
-                          is_selected: false,
-                        }))
-                        const savedRecords = await saveLogos(logosToSave)
-                        if (savedRecords) {
-                          setSavedLogoIds(savedRecords.map(r => r.id))
-                        }
-                      }
-                    } catch (e) { console.warn('Save failed:', e) }
-                  }
+                    // Save to DB
+                    await saveLogosToDb(generatedLogos)
 
                   setGenerating(false)
                   setStep(6)

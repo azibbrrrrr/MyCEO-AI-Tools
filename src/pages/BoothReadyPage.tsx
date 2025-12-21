@@ -93,7 +93,30 @@ export default function BoothReadyPage() {
       }
       
       const data = await response.json()
-      setTransparentLogoUrl(data.transparentUrl)
+      const tempTransparentUrl = data.transparentUrl
+      
+      // Step 3: Upload transparent version to permanent storage
+      try {
+        const uploadRes = await fetch('/api/upload-image', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            tempUrl: tempTransparentUrl,
+            childId: child?.id || 'anonymous',
+            filename: `logo-transparent-${Date.now()}`,
+          }),
+        })
+        if (uploadRes.ok) {
+          const { permanentUrl } = await uploadRes.json()
+          setTransparentLogoUrl(permanentUrl)
+        } else {
+          setTransparentLogoUrl(tempTransparentUrl)
+        }
+      } catch (uploadErr) {
+        console.warn('Permanent upload failed for transparent logo:', uploadErr)
+        setTransparentLogoUrl(tempTransparentUrl)
+      }
+      
       setStep(2)
     } catch (err) {
       console.error('Remove BG error:', err)
