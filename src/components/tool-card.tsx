@@ -3,6 +3,7 @@ import { Link } from "react-router-dom"
 
 interface ToolCardProps {
   icon: string
+  iconImage?: string
   titleKey: string
   descKey: string
   href: string
@@ -10,7 +11,7 @@ interface ToolCardProps {
   progress?: number
 }
 
-export function ToolCard({ icon, titleKey, descKey, href, state = "available", progress }: ToolCardProps) {
+export function ToolCard({ icon, iconImage, titleKey, descKey, href, state = "available", progress }: ToolCardProps) {
   const { t } = useLanguage()
 
   const isDisabled = state === "comingSoon"
@@ -25,9 +26,13 @@ export function ToolCard({ icon, titleKey, descKey, href, state = "available", p
   const cardContent = (
     <div className="flex flex-col items-center text-center gap-3">
       {/* Icon */}
-      <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[var(--sky-blue-light)] to-[var(--sky-blue)] flex items-center justify-center text-3xl shadow-[var(--shadow-low)]">
-        {icon}
-      </div>
+      {iconImage ? (
+        <img src={iconImage} alt={t(titleKey)} className="w-16 h-16 object-contain" />
+      ) : (
+        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[var(--sky-blue-light)] to-[var(--sky-blue)] flex items-center justify-center shadow-[var(--shadow-low)]">
+          <span className="text-3xl">{icon}</span>
+        </div>
+      )}
 
       {/* Title */}
       <h3 className="text-lg font-bold text-[var(--text-primary)]">{t(titleKey)}</h3>

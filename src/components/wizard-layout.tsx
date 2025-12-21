@@ -23,7 +23,7 @@ export function WizardLayout({ children, currentStep, totalSteps, toolName, tool
       <FloatingElements />
 
       {/* Header */}
-      <header className="relative z-10 flex items-center justify-between p-4 md:p-6 border-b border-[var(--border)] bg-white/50 backdrop-blur-sm">
+      <header className="relative z-10 flex items-center justify-between p-4 md:p-6 bg-white/50 backdrop-blur-sm">
         <Link
           to="/dashboard"
           className="flex items-center gap-2 bg-white rounded-full px-4 py-2 shadow-[var(--shadow-low)] hover:shadow-[var(--shadow-medium)] transition-all"

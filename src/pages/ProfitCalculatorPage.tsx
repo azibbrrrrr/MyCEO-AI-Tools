@@ -32,13 +32,21 @@ export default function ProfitCalculatorPage() {
   }, [costPerItem, sellingPrice, quantity])
 
   const getProfitEmoji = () => {
-    if (profitPerItem <= 0) return { emoji: "😢", text: t("profit.status.loss"), color: "var(--coral-pink)" }
-    if (profitMargin < 20) return { emoji: "😐", text: t("profit.status.low"), color: "var(--sunshine-orange)" }
-    if (profitMargin < 40) return { emoji: "😊", text: t("profit.status.good"), color: "var(--sky-blue)" }
-    return { emoji: "🤑", text: t("profit.status.great"), color: "var(--mint-green)" }
+    if (profitPerItem <= 0) return { emoji: "😢", text: t("profit.status.loss"), color: "#ffb6c1" }
+    if (profitMargin < 20) return { emoji: "😐", text: t("profit.status.low"), color: "#ffb84d" }
+    if (profitMargin < 40) return { emoji: "😊", text: t("profit.status.good"), color: "#60b5f4" }
+    return { emoji: "🤑", text: t("profit.status.great"), color: "#a8e6cf" }
   }
 
   const status = getProfitEmoji()
+
+  // Colors for sliders (using hex values for inline styles)
+  const colors = {
+    orange: "#ffb84d",
+    blue: "#60b5f4",
+    green: "#a8e6cf",
+    muted: "#e8f4fc",
+  }
 
   return (
     <WizardLayout currentStep={1} totalSteps={1} toolName={t("tool.profit")} toolIcon="💰">
@@ -60,7 +68,7 @@ export default function ProfitCalculatorPage() {
                 onChange={(e) => setCostPerItem(Number(e.target.value))}
                 className="w-full h-3 rounded-full appearance-none cursor-pointer"
                 style={{
-                  background: `linear-gradient(to right, var(--sunshine-orange) 0%, var(--sunshine-orange) ${(costPerItem / 50) * 100}%, var(--muted) ${(costPerItem / 50) * 100}%, var(--muted) 100%)`,
+                  background: `linear-gradient(to right, ${colors.orange} 0%, ${colors.orange} ${(costPerItem / 50) * 100}%, ${colors.muted} ${(costPerItem / 50) * 100}%, ${colors.muted} 100%)`,
                 }}
               />
               <div className="flex justify-between text-xs text-[var(--text-muted)] mt-1">
@@ -83,7 +91,7 @@ export default function ProfitCalculatorPage() {
                 onChange={(e) => setSellingPrice(Number(e.target.value))}
                 className="w-full h-3 rounded-full appearance-none cursor-pointer"
                 style={{
-                  background: `linear-gradient(to right, var(--sky-blue) 0%, var(--sky-blue) ${sellingPrice}%, var(--muted) ${sellingPrice}%, var(--muted) 100%)`,
+                  background: `linear-gradient(to right, ${colors.blue} 0%, ${colors.blue} ${sellingPrice}%, ${colors.muted} ${sellingPrice}%, ${colors.muted} 100%)`,
                 }}
               />
               <div className="flex justify-between text-xs text-[var(--text-muted)] mt-1">
@@ -108,7 +116,7 @@ export default function ProfitCalculatorPage() {
                 onChange={(e) => setQuantity(Number(e.target.value))}
                 className="w-full h-3 rounded-full appearance-none cursor-pointer"
                 style={{
-                  background: `linear-gradient(to right, var(--mint-green) 0%, var(--mint-green) ${quantity}%, var(--muted) ${quantity}%, var(--muted) 100%)`,
+                  background: `linear-gradient(to right, ${colors.green} 0%, ${colors.green} ${quantity}%, ${colors.muted} ${quantity}%, ${colors.muted} 100%)`,
                 }}
               />
               <div className="flex justify-between text-xs text-[var(--text-muted)] mt-1">
@@ -119,7 +127,12 @@ export default function ProfitCalculatorPage() {
           </div>
 
           {/* Results */}
-          <div className="bg-gradient-to-br from-[var(--sky-blue-light)]/50 to-[var(--mint-green)]/50 rounded-3xl p-6">
+          <div 
+            className="rounded-3xl p-6"
+            style={{
+              background: "linear-gradient(135deg, rgba(168, 213, 247, 0.5) 0%, rgba(168, 230, 207, 0.5) 100%)"
+            }}
+          >
             {/* Status indicator */}
             <div className="text-center mb-6">
               <div
@@ -148,7 +161,7 @@ export default function ProfitCalculatorPage() {
               <p className="text-sm text-[var(--text-muted)] mb-2">{t("profit.totalProfit")}</p>
               <p
                 className="text-4xl font-extrabold transition-all"
-                style={{ color: totalProfit >= 0 ? "var(--sky-blue)" : "var(--coral-pink)" }}
+                style={{ color: totalProfit >= 0 ? "#60b5f4" : "#ffb6c1" }}
               >
                 RM {totalProfit}
               </p>
@@ -158,7 +171,7 @@ export default function ProfitCalculatorPage() {
             </div>
 
             {/* Formula explanation */}
-            <div className="mt-6 bg-white/50 rounded-xl p-4 text-center">
+            <div className="mt-6 rounded-xl p-4 text-center" style={{ backgroundColor: "rgba(255, 255, 255, 0.5)" }}>
               <p className="text-sm text-[var(--text-secondary)]">
                 <span className="font-semibold">{t("profit.formula")}:</span> {t("profit.revenue")} -{" "}
                 {t("profit.totalCost")} = {t("profit.totalProfit")}

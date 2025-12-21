@@ -6,6 +6,13 @@ import { HelpBubble } from "@/components/help-bubble"
 import { Link } from "react-router-dom"
 import { useState, useEffect } from "react"
 
+// Import tool icons
+import logoMakerIcon from "@/assets/logo-maker.png"
+import boothIcon from "@/assets/booth-icon.png"
+import calculatorIcon from "@/assets/calculator-icon.png"
+import productIdeaIcon from "@/assets/product-idea-icon.png"
+import packagingIcon from "@/assets/packaging-icon.png"
+
 // Tips that rotate daily
 const tips = {
   EN: [
@@ -44,29 +51,16 @@ export default function Dashboard() {
 
   const tools = [
     {
-      icon: "💡",
-      titleKey: "tool.product",
-      descKey: "tool.product.desc",
-      href: "/tools/product-idea",
-      state: "available" as const,
-    },
-    {
-      icon: "📦",
-      titleKey: "tool.packaging",
-      descKey: "tool.packaging.desc",
-      href: "/tools/packaging-idea",
-      state: "available" as const,
-    },
-    {
       icon: "🎨",
+      iconImage: logoMakerIcon,
       titleKey: "tool.logo",
       descKey: "tool.logo.desc",
       href: "/tools/logo-maker",
-      state: "inProgress" as const,
-      progress: 60,
+      state: "available" as const,
     },
     {
       icon: "🏪",
+      iconImage: boothIcon,
       titleKey: "tool.booth",
       descKey: "tool.booth.desc",
       href: "/tools/booth-ready",
@@ -74,22 +68,31 @@ export default function Dashboard() {
     },
     {
       icon: "💰",
+      iconImage: calculatorIcon,
       titleKey: "tool.profit",
       descKey: "tool.profit.desc",
       href: "/tools/profit-calculator",
-      state: "usedToday" as const,
+      state: "available" as const,
     },
   ]
 
   const futureTools = [
     {
-      icon: "✨",
-      titleKey: "tool.businessName",
-      descKey: "tool.businessName.desc",
+      icon: "💡",
+      iconImage: productIdeaIcon,
+      titleKey: "tool.product",
+      descKey: "tool.product.desc",
       href: "#",
       state: "comingSoon" as const,
     },
-    { icon: "📣", titleKey: "tool.marketing", descKey: "tool.marketing.desc", href: "#", state: "comingSoon" as const },
+    {
+      icon: "📦",
+      iconImage: packagingIcon,
+      titleKey: "tool.packaging",
+      descKey: "tool.packaging.desc",
+      href: "#",
+      state: "comingSoon" as const,
+    },
   ]
 
   const recentCreations = [
@@ -103,7 +106,7 @@ export default function Dashboard() {
       <FloatingElements />
 
       {/* Header */}
-      <header className="relative z-10 flex items-center justify-between p-4 md:p-6 border-b border-[var(--border)] bg-white/50 backdrop-blur-sm">
+      <header className="relative z-10 flex items-center justify-between p-4 md:p-6 bg-white/50 backdrop-blur-sm">
         <Link
           to="/"
           className="flex items-center gap-2 bg-white rounded-full px-4 py-2 shadow-[var(--shadow-low)] hover:shadow-[var(--shadow-medium)] transition-all"
@@ -169,11 +172,11 @@ export default function Dashboard() {
                 <ToolCard
                   key={tool.titleKey}
                   icon={tool.icon}
+                  iconImage={tool.iconImage}
                   titleKey={tool.titleKey}
                   descKey={tool.descKey}
                   href={tool.href}
                   state={tool.state}
-                  progress={tool.progress}
                 />
               ))}
             </div>
@@ -185,6 +188,7 @@ export default function Dashboard() {
                 <ToolCard
                   key={tool.titleKey}
                   icon={tool.icon}
+                  iconImage={tool.iconImage}
                   titleKey={tool.titleKey}
                   descKey={tool.descKey}
                   href={tool.href}
