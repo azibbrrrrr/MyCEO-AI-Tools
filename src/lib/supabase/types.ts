@@ -402,6 +402,7 @@ export interface Database {
                     created_at?: string
                     updated_at?: string
                 }
+                Relationships: []
             }
 
             lessons: {
@@ -441,6 +442,15 @@ export interface Database {
                     created_at?: string
                     updated_at?: string
                 }
+                Relationships: [
+                    {
+                        foreignKeyName: "lessons_module_id_fkey"
+                        columns: ["module_id"]
+                        isOneToOne: false
+                        referencedRelation: "modules"
+                        referencedColumns: ["id"]
+                    }
+                ]
             }
 
             achievements: {
@@ -477,6 +487,7 @@ export interface Database {
                     criteria?: Json | null
                     created_at?: string
                 }
+                Relationships: []
             }
         }
         Views: {
