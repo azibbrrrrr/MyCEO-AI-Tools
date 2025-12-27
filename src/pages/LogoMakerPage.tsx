@@ -38,7 +38,7 @@ export default function LogoMakerPage() {
   const [colorPreset, setColorPreset] = useState("")
 
   // Step 3 inputs
-  const [symbol, setSymbol] = useState("")
+  const [symbols, setSymbols] = useState<string[]>([])
   const [slogan, setSlogan] = useState("")
 
   // Step 4: Plan selection
@@ -118,9 +118,12 @@ export default function LogoMakerPage() {
       }
       throw new Error('Generation timed out')
     } else {
-      // Individual mode: poll 3 IDs separately
-      const results: (string | null)[] = [null, null, null]
+      // Individual mode: poll each ID separately (1 for premium, could be more in future)
+      const results: (string | null)[] = ids.map(() => null)
       let polls = 0
+      
+      // Update progress state to match number of IDs
+      setCardProgress(ids.map(() => 0))
       
       while (polls < MAX_POLLS && results.some(r => r === null)) {
         const promises = ids.map(async (id, i) => {
@@ -138,7 +141,7 @@ export default function LogoMakerPage() {
           if (data.status === 'succeeded' && data.output) {
             results[i] = Array.isArray(data.output) ? data.output[0] : data.output
           } else if (data.status === 'failed') {
-            throw new Error(`Card ${i + 1} failed: ${data.error}`)
+            throw new Error(`Generation failed: ${data.error}`)
           }
         })
         
@@ -209,7 +212,7 @@ export default function LogoMakerPage() {
             tertiary: hexColors.tertiary,
           },
           slogan: slogan || null,
-          symbol: symbol || null,
+          symbol: symbols.length > 0 ? symbols.join(',') : null,
           image_url: logo.imageUrl,
           is_selected: false,
         }))
@@ -230,7 +233,7 @@ export default function LogoMakerPage() {
       setGenerating(true)
       setError(null)
       setLogos([])
-      setCardProgress([0, 0, 0])
+      setCardProgress(plan === 'premium' ? [0] : [0, 0, 0])
       setStep(5)
 
       try {
@@ -245,7 +248,7 @@ export default function LogoMakerPage() {
               logoStyle,
               vibe,
               colorPalette: colorPreset,
-              icon: symbol,
+              icons: symbols,
               slogan,
             },
             plan,
@@ -431,21 +434,51 @@ export default function LogoMakerPage() {
               <label className="block text-sm font-semibold text-[var(--text-primary)] mb-3">
                 {t("logo.symbol")} ({t("common.optional")})
               </label>
-              <div className="grid grid-cols-6 gap-3">
-                {SYMBOLS.map((item) => (
-                  <button
-                    key={item.key}
-                    onClick={() => setSymbol(symbol === item.key ? "" : item.key)}
-                    className={`p-3 rounded-2xl text-2xl transition-all duration-200 border-3 ${
-                      symbol === item.key
-                        ? "border-[var(--sunshine-orange)] bg-[#fff5e6] scale-105 shadow-[0_4px_16px_rgba(255,184,77,0.25)]"
-                        : "border-[var(--border-light)] bg-white hover:border-[var(--sky-blue)] hover:scale-102"
-                    }`}
-                  >
-                    {item.icon}
-                  </button>
+              
+              {/* Category labels */}
+              <div className="flex flex-wrap gap-2 mb-3">
+                {['🌟 Nature', '🐾 Animals', '🎉 Fun', '💎 Shapes'].map((cat, i) => (
+                  <span key={i} className="text-xs font-medium text-[var(--text-secondary)] bg-[var(--bg-soft)] px-2 py-1 rounded-full">
+                    {cat}
+                  </span>
                 ))}
               </div>
+              
+              {/* Symbol grid - 6 columns for clean layout */}
+              <div className="grid grid-cols-6 gap-2">
+                {SYMBOLS.map((item) => {
+                  const isSelected = symbols.includes(item.key)
+                  const canSelect = symbols.length < 3 || isSelected
+                  return (
+                    <button
+                      key={item.key}
+                      onClick={() => {
+                        if (isSelected) {
+                          setSymbols(symbols.filter(s => s !== item.key))
+                        } else if (canSelect) {
+                          setSymbols([...symbols, item.key])
+                        }
+                      }}
+                      disabled={!canSelect}
+                      className={`p-2.5 rounded-xl text-2xl transition-all duration-200 border-2 ${
+                        isSelected
+                          ? "border-[var(--sunshine-orange)] bg-[#fff5e6] scale-110 shadow-[0_4px_16px_rgba(255,184,77,0.25)]"
+                          : canSelect
+                            ? "border-[var(--border-light)] bg-white hover:border-[var(--sky-blue)] hover:scale-105"
+                            : "border-[var(--border-light)] bg-gray-100 opacity-50 cursor-not-allowed"
+                      }`}
+                      title={item.key}
+                    >
+                      {item.icon}
+                    </button>
+                  )
+                })}
+              </div>
+              
+              {/* Selection counter */}
+              <p className="text-xs text-[var(--text-secondary)] mt-2">
+                {symbols.length}/3 selected {symbols.length > 0 && `(${symbols.join(', ')})`}
+              </p>
             </div>
 
             <div>
@@ -593,29 +626,29 @@ export default function LogoMakerPage() {
                 : "Generating creative logo ideas..."}
             </p>
             
-            {/* 3 Logo Cards with Progress */}
-            <div className="grid grid-cols-3 gap-4 w-full">
-              {[0, 1, 2].map((i) => (
+            {/* Logo Cards with Progress - 1 for premium, 3 for free */}
+            <div className={`grid gap-4 w-full ${plan === 'premium' ? 'grid-cols-1 max-w-xs mx-auto' : 'grid-cols-3'}`}>
+              {(plan === 'premium' ? [0] : [0, 1, 2]).map((i) => (
                 <div key={i} className="relative aspect-square bg-white rounded-2xl overflow-hidden shadow-[var(--shadow-low)]">
                   {/* Background with gradient */}
                   <div className="absolute inset-0 bg-gradient-to-br from-gray-100 to-gray-50" />
                   
                   {/* Progress overlay */}
                   <div 
-                    className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-[var(--sky-blue)] to-[var(--sky-blue-light)]"
+                    className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t ${plan === 'premium' ? 'from-[var(--golden-yellow)] to-[var(--sunshine-orange)]' : 'from-[var(--sky-blue)] to-[var(--sky-blue-light)]'}`}
                     style={{ 
-                      height: `${cardProgress[i]}%`,
+                      height: `${cardProgress[i] || 0}%`,
                       transition: 'height 0.3s ease-out'
                     }}
                   />
                   
                   {/* Center content */}
                   <div className="absolute inset-0 flex flex-col items-center justify-center z-10">
-                    {cardProgress[i] < 100 ? (
+                    {(cardProgress[i] || 0) < 100 ? (
                       <>
-                        <div className="text-3xl mb-2 animate-pulse">🎨</div>
+                        <div className="text-3xl mb-2 animate-pulse">{plan === 'premium' ? '👑' : '🎨'}</div>
                         <span className="text-sm font-bold text-[var(--text-primary)]">
-                          {cardProgress[i]}%
+                          {cardProgress[i] || 0}%
                         </span>
                       </>
                     ) : (
@@ -626,7 +659,7 @@ export default function LogoMakerPage() {
                   {/* Card label */}
                   <div className="absolute bottom-2 left-2 right-2 text-center z-10">
                     <span className="px-2 py-1 bg-white/80 rounded-full text-xs font-semibold text-[var(--text-primary)]">
-                      Logo {i + 1}
+                      {plan === 'premium' ? 'Premium Logo' : `Logo ${i + 1}`}
                     </span>
                   </div>
                 </div>
@@ -639,12 +672,12 @@ export default function LogoMakerPage() {
       {/* Step 6: Select logo */}
       {step === 6 && logos.length > 0 && (
         <StepCard title={t("logo.step5.title")} subtitle={t("logo.step5.subtitle")} icon="👑">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className={`grid gap-4 ${logos.length === 1 ? 'grid-cols-1 max-w-xs mx-auto' : 'grid-cols-1 sm:grid-cols-3'}`}>
             {logos.map((logo, index) => (
               <LogoCard
                 key={logo.id}
                 imageUrl={logo.imageUrl}
-                title={`Option ${index + 1}`}
+                title={logos.length === 1 ? 'Your Premium Logo' : `Option ${index + 1}`}
                 isSelected={selectedLogo === index}
                 onClick={() => openZoomModal(index)}
               />
@@ -665,7 +698,7 @@ export default function LogoMakerPage() {
                 setStep(5)
                 setGenerating(true)
                 setError(null)
-                setCardProgress([0, 0, 0])
+                setCardProgress(plan === 'premium' ? [0] : [0, 0, 0])
                 
                 try {
                   const response = await fetch('/api/predict', {
@@ -678,7 +711,7 @@ export default function LogoMakerPage() {
                         logoStyle,
                         vibe,
                         colorPalette: colorPreset,
-                        icon: symbol,
+                        icons: symbols,
                         slogan,
                       },
                       plan,

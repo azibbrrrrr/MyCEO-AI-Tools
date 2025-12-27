@@ -11,16 +11,16 @@ interface LogoWizardData {
     logoStyle?: string
     vibe?: string
     colorPalette?: string
-    icon?: string
+    icons?: string[]  // Up to 3 icons
     slogan?: string
 }
 
 type LogoGenerationPlan = 'free' | 'premium'
 type BusinessType = 'food' | 'crafts' | 'toys' | 'accessories' | 'diy'
-type LogoStyle = 'modern' | 'wordmark' | 'symbol' | 'emblem' | 'mascot'
-type VibeType = 'playful' | 'cheerful' | 'premium' | 'minimal' | 'traditional'
-type ColorPalette = 'sunset' | 'ocean' | 'forest' | 'candy' | 'monochrome'
-type IconType = 'star' | 'heart' | 'animal'
+type LogoStyle = 'wordmark' | 'symbol' | 'emblem' | 'mascot'
+type VibeType = 'cheerful' | 'premium' | 'minimal' | 'playful' | 'traditional'
+type ColorPalette = 'pastel' | 'bold' | 'earth' | 'bright' | 'premium'
+type IconType = 'star' | 'fire' | 'leaf' | 'lightning' | 'heart' | 'animal'
 
 // ============================================
 // Prompt Mappings
@@ -42,73 +42,154 @@ const LOGO_STYLE_PROMPTS: Record<string, string> = {
 }
 
 const COLOR_PALETTE_PROMPTS: Record<string, string> = {
-    pastel: 'soft pastel colors',
-    bold: 'bold vibrant colors',
-    earth: 'earth tones and natural colors',
-    bright: 'bright and energetic colors',
-    premium: 'sophisticated premium colors',
+    pastel: 'soft pastel pink, mint green, and light sky blue colors',
+    bold: 'coral red, teal, and dark teal colors',
+    earth: 'earth brown, sage green, and cream beige colors',
+    bright: 'hot magenta pink, bright cyan, and vibrant yellow colors',
+    premium: 'dark navy blue, gold, and black colors',
 }
 
-const VIBE_PROMPTS: Record<string, string> = {
-    cheerful: 'cheerful and friendly',
-    premium: 'premium and luxurious',
-    minimal: 'minimal and clean',
-    playful: 'playful and fun',
-    traditional: 'traditional and classic',
+// Each vibe controls the overall energy, typography style, and visual feel
+const VIBE_PROMPTS: Record<string, { mood: string; typography: string; style: string }> = {
+    cheerful: {
+        mood: 'cheerful, friendly, and welcoming',
+        typography: 'rounded, warm, friendly typography',
+        style: 'bright, inviting, happy vibes'
+    },
+    premium: {
+        mood: 'premium, elegant, and sophisticated',
+        typography: 'refined, sleek, modern typography',
+        style: 'polished, high-end, luxurious feel'
+    },
+    minimal: {
+        mood: 'minimal, clean, and modern',
+        typography: 'simple, clean sans-serif typography',
+        style: 'understated, balanced, refined simplicity'
+    },
+    playful: {
+        mood: 'playful, fun, and exciting',
+        typography: 'bold, bubbly, bouncy typography',
+        style: 'dynamic, energetic, eye-catching, full of personality'
+    },
+    traditional: {
+        mood: 'traditional, classic, and timeless',
+        typography: 'classic, serif or vintage-inspired typography',
+        style: 'nostalgic, trustworthy, established feel'
+    },
 }
 
 const SYMBOL_PROMPTS: Record<string, string> = {
-    star: 'star icon',
-    fire: 'fire icon',
-    leaf: 'leaf icon',
-    lightning: 'lightning icon',
-    heart: 'heart icon',
-    animal: 'animal icon',
+    // Nature
+    star: 'shining star',
+    sun: 'bright sun',
+    moon: 'crescent moon',
+    rainbow: 'colorful rainbow',
+    flower: 'blooming flower',
+    leaf: 'green leaf',
+    // Animals
+    cat: 'cute cat',
+    dog: 'friendly dog',
+    unicorn: 'magical unicorn',
+    butterfly: 'beautiful butterfly',
+    paw: 'animal paw print',
+    // Fun
+    heart: 'love heart',
+    crown: 'royal crown',
+    rocket: 'flying rocket',
+    lightning: 'lightning bolt',
+    fire: 'flame',
+    // Shapes
+    diamond: 'sparkling diamond',
+    sparkle: 'magic sparkles',
 }
 
-// ============================================
 // Helpers
 // ============================================
 
+// Standard prompt for Flux (free tier)
 function buildPrompt(data: LogoWizardData): string {
     const businessType = BUSINESS_TYPE_PROMPTS[data.businessType as BusinessType] || data.businessType
     const logoStyle = LOGO_STYLE_PROMPTS[data.logoStyle as LogoStyle] || 'modern'
-    const vibe = VIBE_PROMPTS[data.vibe as VibeType] || 'friendly'
+    const vibe = VIBE_PROMPTS[data.vibe as VibeType] || VIBE_PROMPTS.playful
     const colors = data.colorPalette ? COLOR_PALETTE_PROMPTS[data.colorPalette as ColorPalette] : 'vibrant colors'
-    const symbol = data.icon ? SYMBOL_PROMPTS[data.icon as IconType] : 'No symbol, text-based logo only'
+    // Build symbols list from icons array
+    const iconsList = data.icons?.map(icon => SYMBOL_PROMPTS[icon as IconType]).filter(Boolean) || []
+    const symbolsText = iconsList.length > 0
+        ? iconsList.join(', ')
+        : 'No symbol, text-based logo only'
 
     const prompt = `
-Design one ${logoStyle} logo for a ${businessType} business named "${data.businessName}".
-Overall vibe: ${vibe} — friendly, age-appropriate, and engaging for young entrepreneurs.
+Design one ${logoStyle} logo for a ${businessType} named "${data.businessName}".
+The logo design should visually relate to the company name "${data.businessName}" and represent a ${businessType}.
+Overall vibe: ${vibe.mood} — age-appropriate and engaging for young entrepreneurs.
 
 Visual style:
-- Child-safe, Clean, vector-like illustration
-- Simple shapes with clear outlines
+- ${vibe.style}
+- Child-safe, vector-like illustration
+- Design elements should reflect both the company name meaning and the ${businessType} industry
 
 Symbol / Icon:
-- ${symbol}
-- If included, the symbol should visually represent the business and match the vibe.
+- ${symbolsText}
+- If included, the symbols should visually represent the business and match the vibe.
 
 Color palette:
 - ${colors}
-- No additional colors.
 
 Typography:
-- Rounded, clear, and highly readable typography suitable for children.
+- ${vibe.typography}
 
 Layout:
 - Company name "${data.businessName}" is the main focus.
-${data.slogan ? `- Optional slogan "${data.slogan}" appears smaller and playful.` : ''}
+${data.slogan ? `- slogan "${data.slogan}" appears smaller.` : ''}
 - Balanced and easy to recognize at small sizes.
 
 Background:
-- Plain white background only.
+- Isolated on pure white background only.
 
 Output quality:
-- Print-ready, Flat design, No complex gradients or shadows.
+- Print-ready, High-quality vector art logo.
 `.trim()
 
     console.log('Generated prompt:', prompt)
+    return prompt
+}
+
+// Optimized prompt for Ideogram (premium tier)
+// Following the Ideogram Master Formula:
+// [1. Medium] + [2. Text in "Quotes"] + [3. Font Style] + [4. Visual Aesthetic]
+function buildPremiumPrompt(data: LogoWizardData): string {
+    const logoStyle = LOGO_STYLE_PROMPTS[data.logoStyle as LogoStyle] || 'modern'
+    const colors = data.colorPalette ? COLOR_PALETTE_PROMPTS[data.colorPalette as ColorPalette] : 'vibrant colors'
+    // Build symbols list from icons array
+    const iconsList = data.icons?.map(icon => SYMBOL_PROMPTS[icon as IconType]).filter(Boolean) || []
+    const vibe = VIBE_PROMPTS[data.vibe as VibeType] || VIBE_PROMPTS.playful
+
+    // Build prompt following Ideogram's best practices
+    const businessType = BUSINESS_TYPE_PROMPTS[data.businessType as BusinessType] || data.businessType
+    let prompt = `A ${vibe.mood} ${logoStyle} vector logo design for a kids' ${businessType}. `
+
+    // The exact text in quotes (mandatory for Ideogram) + vibe-controlled typography
+    prompt += `The text reads "${data.businessName}" in ${vibe.typography}. `
+
+    // Emphasize design should relate to company name and business type
+    prompt += `The design should visually relate to the name "${data.businessName}" and represent a ${businessType}. `
+
+    // Add slogan if provided
+    if (data.slogan) {
+        prompt += `Below it in smaller text: "${data.slogan}". `
+    }
+
+    // Symbols/icons if selected (up to 3)
+    if (iconsList.length > 0) {
+        prompt += `The design features cute ${iconsList.join(' and ')} that match the ${vibe.mood} vibe. `
+    }
+
+    // Visual aesthetic controlled by vibe
+    prompt += `Overall style: ${vibe.style}. `
+    prompt += `Colors: ${colors}. `
+    prompt += `High-quality vector art logo, isolated on pure white background.`
+
+    console.log('Generated premium prompt:', prompt)
     return prompt
 }
 
@@ -136,35 +217,29 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         if (plan === 'premium') {
             // ==========================================
-            // PREMIUM (Ideogram V3 Turbo) - Optimized for logos
+            // PREMIUM (Ideogram V3 Turbo) - 1 high-quality logo
+            // Uses optimized shorter prompt for better Ideogram results
             // ==========================================
-            console.log('Starting 3 Ideogram jobs...')
+            console.log('Starting 1 Ideogram premium job...')
 
-            // Map user vibe/style to Ideogram Style Presets
-            let stylePreset = "None"
-            if (logoWizardData.vibe === 'minimal') stylePreset = "Minimal Illustration"
-            if (logoWizardData.logoStyle === 'mascot') stylePreset = "Flat Vector"
-            if (logoWizardData.vibe === 'traditional') stylePreset = "Vintage Poster"
+            const premiumPrompt = buildPremiumPrompt(logoWizardData)
 
-            const predictionPromises = [1, 2, 3].map(async () => {
-                return await replicate.predictions.create({
-                    model: 'ideogram-ai/ideogram-v3-turbo',
-                    input: {
-                        prompt: basePrompt,
-                        aspect_ratio: '1:1',
-                        style_type: 'Design',        // Optimized for text/logos
-                        magic_prompt_option: 'Auto', // Improves prompt adherence
-                        style_preset: stylePreset,   // Uses official presets
-                    }
-                })
+            const prediction = await replicate.predictions.create({
+                model: 'ideogram-ai/ideogram-v3-turbo',
+                input: {
+                    prompt: premiumPrompt,
+                    aspect_ratio: '1:1',
+                    style_type: 'Design',           // Optimized for text/logos
+                    magic_prompt_option: 'Off'      // Don't let it modify our prompt
+                }
             })
 
-            const predictions = await Promise.all(predictionPromises)
+            console.log(`Premium prediction started: ${prediction.id}`)
 
-            // Return 3 IDs so frontend tracks them individually
+            // Return 1 ID (same format as batch for consistency)
             return res.status(200).json({
-                mode: 'individual', // Track these 3 separately
-                ids: predictions.map(p => p.id)
+                mode: 'individual',
+                ids: [prediction.id]
             })
 
         } else {

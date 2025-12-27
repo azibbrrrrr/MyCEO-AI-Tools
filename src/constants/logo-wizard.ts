@@ -11,7 +11,15 @@ export type BusinessType = 'food' | 'crafts' | 'toys' | 'accessories' | 'diy'
 export type LogoStyle = 'wordmark' | 'symbol' | 'emblem' | 'mascot'
 export type ColorPalette = 'pastel' | 'bold' | 'earth' | 'bright' | 'premium'
 export type VibeType = 'cheerful' | 'premium' | 'minimal' | 'playful' | 'traditional'
-export type IconType = 'star' | 'fire' | 'leaf' | 'lightning' | 'heart' | 'animal'
+export type IconType =
+    // Nature
+    | 'star' | 'sun' | 'moon' | 'rainbow' | 'flower' | 'leaf'
+    // Animals
+    | 'cat' | 'dog' | 'unicorn' | 'butterfly' | 'paw'
+    // Fun
+    | 'heart' | 'crown' | 'rocket' | 'lightning' | 'fire'
+    // Shapes
+    | 'diamond' | 'sparkle'
 export type PlanType = 'free' | 'premium'
 
 export interface Logo {
@@ -76,55 +84,28 @@ export const COLOR_HEX_MAP: Record<ColorPalette, { primary: string; secondary: s
     premium: { primary: "#2C3E50", secondary: "#C9A961", tertiary: "#1A1A2E" },
 }
 
-export const SYMBOLS: Array<{ icon: string; key: IconType }> = [
-    { icon: "⭐", key: "star" },
-    { icon: "🔥", key: "fire" },
-    { icon: "🍃", key: "leaf" },
-    { icon: "⚡", key: "lightning" },
-    { icon: "💖", key: "heart" },
-    { icon: "🐾", key: "animal" },
+// Organized by category for easy kid access
+export const SYMBOLS: Array<{ icon: string; key: IconType; category: string }> = [
+    // Nature
+    { icon: "⭐", key: "star", category: "nature" },
+    { icon: "☀️", key: "sun", category: "nature" },
+    { icon: "🌙", key: "moon", category: "nature" },
+    { icon: "🌈", key: "rainbow", category: "nature" },
+    { icon: "🌸", key: "flower", category: "nature" },
+    { icon: "🍃", key: "leaf", category: "nature" },
+    // Animals
+    { icon: "🐱", key: "cat", category: "animals" },
+    { icon: "🐶", key: "dog", category: "animals" },
+    { icon: "🦄", key: "unicorn", category: "animals" },
+    { icon: "🦋", key: "butterfly", category: "animals" },
+    { icon: "🐾", key: "paw", category: "animals" },
+    // Fun
+    { icon: "💖", key: "heart", category: "fun" },
+    { icon: "👑", key: "crown", category: "fun" },
+    { icon: "🚀", key: "rocket", category: "fun" },
+    { icon: "⚡", key: "lightning", category: "fun" },
+    { icon: "🔥", key: "fire", category: "fun" },
+    // Shapes
+    { icon: "💎", key: "diamond", category: "shapes" },
+    { icon: "✨", key: "sparkle", category: "shapes" },
 ]
-
-// ============================================
-// API Prompt Mappings
-// ============================================
-
-export const BUSINESS_TYPE_PROMPTS: Record<BusinessType, string> = {
-    food: "food business",
-    crafts: "handmade crafts business",
-    toys: "toy business",
-    accessories: "accessories business",
-    diy: "DIY business",
-}
-
-export const LOGO_STYLE_PROMPTS: Record<LogoStyle, string> = {
-    wordmark: "wordmark style (text-based)",
-    symbol: "symbol/icon style",
-    emblem: "emblem style (badge-like)",
-    mascot: "mascot style (character-based)",
-}
-
-export const COLOR_PALETTE_PROMPTS: Record<ColorPalette, string> = {
-    pastel: "soft pastel colors",
-    bold: "bold vibrant colors",
-    earth: "earth tones and natural colors",
-    bright: "bright and energetic colors",
-    premium: "sophisticated premium colors",
-}
-
-export const VIBE_PROMPTS: Record<VibeType, string> = {
-    cheerful: "cheerful and friendly",
-    premium: "premium and luxurious",
-    minimal: "minimal and clean",
-    playful: "playful and fun",
-    traditional: "traditional and classic",
-}
-
-export const SYMBOL_PROMPTS: Record<IconType, string> = {
-    star: "star icon",
-    fire: "fire icon",
-    leaf: "leaf icon",
-    lightning: "lightning icon",
-    heart: "heart icon",
-    animal: "animal icon",
-}

@@ -10,11 +10,6 @@ export {
     VIBES,
     COLOR_PRESETS,
     SYMBOLS,
-    BUSINESS_TYPE_PROMPTS,
-    LOGO_STYLE_PROMPTS,
-    COLOR_PALETTE_PROMPTS,
-    VIBE_PROMPTS,
-    SYMBOL_PROMPTS,
     COLOR_HEX_MAP,
 } from './logo-wizard'
 export type { PlanType, Logo, LogoWizardData, ColorPalette } from './logo-wizard'
