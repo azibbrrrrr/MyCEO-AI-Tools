@@ -9,9 +9,9 @@ import type { AITool, AIToolUsage, ChildLogo, InsertTables } from '@/lib/supabas
 // Quota limits (can be moved to config or fetched from DB later)
 export const QUOTA_LIMITS = {
     premium: {
-        maxGenerations: 5,
-        maxImages: 15,
-        imagesPerGeneration: 3,
+        maxGenerations: 10,
+        maxImages: 10,
+        imagesPerGeneration: 1,  // Premium generates 1 high-quality logo
     },
     free: {
         maxGenerations: Infinity,

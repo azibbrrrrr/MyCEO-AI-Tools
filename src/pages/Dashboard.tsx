@@ -181,7 +181,7 @@ export default function Dashboard() {
                     <span className="text-2xl">🎨</span>
                     <div>
                       <p className="text-2xl font-extrabold text-white leading-none">
-                        {premiumQuota ? (premiumQuota.generationsRemaining === -1 ? '∞' : premiumQuota.generationsRemaining) : 5}/{QUOTA_LIMITS.premium.maxGenerations}
+                        {premiumQuota ? (premiumQuota.generationsRemaining === -1 ? '∞' : premiumQuota.generationsRemaining) : '...'}/{QUOTA_LIMITS.premium.maxGenerations}
                       </p>
                       <p className="text-xs font-bold text-white/80">Credits</p>
                     </div>

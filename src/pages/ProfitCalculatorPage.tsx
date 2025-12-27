@@ -188,7 +188,7 @@ export default function ProfitCalculatorPage() {
               to="/dashboard"
               className="inline-flex items-center gap-2 px-8 py-3 rounded-full bg-[var(--sky-blue)] text-white font-bold hover:scale-105 transition-all"
             >
-              {t("profit.done")} 🎉
+              {t("profit.done")}
             </Link>
           </div>
         </StepCard>

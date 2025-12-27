@@ -154,9 +154,9 @@ Output quality:
     return prompt
 }
 
-// Optimized prompt for Ideogram (premium tier)
-// Following the Ideogram Master Formula:
-// [1. Medium] + [2. Text in "Quotes"] + [3. Font Style] + [4. Visual Aesthetic]
+// Premium prompt for Google Imagen 4 (premium tier)
+// Imagen 4 excels at typography and high-quality image generation
+// Formula: [Medium] + [Text in "Quotes"] + [Typography Style] + [Visual Aesthetic]
 function buildPremiumPrompt(data: LogoWizardData): string {
     const logoStyle = LOGO_STYLE_PROMPTS[data.logoStyle as LogoStyle] || 'modern'
     const colors = data.colorPalette ? COLOR_PALETTE_PROMPTS[data.colorPalette as ColorPalette] : 'vibrant colors'
@@ -217,20 +217,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         if (plan === 'premium') {
             // ==========================================
-            // PREMIUM (Ideogram V3 Turbo) - 1 high-quality logo
-            // Uses optimized shorter prompt for better Ideogram results
+            // PREMIUM (Google Imagen 4 FAST) - 1 high-quality logo, same prompt as free
             // ==========================================
-            console.log('Starting 1 Ideogram premium job...')
-
-            const premiumPrompt = buildPremiumPrompt(logoWizardData)
+            console.log('Starting 1 Imagen 4 premium job...')
 
             const prediction = await replicate.predictions.create({
-                model: 'ideogram-ai/ideogram-v3-turbo',
+                model: 'google/imagen-4-fast',
                 input: {
-                    prompt: premiumPrompt,
+                    prompt: basePrompt,  // Use same prompt as free version
                     aspect_ratio: '1:1',
-                    style_type: 'Design',           // Optimized for text/logos
-                    magic_prompt_option: 'Off'      // Don't let it modify our prompt
+                    output_format: 'png',
+                    safety_filter_level: 'block_medium_and_above'
                 }
             })
 

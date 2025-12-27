@@ -16,13 +16,13 @@ import {
 } from "@/constants"
 import type { PlanType, Logo, ColorPalette } from "@/constants"
 import { useChildSession } from "@/hooks/useChildSession"
-import { saveLogos, getToolByKey, selectLogoAndUpdateCompany, checkQuota, QUOTA_LIMITS } from "@/lib/supabase/ai-tools"
+import { saveLogos, getToolByKey, selectLogoAndUpdateCompany, checkQuota, incrementUsage, QUOTA_LIMITS } from "@/lib/supabase/ai-tools"
 import { LogoZoomModal } from "@/components/LogoZoomModal"
 import { LogoCard } from "@/components/LogoCard"
 
 export default function LogoMakerPage() {
   const { t } = useLanguage()
-  const { child } = useChildSession()
+  const { child, updateCompanyLogoUrl } = useChildSession()
   const [step, setStep] = useState(1)
 
   // Premium credits
@@ -229,6 +229,12 @@ export default function LogoMakerPage() {
 
   const handleNext = async () => {
     if (step === 4 && plan) {
+      // Safety check: prevent premium generation if out of credits
+      if (plan === 'premium' && premiumCreditsLeft !== null && premiumCreditsLeft <= 0) {
+        setError('You have used all your premium generations. Please use the Free option.')
+        return
+      }
+
       // Generate logos with polling
       setGenerating(true)
       setError(null)
@@ -282,6 +288,17 @@ export default function LogoMakerPage() {
         // Step 5: Save logos to Supabase
         await saveLogosToDb(generatedLogos)
 
+        // Step 6: Increment usage for premium plan
+        if (plan === 'premium' && child?.id) {
+          const tool = await getToolByKey('logo_maker')
+          if (tool) {
+            await incrementUsage(child.id, tool.id, 'premium', permanentUrls.length)
+            // Update the credits display
+            const quota = await checkQuota(child.id, tool.id, 'premium')
+            setPremiumCreditsLeft(quota.generationsRemaining)
+          }
+        }
+
         setGenerating(false)
         setStep(6)
       } catch (err) {
@@ -300,7 +317,9 @@ export default function LogoMakerPage() {
             logos[selectedLogo].imageUrl,
             child.companies[0].id
           )
-          console.log('✅ Logo selection saved to DB')
+          // Also update localStorage so the UI shows the new logo immediately
+          updateCompanyLogoUrl(logos[selectedLogo].imageUrl)
+          console.log('✅ Logo selection saved to DB and localStorage')
         } catch (err) {
           console.warn('Failed to update logo selection:', err)
         }
@@ -533,16 +552,16 @@ export default function LogoMakerPage() {
               </div>
               <h3 className="text-xl font-bold text-[var(--text-primary)] mb-2">Quick & Easy</h3>
               <p className="text-sm text-[var(--text-secondary)] mb-4">
-                Perfect for getting started! Generate creative logo ideas instantly with our fast AI engine.
+                Great for exploring ideas! Get 3 logo variations quickly.
               </p>
               <ul className="space-y-2 text-sm">
                 <li className="flex items-center gap-2 text-[var(--text-secondary)]">
                   <span className="text-[var(--mint-green)]">✓</span>
-                  3 logo variations per generation
+                  3 logo options per generation
                 </li>
                 <li className="flex items-center gap-2 text-[var(--text-secondary)]">
                   <span className="text-[var(--mint-green)]">✓</span>
-                  Fast generation (10-15 seconds)
+                  Fast results (~15 seconds)
                 </li>
                 <li className="flex items-center gap-2 text-[var(--text-secondary)]">
                   <span className="text-[var(--mint-green)]">✓</span>
@@ -557,54 +576,72 @@ export default function LogoMakerPage() {
             </button>
 
             {/* Premium Plan Card */}
-            <button
-              onClick={() => setPlan("premium")}
-              className={`relative p-6 rounded-3xl border-3 transition-all duration-300 text-left ${
-                plan === "premium"
-                  ? "border-[var(--golden-yellow)] bg-gradient-to-br from-[#fffef0] to-[#fff8e0] scale-[1.02] shadow-[0_8px_32px_rgba(255,200,80,0.4)]"
-                  : "border-[var(--border-light)] bg-white hover:border-[var(--golden-yellow)] hover:shadow-lg"
-              }`}
-            >
-              <div className="absolute -top-3 left-4">
-                <span className="px-3 py-1 bg-gradient-to-r from-[var(--golden-yellow)] to-[var(--sunshine-orange)] text-white text-xs font-bold rounded-full">
-                  PREMIUM ⭐
-                </span>
-              </div>
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[var(--golden-yellow)] to-[var(--sunshine-orange)] flex items-center justify-center text-3xl mb-4 shadow-md">
-                👑
-              </div>
-              <h3 className="text-xl font-bold text-[var(--text-primary)] mb-2">Premium Quality</h3>
-              <p className="text-sm text-[var(--text-secondary)] mb-4">
-                Get stunning, professional-grade logos with enhanced details and text rendering.
-              </p>
-              <ul className="space-y-2 text-sm">
-                <li className="flex items-center gap-2 text-[var(--text-secondary)]">
-                  <span className="text-[var(--golden-yellow)]">★</span>
-                  3 high-quality logo variations
-                </li>
-                <li className="flex items-center gap-2 text-[var(--text-secondary)]">
-                  <span className="text-[var(--golden-yellow)]">★</span>
-                  Better text & detail rendering
-                </li>
-                <li className="flex items-center gap-2 font-semibold">
-                  <span className="text-[var(--golden-yellow)]">★</span>
-                  {premiumCreditsLeft !== null ? (
-                    <span className={premiumCreditsLeft > 0 ? 'text-[var(--mint-green)]' : 'text-red-500'}>
-                      {premiumCreditsLeft} of {QUOTA_LIMITS.premium.maxGenerations} generations left
+            {(() => {
+              const isPremiumDisabled = premiumCreditsLeft !== null && premiumCreditsLeft <= 0
+              return (
+                <button
+                  onClick={() => !isPremiumDisabled && setPlan("premium")}
+                  disabled={isPremiumDisabled}
+                  className={`relative p-6 rounded-3xl border-3 transition-all duration-300 text-left ${
+                    isPremiumDisabled
+                      ? "border-gray-200 bg-gray-50 cursor-not-allowed opacity-60"
+                      : plan === "premium"
+                        ? "border-[var(--golden-yellow)] bg-gradient-to-br from-[#fffef0] to-[#fff8e0] scale-[1.02] shadow-[0_8px_32px_rgba(255,200,80,0.4)]"
+                        : "border-[var(--border-light)] bg-white hover:border-[var(--golden-yellow)] hover:shadow-lg"
+                  }`}
+                >
+                  <div className="absolute -top-3 left-4">
+                    <span className={`px-3 py-1 text-white text-xs font-bold rounded-full ${
+                      isPremiumDisabled 
+                        ? "bg-gray-400" 
+                        : "bg-gradient-to-r from-[var(--golden-yellow)] to-[var(--sunshine-orange)]"
+                    }`}>
+                      {isPremiumDisabled ? "OUT OF CREDITS" : "PREMIUM ⭐"}
                     </span>
-                  ) : (
-                    <span className="text-[var(--text-secondary)]">
-                      {QUOTA_LIMITS.premium.maxGenerations} generations included
-                    </span>
+                  </div>
+                  <div className={`w-16 h-16 rounded-2xl flex items-center justify-center text-3xl mb-4 shadow-md ${
+                    isPremiumDisabled 
+                      ? "bg-gray-300" 
+                      : "bg-gradient-to-br from-[var(--golden-yellow)] to-[var(--sunshine-orange)]"
+                  }`}>
+                    {isPremiumDisabled ? "🔒" : "👑"}
+                  </div>
+                  <h3 className="text-xl font-bold text-[var(--text-primary)] mb-2">Premium Quality</h3>
+                  <p className="text-sm text-[var(--text-secondary)] mb-4">
+                    {isPremiumDisabled 
+                      ? "You've used all your premium generations." 
+                      : "Professional-grade logo with superior text and detail quality."}
+                  </p>
+                  <ul className="space-y-2 text-sm">
+                    <li className="flex items-center gap-2 text-[var(--text-secondary)]">
+                      <span className="text-[var(--golden-yellow)]">★</span>
+                      1 high-quality logo per generation
+                    </li>
+                    <li className="flex items-center gap-2 text-[var(--text-secondary)]">
+                      <span className="text-[var(--golden-yellow)]">★</span>
+                      Best text & typography rendering
+                    </li>
+                    <li className="flex items-center gap-2 font-semibold">
+                      <span className="text-[var(--golden-yellow)]">★</span>
+                      {premiumCreditsLeft !== null ? (
+                        <span className={premiumCreditsLeft > 0 ? 'text-[var(--mint-green)]' : 'text-red-500'}>
+                          {premiumCreditsLeft} of {QUOTA_LIMITS.premium.maxGenerations} generations left
+                        </span>
+                      ) : (
+                        <span className="text-[var(--text-secondary)]">
+                          {QUOTA_LIMITS.premium.maxGenerations} generations included
+                        </span>
+                      )}
+                    </li>
+                  </ul>
+                  {plan === "premium" && !isPremiumDisabled && (
+                    <div className="absolute top-4 right-4 w-8 h-8 rounded-full bg-[var(--golden-yellow)] flex items-center justify-center text-white text-lg">
+                      ✓
+                    </div>
                   )}
-                </li>
-              </ul>
-              {plan === "premium" && (
-                <div className="absolute top-4 right-4 w-8 h-8 rounded-full bg-[var(--golden-yellow)] flex items-center justify-center text-white text-lg">
-                  ✓
-                </div>
-              )}
-            </button>
+                </button>
+              )
+            })()}
           </div>
 
           <WizardNav 
@@ -626,44 +663,63 @@ export default function LogoMakerPage() {
                 : "Generating creative logo ideas..."}
             </p>
             
-            {/* Logo Cards with Progress - 1 for premium, 3 for free */}
-            <div className={`grid gap-4 w-full ${plan === 'premium' ? 'grid-cols-1 max-w-xs mx-auto' : 'grid-cols-3'}`}>
-              {(plan === 'premium' ? [0] : [0, 1, 2]).map((i) => (
-                <div key={i} className="relative aspect-square bg-white rounded-2xl overflow-hidden shadow-[var(--shadow-low)]">
-                  {/* Background with gradient */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-gray-100 to-gray-50" />
-                  
-                  {/* Progress overlay */}
-                  <div 
-                    className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t ${plan === 'premium' ? 'from-[var(--golden-yellow)] to-[var(--sunshine-orange)]' : 'from-[var(--sky-blue)] to-[var(--sky-blue-light)]'}`}
-                    style={{ 
-                      height: `${cardProgress[i] || 0}%`,
-                      transition: 'height 0.3s ease-out'
-                    }}
-                  />
-                  
-                  {/* Center content */}
-                  <div className="absolute inset-0 flex flex-col items-center justify-center z-10">
-                    {(cardProgress[i] || 0) < 100 ? (
-                      <>
-                        <div className="text-3xl mb-2 animate-pulse">{plan === 'premium' ? '👑' : '🎨'}</div>
-                        <span className="text-sm font-bold text-[var(--text-primary)]">
-                          {cardProgress[i] || 0}%
-                        </span>
-                      </>
-                    ) : (
-                      <div className="text-4xl">✓</div>
-                    )}
-                  </div>
-                  
-                  {/* Card label */}
-                  <div className="absolute bottom-2 left-2 right-2 text-center z-10">
-                    <span className="px-2 py-1 bg-white/80 rounded-full text-xs font-semibold text-[var(--text-primary)]">
+            {/* Logo Cards with Circular Progress - 1 for premium, 3 for free */}
+            <div className={`grid gap-6 w-full ${plan === 'premium' ? 'grid-cols-1 max-w-xs mx-auto' : 'grid-cols-3'}`}>
+              {(plan === 'premium' ? [0] : [0, 1, 2]).map((i) => {
+                const progress = cardProgress[i] || 0
+                const circumference = 2 * Math.PI * 45 // radius = 45
+                const strokeDashoffset = circumference - (progress / 100) * circumference
+                
+                return (
+                  <div key={i} className="flex flex-col items-center">
+                    {/* Circular Progress Loader */}
+                    <div className="relative w-28 h-28">
+                      {/* Background circle */}
+                      <svg className="w-full h-full transform -rotate-90">
+                        <circle
+                          cx="56"
+                          cy="56"
+                          r="45"
+                          fill="none"
+                          stroke="var(--border-light)"
+                          strokeWidth="8"
+                        />
+                        {/* Progress circle */}
+                        <circle
+                          cx="56"
+                          cy="56"
+                          r="45"
+                          fill="none"
+                          stroke={plan === 'premium' ? 'var(--golden-yellow)' : 'var(--sky-blue)'}
+                          strokeWidth="8"
+                          strokeLinecap="round"
+                          strokeDasharray={circumference}
+                          strokeDashoffset={strokeDashoffset}
+                          style={{ transition: 'stroke-dashoffset 0.3s ease-out' }}
+                        />
+                      </svg>
+                      
+                      {/* Center content */}
+                      <div className="absolute inset-0 flex flex-col items-center justify-center">
+                        {progress < 100 ? (
+                          <>
+                            <span className="text-2xl font-bold text-[var(--text-primary)]">
+                              {progress}%
+                            </span>
+                          </>
+                        ) : (
+                          <div className={`text-3xl ${plan === 'premium' ? 'text-[var(--golden-yellow)]' : 'text-[var(--sky-blue)]'}`}>✓</div>
+                        )}
+                      </div>
+                    </div>
+                    
+                    {/* Label */}
+                    <span className="mt-3 text-sm font-semibold text-[var(--text-primary)]">
                       {plan === 'premium' ? 'Premium Logo' : `Logo ${i + 1}`}
                     </span>
                   </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
           </div>
         </StepCard>

@@ -8,7 +8,7 @@
 
 export interface ToolConfig {
     icon: string
-    iconImageKey: 'logoMaker' | 'booth' | 'calculator' | 'productIdea' | 'packaging'
+    iconImageKey: 'logoMaker' | 'booth' | 'calculator' | 'productIdea' | 'packaging' | 'salesBuddy'
     titleKey: string
     descKey: string
     href: string
@@ -40,6 +40,14 @@ export const AVAILABLE_TOOLS: ToolConfig[] = [
         href: "/tools/profit-calculator",
         state: "available",
     },
+    {
+        icon: "🎯",
+        iconImageKey: "salesBuddy",
+        titleKey: "tool.salesBuddy",
+        descKey: "tool.salesBuddy.desc",
+        href: "/tools/sales-buddy",
+        state: "available",
+    },
 ]
 
 export const COMING_SOON_TOOLS: ToolConfig[] = [
@@ -63,3 +71,4 @@ export const COMING_SOON_TOOLS: ToolConfig[] = [
 
 // Tool icon mapping type (for use with dynamic imports)
 export type ToolIconKey = ToolConfig['iconImageKey']
+
