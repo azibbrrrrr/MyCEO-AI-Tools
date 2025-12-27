@@ -35,7 +35,6 @@ export default function LogoMakerV2Page() {
   const [error, setError] = useState<string | null>(null)
   const [savedLogoIds, setSavedLogoIds] = useState<string[]>([])
   const [showCelebration, setShowCelebration] = useState(false)
-  const [currentPlan, setCurrentPlan] = useState<PlanType>('free')
 
   // Premium credits
   const [premiumCreditsLeft, setPremiumCreditsLeft] = useState<number | null>(null)
@@ -225,7 +224,6 @@ export default function LogoMakerV2Page() {
       }))
 
       setLogos(generatedLogos)
-      setCurrentPlan(plan)
       await saveLogosToDb(generatedLogos, plan)
 
       // Increment usage for premium

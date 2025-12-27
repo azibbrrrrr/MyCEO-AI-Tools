@@ -207,7 +207,7 @@ You MUST include these details in the "customer_info" field in the JSON output.`
         const EXPLORE_END = 3
         const DECIDE_START = 4
         const DECIDE_END = 5
-        const PAYMENT_TURN = 6 // Not explicitly used in new prompt but good reference
+        // const PAYMENT_TURN = 6 // Not explicitly used in new prompt but good reference
 
         const targetLanguage = language === 'BM' ? 'Bahasa Melayu' : 'English'
 
