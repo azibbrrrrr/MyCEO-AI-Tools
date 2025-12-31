@@ -131,7 +131,7 @@ export default function SalesBuddyPage() {
   const [customerMood, setCustomerMood] = useState(50)
   const [customerInfo, setCustomerInfo] = useState<CustomerInfo | null>(null)
   const [sessionId, setSessionId] = useState<string | null>(null)
-  const [turnNumber, setTurnNumber] = useState(0)
+  //const [turnNumber, setTurnNumber] = useState(0)
   const [recentSessions, setRecentSessions] = useState<SalesSession[]>([])
   
   // Refs
@@ -257,7 +257,7 @@ export default function SalesBuddyPage() {
             mood_after: result.mood_score,
             turn_number: 1
           })
-          setTurnNumber(1)
+          //setTurnNumber(1)
           turnNumberRef.current = 1
         }
       } 
@@ -265,7 +265,7 @@ export default function SalesBuddyPage() {
       else if (sessionIdRef.current && userReply) {
         turnNumberRef.current += 1
         const newTurn = turnNumberRef.current
-        setTurnNumber(newTurn)
+        //setTurnNumber(newTurn)
         
         console.log('💾 Saving messages for turn:', newTurn, 'sessionId:', sessionIdRef.current)
         
@@ -339,7 +339,7 @@ export default function SalesBuddyPage() {
     setReflection(null)
     setSessionId(null)  // Reset session ID for new simulation
     sessionIdRef.current = null  // Reset ref too
-    setTurnNumber(0)
+    //setTurnNumber(0)
     turnNumberRef.current = 0  // Reset turn number ref
     generateResponse(null, [], selectedCustomer, null)  // Pass null for new session
   }
@@ -375,7 +375,7 @@ export default function SalesBuddyPage() {
     setCustomerMood(50)
     setSessionId(null)  // Clear session ID
     sessionIdRef.current = null  // Clear ref too
-    setTurnNumber(0)
+    //setTurnNumber(0)
     turnNumberRef.current = 0  // Clear turn number ref
   }
 
