@@ -18,6 +18,7 @@ import boothIcon from "@/assets/booth-icon.png"
 import calculatorIcon from "@/assets/calculator-icon.png"
 import productIdeaIcon from "@/assets/product-idea-icon.png"
 import packagingIcon from "@/assets/packaging-icon.png"
+import salesBuddyIcon from "@/assets/sales-buddy-icon.png"
 
 // Tool icon mapping
 const toolIcons: Record<string, string> = {
@@ -26,6 +27,7 @@ const toolIcons: Record<string, string> = {
   calculator: calculatorIcon,
   productIdea: productIdeaIcon,
   packaging: packagingIcon,
+  salesBuddy: salesBuddyIcon,
 }
 
 // Helper to format date
@@ -50,12 +52,7 @@ export default function Dashboard() {
   const [loadingLogos, setLoadingLogos] = useState(true)
   const [premiumQuota, setPremiumQuota] = useState<QuotaStatus | null>(null)
 
-  // Redirect to dev login if not logged in
-  useEffect(() => {
-    if (!loading && !child) {
-      navigate('/dev/login')
-    }
-  }, [child, loading, navigate])
+
 
   // Fetch recent logos and quota
   useEffect(() => {
@@ -86,17 +83,8 @@ export default function Dashboard() {
     setTipIndex(dayOfYear % DAILY_TIPS.EN.length)
   }, [])
 
-  // Loading state
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-sky-gradient flex items-center justify-center">
-        <div className="text-2xl">Loading...</div>
-      </div>
-    )
-  }
-
-  // No child - will redirect
-  if (!child) return null
+  // No child - RequireAuth will handle redirect
+  if (loading || !child) return null
 
   // Use child session data
   const user = {

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import { useLanguage } from "@/components/language-provider"
-import { Link, useNavigate } from "react-router-dom"
+import { Link } from "react-router-dom"
 import { useChildSession } from "@/hooks/useChildSession"
 import { getChildLogos, selectLogoAndUpdateCompany, deleteLogo } from "@/lib/supabase/ai-tools"
 import type { ChildLogo } from "@/lib/supabase/types"
@@ -25,7 +25,6 @@ function formatDate(dateStr: string): string {
 export default function CreationsPage() {
   const { t } = useLanguage()
   const { child, loading, updateCompanyLogoUrl } = useChildSession()
-  const navigate = useNavigate()
   const [logos, setLogos] = useState<ChildLogo[]>([])
   const [loadingLogos, setLoadingLogos] = useState(true)
 
@@ -37,12 +36,7 @@ export default function CreationsPage() {
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
   const [logoToDelete, setLogoToDelete] = useState<ChildLogo | null>(null)
 
-  // Redirect to dev login if not logged in
-  useEffect(() => {
-    if (!loading && !child) {
-      navigate('/dev/login')
-    }
-  }, [child, loading, navigate])
+
 
   // Fetch logos
   useEffect(() => {
@@ -85,17 +79,8 @@ export default function CreationsPage() {
     }
   }
 
-  // Loading state
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-sky-gradient flex items-center justify-center">
-        <div className="text-2xl">Loading...</div>
-      </div>
-    )
-  }
-
-  // No child - will redirect
-  if (!child) return null
+  // No child - RequireAuth will handle redirect
+  if (loading || !child) return null
 
   return (
     <div className="min-h-screen bg-sky-gradient relative overflow-hidden">
@@ -104,7 +89,7 @@ export default function CreationsPage() {
       {/* Header */}
       <header className="relative z-10 flex items-center justify-between p-4 md:p-6 bg-white/50 backdrop-blur-sm">
         <Link
-          to="/dashboard"
+          to="/"
           className="flex items-center gap-2 bg-white rounded-full px-4 py-2 shadow-[var(--shadow-low)] hover:shadow-[var(--shadow-medium)] transition-all"
         >
           <span className="text-xl">←</span>

@@ -13,8 +13,8 @@ interface CustomerInfo {
     name: string
     age: number
     trait: string
-    socialMediaName: string  // e.g., @makcik_kiah88
-    goal?: string            // e.g., "I need a cheap gift under RM20"
+    socialMediaName: string
+    goal?: string
 }
 
 interface SalesBuddyRequest {
@@ -23,7 +23,7 @@ interface SalesBuddyRequest {
     productName?: string
     productPrice?: string
     productDesc?: string
-    customerInfo?: CustomerInfo  // Passed from frontend after first call
+    customerInfo?: CustomerInfo
     messages: ChatMessage[]
     mood: number
     language: 'EN' | 'BM'
@@ -35,23 +35,19 @@ interface ResponseOption {
     type: 'bad' | 'good' | 'okay'
 }
 
-interface LocalizedText {
+// Bilingual Interface
+interface BilingualText {
     en: string
     bm: string
 }
 
-interface LocalizedArray {
-    en: string[]
-    bm: string[]
-}
-
 interface Reflection {
-    outcome: 'success' | 'fail' | 'ongoing'
+    outcome: 'success' | 'fail'
     rating: number
-    social_review: LocalizedText
-    hashtags: LocalizedArray
-    good_point: LocalizedText
-    suggestion: LocalizedText
+    social_review: BilingualText
+    hashtags: BilingualText
+    good_point: BilingualText
+    suggestion: BilingualText
 }
 
 interface SalesBuddyResponse {
@@ -61,8 +57,96 @@ interface SalesBuddyResponse {
     options: ResponseOption[]
     is_finished: boolean
     reflection?: Reflection
-    customerInfo?: CustomerInfo  // Returned on first call for frontend to store
-    game_state?: any // Legacy support if needed, but we ignore it now
+    customerInfo?: CustomerInfo
+}
+
+// ============================================
+// DATA: Predefined Personas (Expanded)
+// ============================================
+const PREDEFINED_PERSONAS = {
+    // FRIENDLY: Focus on SUPPORT & ENCOURAGEMENT (no price focus)
+    friendly: [
+        // Kids/Peers
+        { name: "Ahmad", age: 11, trait: "Supportive classmate, says 'bro'", socialMediaName: "@ahmad_cool", goal: "Wants to support a friend's business" },
+        { name: "Priya", age: 10, trait: "Sweet and encouraging", socialMediaName: "@priya_star", goal: "Excited to try something new" },
+        { name: "Jason", age: 12, trait: "Enthusiastic friend", socialMediaName: "@jason_gamer", goal: "Heard good things, wants to try" },
+        { name: "Mei Ling", age: 12, trait: "Best friend, always supportive", socialMediaName: "@mei_ling_cute", goal: "Here to support you!" },
+        // Teens
+        { name: "Mia", age: 16, trait: "Cheerful teen, loves selfies", socialMediaName: "@mia_sparkle", goal: "Looking for something nice to share" },
+        { name: "Amirul", age: 17, trait: "Chill and supportive", socialMediaName: "@amirul_vibes", goal: "Just hanging out, happy to buy" },
+        // Adults
+        { name: "Auntie Lisa", age: 45, trait: "Kind mother, very patient", socialMediaName: "@auntieLisa88", goal: "Loves supporting young entrepreneurs" },
+        { name: "Uncle Kumar", age: 52, trait: "Friendly uncle, loves to chat", socialMediaName: "@kumar_uncle", goal: "Impressed by young business owners" },
+        { name: "Sarah", age: 25, trait: "Supportive young adult", socialMediaName: "@sarah_loves", goal: "Wants to encourage young sellers" },
+        { name: "Abang Azlan", age: 30, trait: "Cool older brother type", socialMediaName: "@azlan_motor", goal: "Treating his little siblings today" },
+        // Elderly
+        { name: "Pak Cik Razak", age: 68, trait: "Friendly grandpa, tells stories", socialMediaName: "@pakcik_razak", goal: "Loves chatting with young people" },
+        { name: "Ah Ma Tan", age: 71, trait: "Sweet grandmother, very warm", socialMediaName: "@ahma_tan", goal: "Wants to buy a gift for grandkids" }
+    ],
+    // PICKY: "Cerewet" - Fussy, asks MANY questions, hard to please
+    picky: [
+        // Kids/Peers
+        { name: "Aisyah", age: 11, trait: "School prefect, questions everything", socialMediaName: "@aisyah_prefect", goal: "Will ask 10 questions before deciding" },
+        { name: "Darren", age: 12, trait: "Annoying know-it-all", socialMediaName: "@darren_smart", goal: "Corrects everything you say, very cerewet" },
+        // Teens
+        { name: "Marcus", age: 17, trait: "Skeptical, never satisfied", socialMediaName: "@marcus_reviews", goal: "Doubts your answers, asks follow-up questions" },
+        { name: "Rina", age: 18, trait: "Complaints about everything", socialMediaName: "@rina_aesthetic", goal: "Nothing is ever good enough for her" },
+        { name: "Tyra", age: 19, trait: "Super fussy influencer", socialMediaName: "@tyra_ootd", goal: "Asks about packaging, presentation, taste, EVERYTHING" },
+        // Adults
+        { name: "Mdm Chen", age: 30, trait: "Asks endless questions", socialMediaName: "@mdm_chen", goal: "Interrogates you about every detail" },
+        { name: "Kak Lina", age: 28, trait: "Paranoid about ingredients", socialMediaName: "@kaklina_momtobe", goal: "Asks 5 times if it's halal and safe" },
+        { name: "Dr. Ravi", age: 42, trait: "Cross-examines like a lawyer", socialMediaName: "@dr_ravi", goal: "Questions your hygiene practices" },
+        { name: "Cik Fauziah", age: 35, trait: "Teacher mode, tests your knowledge", socialMediaName: "@cikgu_fauziah", goal: "Quizzes you about your product" },
+        { name: "Chef Ramli", age: 40, trait: "Food critic, complains constantly", socialMediaName: "@chef_ramli", goal: "Finds fault with taste, texture, presentation" },
+        // Elderly
+        { name: "Tok Wan", age: 72, trait: "Complains about modern things", socialMediaName: "@tokwan1952", goal: "Says 'zaman dulu lagi sedap', very cerewet" },
+        { name: "Makcik Ros", age: 65, trait: "Retired chef, ultra critical", socialMediaName: "@makcik_ros", goal: "Criticizes your technique, asks many questions" }
+    ],
+    // BARGAIN: Focus on PRICE, DISCOUNTS, FREEBIES
+    bargain: [
+        // Kids/Peers
+        { name: "Danial", age: 10, trait: "Low pocket money, wants freebies", socialMediaName: "@danial_games", goal: "Only has RM3, asking for discount" },
+        { name: "Mei Ling", age: 11, trait: "Saves every cent", socialMediaName: "@meiling_saver", goal: "Brought exactly RM4, wants extras free" },
+        { name: "Adik Bongsu", age: 8, trait: "Crying kid, wants free", socialMediaName: "N/A", goal: "Wants candy but has no money" },
+        // Teens
+        { name: "Farah", age: 16, trait: "Student on tight budget", socialMediaName: "@farah_saver", goal: "Wants 50% off, max RM5" },
+        { name: "Zul", age: 15, trait: "Always asks 'ada diskaun?'", socialMediaName: "@zul_bargain", goal: "Negotiates everything, has RM6" },
+        { name: "Siti", age: 17, trait: "Compares prices on phone", socialMediaName: "@siti_deals", goal: "Found cheaper online, will you match? RM7" },
+        { name: "Brian", age: 20, trait: "Broke Gamer", socialMediaName: "@brian_gaming", goal: "Spent all money on games, only has RM1.50" },
+        // Young Adults
+        { name: "Hafiz", age: 21, trait: "Uni student, wants big portions", socialMediaName: "@hafiz_uni", goal: "Wants cheap & big portion, budget RM7" },
+        { name: "Kavitha", age: 23, trait: "Fresh grad, counting every ringgit", socialMediaName: "@kavi_budget", goal: "Can you do RM5 instead of RM8?" },
+        // Adults
+        { name: "Uncle Lim", age: 48, trait: "Expert haggler, never pays full", socialMediaName: "@unclelim_deals", goal: "Will offer RM5 for RM10 item" },
+        { name: "Pakcik Ali", age: 55, trait: "Market regular, knows all tricks", socialMediaName: "@pakcik_ali", goal: "Bulk discount? Wants RM50 for RM80 worth" },
+        { name: "Kak Sya", age: 35, trait: "Budget Mom feeding 5 kids", socialMediaName: "@sya_family", goal: "Needs family discount, max RM10" },
+        // Elderly
+        { name: "Nenek Aminah", age: 70, trait: "Remembers cheaper old prices", socialMediaName: "@nenek_aminah", goal: "Thinks everything should be RM2 like 1990s" }
+    ]
+};
+
+// ============================================
+// Helper: Clean JSON Markdown
+// ============================================
+function cleanJsonString(text: string): string {
+    return text.replace(/^```json\s*/, '').replace(/\s*```$/, '').trim();
+}
+
+// ============================================
+// Helper: Safe Bilingual Field
+// ============================================
+function safeBilingual(field: unknown, fallbackEn: string, fallbackBm: string): BilingualText {
+    if (typeof field === 'string') {
+        return { en: field, bm: field }
+    }
+    if (typeof field === 'object' && field !== null) {
+        const obj = field as Record<string, unknown>
+        return {
+            en: typeof obj.en === 'string' ? obj.en : fallbackEn,
+            bm: typeof obj.bm === 'string' ? obj.bm : fallbackBm
+        }
+    }
+    return { en: fallbackEn, bm: fallbackBm }
 }
 
 // ============================================
@@ -70,253 +154,215 @@ interface SalesBuddyResponse {
 // ============================================
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-    // CORS headers
     res.setHeader('Access-Control-Allow-Credentials', 'true')
     res.setHeader('Access-Control-Allow-Origin', '*')
-    res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT')
+    res.setHeader('Access-Control-Allow-Methods', 'POST,OPTIONS')
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
 
-    if (req.method === 'OPTIONS') {
-        return res.status(200).end()
-    }
-
-    if (req.method !== 'POST') {
-        return res.status(405).json({ error: 'Method not allowed' })
-    }
+    if (req.method === 'OPTIONS') return res.status(200).end()
+    if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
     const apiKey = process.env.GEMINI_API_KEY
-    if (!apiKey) {
-        return res.status(500).json({ error: 'GEMINI_API_KEY not configured' })
-    }
+    if (!apiKey) return res.status(500).json({ error: 'GEMINI_API_KEY not configured' })
 
     try {
-        const { customerType, productType, messages, mood, language, isStart } = req.body as SalesBuddyRequest
+        const {
+            customerType,
+            productType,
+            productName,
+            productPrice,
+            productDesc,
+            messages,
+            mood,
+            language,
+            isStart,
+            customerInfo: passedCustomerInfo
+        } = req.body as SalesBuddyRequest
 
-        // Debug: Print incoming request
         console.log('=== Sales Buddy Request ===')
         console.log('Customer Type:', customerType)
-        console.log('Product:', productType, req.body.productName, req.body.productPrice)
+        console.log('Product:', productName, productPrice)
         console.log('Language:', language)
-        console.log('Mood:', mood)
         console.log('isStart:', isStart)
-        console.log('Messages:', JSON.stringify(messages, null, 2))
 
-        // Build conversation history
-        const conversationHistory = messages
-            .map(m => `${m.sender === 'user' ? 'Penjual' : 'Pelanggan'}: ${m.text}`)
-            .join('\n')
-
-        // Get customer info - use passed info or let AI generate on first call
-        const { customerInfo: passedCustomerInfo } = req.body as SalesBuddyRequest
-
-        // If we have passed customer info from previous turns, use it
-        // Otherwise, this is the first call and AI will generate a persona
-        const hasExistingCustomer = passedCustomerInfo && !isStart
-
-        // Build product description
-        const { productName, productPrice, productDesc } = req.body as SalesBuddyRequest
-        // Note: productDesc is passed explicitly now, or fallback to type
-
-        // Calculate turn count (each user message = 1 turn)
-        const turnCount = messages.filter(m => m.sender === 'user').length
-
-        // Determine Persona Instruction
-        let personaInstruction = ''
-
-        if (hasExistingCustomer) {
-            // Case 1: Continuing conversation - use existing persona
-            const c = passedCustomerInfo!
-            personaInstruction = language === 'BM'
-                ? `Kamu adalah "${c.name}", umur ${c.age}. Perangai: ${c.trait}. Nama sosial media: ${c.socialMediaName}. Guna Bahasa Melayu santai/pasar.`
-                : `You are "${c.name}", age ${c.age}. Personality: ${c.trait}. Social media: ${c.socialMediaName}. Speak casual English.`
-        } else {
-            // Case 2: Start - AI generates random persona based on customerType
-
-            // Define demographics by customer type
-            const demographicsByCustomerType = {
-                friendly: {
-                    bm: `
-- Rakan Sebaya / Kawan Sekolah (9-12 tahun) - support member, cakap "bro/weh"
-- Remaja (15-18 tahun) - friendly, support member
-- Dewasa muda (22-30 tahun) - peramah, suka benda comel
-- Ibu bapa (42-52 tahun) - supportive, beli untuk anak
-- Warga emas (68-75 tahun) - penyayang, suka berbual`,
-                    en: `
-- Schoolmate / Peer (9-12 yrs) - casual, supportive friend
-- Teens (15-18 yrs) - friendly, supportive
-- Young adults (22-30 yrs) - friendly, loves cute things
-- Parents (42-52 yrs) - supportive, buying for kids
-- Elderly (68-75 yrs) - kind, loves to chat`
-                },
-                picky: {
-                    bm: `
-- Pengawas Sekolah / Rakan Sebaya (10-12 tahun) - cerewet, bajet bagus
-- Remaja (16-19 tahun) - skeptikal, bandingkan harga
-- Dewasa muda (25-35 tahun) - perfectionist, banyak tanya
-- Wanita mengandung (28-32 tahun) - cerewet pasal bahan
-- Warga emas (70-75 tahun) - teliti, pengalaman luas`,
-                    en: `
-- School Prefect / Peer (10-12 yrs) - picky, acts authoritative
-- Teens (16-19 yrs) - skeptical, compares prices
-- Young adults (25-35 yrs) - perfectionist, asks many questions
-- Pregnant women (28-32 yrs) - picky about ingredients
-- Elderly (70-75 yrs) - meticulous, experienced`
-                },
-                bargain: {
-                    bm: `
-- Kawan Sekolah (9-11 tahun) - duit belanja sikit, minta "belanja la"
-- Remaja (15-18 tahun) - bajet ciput, nak diskaun
-- Pelajar U (19-23 tahun) - nak murah & banyak
-- Ibu bapa (40-50 tahun) - kaki tawar menawar
-- Warga emas (65-75 tahun) - ingat harga lama (murah)`,
-                    en: `
-- Schoolmate (9-11 yrs) - low pocket money, asks for free treats
-- Teens (15-18 yrs) - low budget, wants discount
-- Uni Students (19-23 yrs) - wants cheap & big portion
-- Parents (40-50 yrs) - expert haggler
-- Elderly (65-75 yrs) - remembers old cheap prices`
-                }
-            }
-
-            const typeKey = customerType as keyof typeof demographicsByCustomerType || 'friendly'
-            const selectedDemographics = demographicsByCustomerType[typeKey]
-            const demographicList = language === 'BM' ? selectedDemographics.bm : selectedDemographics.en
-
-            personaInstruction = `FIRST TASK: Randomly pick ONE persona from this list (Customer Type: ${customerType.toUpperCase()}):
-${demographicList}
-
-Generate character details: 
-1. Name
-2. Age
-3. Trait
-4. Social Media Name (e.g., @auntie_may)
-5. Goal & Budget (e.g., "Need a gift under RM20", "Just browsing with RM5")
-
-You MUST include these details in the "customer_info" field in the JSON output.`
+        if (!Array.isArray(messages)) {
+            return res.status(400).json({ error: 'Messages must be an array' })
         }
-        // Define Dynamic Variables for Prompt
-        const p_persona = hasExistingCustomer
-            ? `${passedCustomerInfo?.name} (${passedCustomerInfo?.trait})`
-            : "{Generated by AI}"
 
-        const p_goal = hasExistingCustomer ? passedCustomerInfo?.goal : "{Generated by AI}"
-        const p_turn = `${turnCount + 1}`
+        // Logic Variables
+        const hasExistingCustomer = !!(passedCustomerInfo && !isStart)
+        const targetLanguage = language === 'BM' ? 'Bahasa Melayu' : 'English'
 
-        // Game Logic Variables
+        const finalProductName = productName || productType
+        const finalPriceDisplay = productPrice ? `RM${productPrice}` : 'Not specified'
+        const finalProductDesc = productDesc || productType
+
+        const userTurns = messages.filter(m => m.sender === 'user').length
+        const currentTurn = isStart ? 1 : userTurns + 1
         const MAX_TURNS = 7
         const EXPLORE_END = 3
         const DECIDE_START = 4
-        const DECIDE_END = 5
-        // const PAYMENT_TURN = 6 // Not explicitly used in new prompt but good reference
+        const DECIDE_END = 6
 
-        const targetLanguage = language === 'BM' ? 'Bahasa Melayu' : 'English'
+        // Build History
+        const conversationHistory = messages
+            .map(m => {
+                const role = m.sender === 'user' ? 'Penjual (Student)' : 'Pelanggan (Customer)';
+                return `${role}: ${m.text}`;
+            })
+            .join('\n');
 
+        // ==========================================
+        // PERSONA SELECTION LOGIC
+        // ==========================================
+        let selectedCustomerInfo: CustomerInfo;
+        let personaInstruction = '';
+
+        if (hasExistingCustomer) {
+            // CASE A: Existing Customer (Continue Chat)
+            selectedCustomerInfo = passedCustomerInfo!;
+            const c = selectedCustomerInfo;
+
+            personaInstruction = language === 'BM'
+                ? `[SYSTEM: KEKALKAN WATAK] 
+Nama: "${c.name}"
+Umur: ${c.age}
+Perangai: ${c.trait}
+Matlamat: "${c.goal}"`
+                : `[SYSTEM: MAINTAIN PERSONA] 
+Name: "${c.name}"
+Age: ${c.age}
+Trait: ${c.trait}
+Goal: "${c.goal}"`
+        } else {
+            // CASE B: New Customer (Cold Start) - PICK FROM PREDEFINED LIST
+            const typeKey = (customerType?.toLowerCase() in PREDEFINED_PERSONAS)
+                ? customerType.toLowerCase()
+                : 'friendly';
+            const list = PREDEFINED_PERSONAS[typeKey as keyof typeof PREDEFINED_PERSONAS];
+
+            // Randomly select one
+            const randomPersona = list[Math.floor(Math.random() * list.length)];
+
+            selectedCustomerInfo = { ...randomPersona };
+
+            const c = selectedCustomerInfo;
+            personaInstruction = language === 'BM'
+                ? `[SYSTEM: WATAK BARU DIPILIH]
+Sila lakonkan watak ini sepenuhnya:
+Nama: "${c.name}"
+Umur: ${c.age}
+Perangai: ${c.trait}
+Matlamat: "${c.goal}"`
+                : `[SYSTEM: NEW PERSONA SELECTED]
+Act as this character:
+Name: "${c.name}"
+Age: ${c.age}
+Trait: ${c.trait}
+Goal: "${c.goal}"`
+        }
+
+        const p_persona = `${selectedCustomerInfo.name} (${selectedCustomerInfo.trait})`;
+        const p_goal = selectedCustomerInfo.goal || "Browse";
+        const customerAge = selectedCustomerInfo.age;
+
+        // ==========================================
+        // SYSTEM PROMPT CONSTRUCTION
+        // ==========================================
         const systemPrompt = `
 ${personaInstruction}
 
-You are "AI Sales Buddy", an interactive roleplay simulation for students (ages 9-13).
+You are "AI Sales Buddy", an interactive roleplay simulation for students (ages 7-12).
 
 ### 1. CONTEXT & STATE
-- **Role:** Customer (Persona: ${p_persona}) **IMPORTANT: This is your character.**
-- **Seller:** A student (kid ages 9-13) trying to sell you a product.
-- **Environment:** A busy school entrepreneurship fair. There is noise and other distractions.
+- **Role:** Customer (Persona: ${p_persona})
+- **Customer Age:** ${customerAge} years old
 - **Goal & Budget:** ${p_goal}
 - **Mood:** ${mood} (0-100)
-- **Turn:** ${p_turn} of ${MAX_TURNS}
+- **Turn:** ${currentTurn} of ${MAX_TURNS}
 - **Language:** ${targetLanguage}
 
 ### 2. PRODUCT INFO
-- **Item:** ${productName || productType}
-- **Price:** ${productPrice ? `RM${productPrice}` : 'Not specified'}
-- **Desc:** ${productDesc || productType}
+- **Item:** ${finalProductName}
+- **Price:** ${finalPriceDisplay}
+- **Desc:** ${finalProductDesc}
 
-### 3. LANGUAGE & STYLE RULES (CRITICAL)
+### 3. ADDRESSING RULES (CRITICAL - Based on Age)
+**The student seller is 7-12 years old. Address them NATURALLY based on YOUR age:**
+
+- **If you are a CHILD (age ≤12):** Speak as peers/friends. Use "aku/kau", "bro", "weh", "kawan".
+- **If you are a TEEN (age 13-19):** Speak as older sibling. Use "dik", "adik". Call yourself "abang/kakak" or just "aku".
+- **If you are an ADULT (age 20-55):** Speak as parent/aunt/uncle. Use "dik", "nak", "dear". Call yourself "makcik/pakcik/auntie/uncle".
+- **If you are ELDERLY (age 56+):** Speak as grandparent. Use "cu", "nak", "sayang". Call yourself "tok/nenek/atuk".
+
+**CONSISTENCY:** Once you start addressing a certain way, DO NOT switch mid-conversation!
+
+### 4. LANGUAGE & STYLE RULES
 - **If Language is 'English':** Speak naturally, casual/spoken style.
 - **If Language is 'Bahasa Melayu':**
   - Use **"Bahasa Pasar"** (Colloquial Malay).
-  - Use words like: "takpe", "jap", "dik", "makcik", "kaler", "murah la sikit".
   - DO NOT speak formal "Buku Teks" Malay.
-  - Sound like a real Malaysian local.
 
-### 4. BEHAVIOR (REAL LIFE SIMULATION)
-- **Physicality:** Speak as if standing there. Use *actions* in italics (e.g., *picks up item*, *looks confused*).
-- **Math Guardrails:** ALWAYS verify the User's math (Quantity x Price) against the history.
-  - If math is WRONG (e.g., Price is RM5 but User asks RM50) -> You MUST Reject & Scold.
+### 5. BEHAVIOR (REAL LIFE SIMULATION)
+- **Physicality:** Use *actions* in italics (e.g., *picks up item*, *looks skeptical*).
+- **Math Guardrails:** ALWAYS verify User's math. If wrong -> Reject & Scold.
 - **Customer Psychology:**
-  - If seller is too short/rude -> Mood DOWN (-20).
-  - If seller is weak/unsure -> Mood DOWN/NEUTRAL (-10).
-  - If seller is polite, confident & helpful -> Mood UP (+10).
-  - You can REJECT the sale if the pitch is bad or math is wrong.
+  - Rude -> Mood -20.
+  - Weak -> Mood -10.
+  - Polite -> Mood +10.
 
-### 5. GAME PACING RULES (STRICT)
+### 6. GAME PACING RULES (STRICT)
 - **Turns 1-${EXPLORE_END} (Explore):** Ask questions, negotiate.
 - **Turns ${DECIDE_START}-${DECIDE_END} (Decide):**
   - **CRITICAL:** If Math is WRONG -> **REJECT** immediately.
-  - If Math is CORRECT -> Decide based on Mood & Urgency (The "Sweet Spot"):
-    - **Mood > 50 (Happy):** EASY BUY. (Cheerful, maybe tips or compliments).
-    - **Mood 25-50 (Reluctant):** GRUMPY BUY. (Complain about price/service, but still buy because you need/want it).
-    - **Mood < 25 (Angry):** RAGE QUIT. (Walk away, say it's not worth it).
+  - If Math is CORRECT -> Decide based on Mood:
+    - **Mood > 50:** EASY BUY.
+    - **Mood 25-50:** GRUMPY BUY.
+    - **Mood < 25:** RAGE QUIT.
 - **Turn ${MAX_TURNS} (Closing):**
   - Say Goodbye. Set \`is_finished: true\`.
 
-### 6. TASK
-1. **THINK:** Check Turn Count, Math accuracy, and Goal/Budget constraints.
-2. **RESPOND:** Generate the JSON output below.
-3. **COACHING:** Generate 3 specific sentences the **STUDENT SELLER** could say next.
-
 ### 7. OUTPUT JSON ONLY
+// *** STRICT ORDER: ALWAYS return options in this EXACT sequence: bad, good, okay. DO NOT shuffle. ***
 {
-  "thought_process": "String (Internal logic check: Math, Budget, Turn)",
-  "response": "String (Your spoken response, can include *actions*)",
-  "mood_score": Number (0-100),
-  // *** STRICT ORDER: ALWAYS return options in this EXACT sequence: bad, good, okay. DO NOT shuffle. ***
+  "thought_process": "String (Internal logic check)",
+  "response": "String (Spoken reply by CUSTOMER)",
+  "mood_score": Number,
   "options": [
-      {"text": "Suggested reply for the STUDENT to speak (Rude/Short)", "type": "bad"},
-      {"text": "Suggested reply for the STUDENT to speak (Good/Persuasive)", "type": "good"},
-      {"text": "Suggested reply for the STUDENT to speak (Weak/Unsure)", "type": "okay"}
+      {"text": "Suggested reply for STUDENT SELLER (Rude/Short)", "type": "bad"},
+      {"text": "Suggested reply for STUDENT SELLER (Good/Persuasive)", "type": "good"},
+      {"text": "Suggested reply for STUDENT SELLER (Weak/Unsure)", "type": "okay"}
   ],
-  "is_finished": Boolean (true if sale concluded or customer left),
+  "is_finished": Boolean,
   
   // *** CRITICAL: ONLY GENERATE "reflection" IF "is_finished" IS TRUE. ***
-  // If game is NOT finished, OMIT this field or set to null.
   "reflection": {
       "outcome": "success" | "fail",
-      "rating": Number (1-5 stars),
-      "social_review": {
-          "en": "String (Review in English)",
-          "bm": "String (Review in Bahasa Melayu)"
-      },
-      "hashtags": {
-          "en": ["#Tag1", "#Tag2"],
-          "bm": ["#Tag1", "#Tag2"]
-      },
-      // CRITICAL: Feedback must be based on the STUDENT'S ACTUAL PERFORMANCE in this chat.
+      "rating": Number (1-5),
+      "social_review": { "en": "String", "bm": "String" },
+      "hashtags": { "en": ["#Tag"], "bm": ["#Tag"] },
       "good_point": { 
-          "en": "String (Specific praise about the student's Pitch, Math, or Politeness. e.g., 'Great job using polite words!')", 
-          "bm": "String (Pujian spesifik tentang gaya jualan atau adab murid. cth: 'Bagus sebab pandai kira baki!')" 
+          "en": "String (Specific praise about the student's Pitch, Math, or Politeness)", 
+          "bm": "String (Pujian spesifik tentang gaya jualan atau adab murid)" 
       },
       "suggestion": { 
-          "en": "String (Specific coaching tip to improve sales skills or math. e.g., 'Try to upsell next time.')", 
-          "bm": "String (Saranan spesifik untuk baiki teknik jualan atau kira-kira. cth: 'Cuba senyum dan sapa pelanggan dulu.')" 
+          "en": "String (Specific coaching tip to improve sales skills or math)", 
+          "bm": "String (Saranan spesifik untuk baiki teknik jualan atau kira-kira)" 
       }
-  },
-  "customer_info": {
-      "name": "String",
-      "age": Number,
-      "trait": "String",
-      "socialMediaName": "String",
-      "goal": "String"
-  } (Only on first turn)
+  }
 }
 `
 
         const userPrompt = isStart
             ? (language === 'BM'
-                ? `Mula simulasi. Kamu baru sampai kat gerai ${productType}. Mood awal: 50. GENERATE watak pelanggan dahulu (ikut arahan di atas) kemudian bagi opening line.`
-                : `Start simulation. You just arrived at a ${productType} booth. Initial mood: 50. GENERATE customer persona first (follow instructions above) then give opening line.`)
+                ? `Mula simulasi. Anda watak: ${p_persona}. Berikan ayat pertama (opening line).`
+                : `Start simulation. You are: ${p_persona}. Give opening line.`)
             : (language === 'BM'
-                ? `Sejarah perbualan:\n${conversationHistory}\n\nPenjual baru cakap. Balas sebagai pelanggan (ikut watak yang dah ditetapkan) dan bagi 3 pilihan untuk penjual.`
-                : `Conversation history:\n${conversationHistory}\n\nSeller just spoke. Reply as customer (follow established persona) and give 3 options for seller.`)
+                ? `Sejarah perbualan:\n${conversationHistory}\n\nPenjual baru cakap. Balas sebagai pelanggan dan bagi 3 pilihan cadangan jawapan untuk PENJUAL.`
+                : `Conversation history:\n${conversationHistory}\n\nSeller just spoke. Reply as customer and give 3 suggested response options for the SELLER.`)
+
+        console.log('=== System Prompt ===')
+        console.log(systemPrompt.substring(0, 500) + '...')
 
         const response = await fetch(
             `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
@@ -327,7 +373,7 @@ You are "AI Sales Buddy", an interactive roleplay simulation for students (ages 
                     contents: [{ parts: [{ text: systemPrompt + '\n\n' + userPrompt }] }],
                     generationConfig: {
                         responseMimeType: 'application/json',
-                        temperature: 0.8
+                        temperature: 0.85
                     }
                 }),
             }
@@ -335,70 +381,60 @@ You are "AI Sales Buddy", an interactive roleplay simulation for students (ages 
 
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({}))
-            console.error('Gemini API error:', JSON.stringify(errorData, null, 2))
+            console.error('Gemini API Error:', errorData)
 
-            // Check for rate limit / quota exceeded
-            if (response.status === 429 || errorData.error?.status === 'RESOURCE_EXHAUSTED') {
-                const retryInfo = errorData.error?.details?.find((d: Record<string, unknown>) => d['@type']?.toString().includes('RetryInfo'))
-                const retryDelay = retryInfo?.retryDelay || '60s'
+            if (response.status === 429) {
                 return res.status(429).json({
                     error: 'rate_limit',
-                    message: 'AI is busy. Please try again in a moment.',
-                    retryAfter: retryDelay
+                    message: 'AI is busy. Please try again.',
+                    retryAfter: '60s'
                 })
             }
-
-            return res.status(500).json({ error: 'ai_error', message: 'AI service error. Please try again.' })
+            return res.status(500).json({ error: 'ai_error', message: 'AI service error.' })
         }
 
         const data = await response.json()
+        const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text
 
-        // Debug: Print raw response
-        // console.log('Gemini raw response:', JSON.stringify(data, null, 2))
-
-        if (!data.candidates?.[0]?.content?.parts?.[0]?.text) {
-            console.log('Invalid response structure - no text found')
+        if (!rawText) {
+            console.log('Invalid response structure')
             return res.status(500).json({ error: 'Invalid AI response' })
         }
 
-        const rawText = data.candidates[0].content.parts[0].text
-        console.log('Parsed text from Gemini:', rawText)
+        console.log('Parsed text from Gemini:', rawText.substring(0, 300))
 
-        const result = JSON.parse(rawText)
+        let result: Record<string, unknown>
+        try {
+            const cleanedText = cleanJsonString(rawText)
+            result = JSON.parse(cleanedText)
+        } catch {
+            console.error('JSON Parse Failed:', rawText)
+            return res.status(500).json({ error: 'AI JSON Error', details: rawText.substring(0, 200) })
+        }
 
-        // Extract customer info from AI response or use valid existing one
-        const aiGeneratedCustomer = result.customer_info ? {
-            name: result.customer_info.name,
-            age: result.customer_info.age,
-            trait: result.customer_info.trait,
-            socialMediaName: result.customer_info.socialMediaName,
-            goal: result.customer_info.goal
-        } : undefined
-
-        const finalCustomerInfo = hasExistingCustomer ? passedCustomerInfo : aiGeneratedCustomer
-
-        // Validate and sanitize response
         const sanitizedResult: SalesBuddyResponse = {
-            thought_process: result.thought_process,
-            response: result.response || "...",
+            thought_process: typeof result.thought_process === 'string' ? result.thought_process : undefined,
+            response: typeof result.response === 'string' ? result.response : "...",
             mood_score: typeof result.mood_score === 'number' ? Math.max(0, Math.min(100, result.mood_score)) : mood,
-            options: Array.isArray(result.options) ? result.options.slice(0, 3) : [],
+            options: Array.isArray(result.options) ? result.options.slice(0, 3) as ResponseOption[] : [],
             is_finished: Boolean(result.is_finished),
             reflection: result.is_finished && result.reflection ? {
-                outcome: result.reflection.outcome || 'fail',
-                rating: typeof result.reflection.rating === 'number' ? Math.max(1, Math.min(5, result.reflection.rating)) : 3,
-                social_review: result.reflection.social_review || { en: "No review", bm: "Tiada ulasan" },
-                hashtags: result.reflection.hashtags || { en: ["#SalesBuddy"], bm: ["#SalesBuddy"] },
-                good_point: result.reflection.good_point || { en: "Good effort!", bm: "Usaha bagus!" },
-                suggestion: result.reflection.suggestion || { en: "Keep practicing!", bm: "Teruskan usaha!" }
+                outcome: (result.reflection as Record<string, unknown>).outcome === 'success' ? 'success' : 'fail',
+                rating: typeof (result.reflection as Record<string, unknown>).rating === 'number'
+                    ? Math.max(1, Math.min(5, (result.reflection as Record<string, unknown>).rating as number))
+                    : 3,
+                hashtags: safeBilingual((result.reflection as Record<string, unknown>).hashtags, "#SalesBuddy", "#SalesBuddy"),
+                social_review: safeBilingual((result.reflection as Record<string, unknown>).social_review, "No review", "Tiada ulasan"),
+                good_point: safeBilingual((result.reflection as Record<string, unknown>).good_point, "Good effort", "Usaha yang bagus"),
+                suggestion: safeBilingual((result.reflection as Record<string, unknown>).suggestion, "Keep practicing", "Teruskan latihan")
             } : undefined,
-            customerInfo: finalCustomerInfo  // Return customer info for frontend to store
+            customerInfo: selectedCustomerInfo // Always return persona for frontend sync
         }
 
         return res.status(200).json(sanitizedResult)
 
     } catch (error) {
-        console.error('Sales Buddy Error:', error)
-        return res.status(500).json({ error: 'Failed to generate response' })
+        console.error('Handler Error:', error)
+        return res.status(500).json({ error: 'Internal Server Error' })
     }
 }

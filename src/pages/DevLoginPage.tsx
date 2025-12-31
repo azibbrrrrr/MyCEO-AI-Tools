@@ -30,7 +30,7 @@ export default function DevLoginPage() {
   // Redirect if already logged in
   useEffect(() => {
     if (currentChild) {
-      navigate('/dashboard')
+      navigate('/')
     }
   }, [currentChild, navigate])
 
@@ -81,7 +81,7 @@ export default function DevLoginPage() {
     setLoginLoading(true)
     const success = await login(selectedChildId)
     if (success) {
-      navigate('/dashboard')
+      navigate('/')
     } else {
       alert('Failed to login. Check console for errors.')
     }

@@ -715,14 +715,16 @@
         "celebrationOnComplete": true
     },
     "iconography": {
-        "style": "Emoji-based icons throughout for playful, universally understood visuals",
-        "lucideIcons": "Use Lucide React for UI icons when needed",
-        "commonEmoji": {
-            "navigation": "← (back), → (next)",
-            "tools": "💡 (idea), 📦 (packaging), 🎨 (logo), 🏪 (booth), 💰 (profit)",
-            "feedback": "✨ (magic/finish), ⏳ (loading), ❓ (help)",
-            "celebration": "⭐, 🎉, 🌟, 👑, 🎊",
-            "decorative": "🚀, 🎯, 🤖, 🎁, 🌱"
+        "style": "Lucide icons for UI elements, minimal emoji usage for decorative flair only",
+        "lucideIcons": "Use Lucide React as the primary icon library for all UI elements",
+        "buttonIcons": {
+            "navigation": "ArrowLeft, ArrowRight, ChevronLeft, ChevronRight",
+            "actions": "Sparkles (magic/generate), Loader2 (loading), HelpCircle (help), Check (confirm)",
+            "tools": "Lightbulb (idea), Package (packaging), Palette (logo), Store (booth), Coins (profit)"
+        },
+        "decorativeEmoji": {
+            "usage": "Use sparingly for celebrations and floating background elements only",
+            "allowed": "⭐, ✨ (limit to celebration animations)"
         }
     },
     "accessibility": {

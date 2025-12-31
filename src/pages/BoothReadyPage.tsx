@@ -385,7 +385,7 @@ export default function BoothReadyPage() {
               ← Change Selection
             </button>
             <Link
-              to="/dashboard"
+              to="/"
               className="px-8 py-4 rounded-full bg-gradient-to-r from-[var(--mint-green)] to-[#7fd4a8] text-white font-bold hover:scale-105 transition-transform shadow-lg"
             >
               Back to Dashboard

@@ -844,7 +844,7 @@ export default function LogoMakerPage() {
                 {t("logo.download")} 📥
               </button>
               <Link
-                to="/dashboard"
+                to="/"
                 className="px-6 py-3 rounded-full bg-white text-[var(--text-primary)] font-bold hover:scale-105 transition-transform border-2 border-[var(--border-light)]"
               >
                 {t("logo.backToDashboard")} 🏠

@@ -157,41 +157,41 @@ Output quality:
 // Premium prompt for Google Imagen 4 (premium tier)
 // Imagen 4 excels at typography and high-quality image generation
 // Formula: [Medium] + [Text in "Quotes"] + [Typography Style] + [Visual Aesthetic]
-// function buildPremiumPrompt(data: LogoWizardData): string {
-//     const logoStyle = LOGO_STYLE_PROMPTS[data.logoStyle as LogoStyle] || 'modern'
-//     const colors = data.colorPalette ? COLOR_PALETTE_PROMPTS[data.colorPalette as ColorPalette] : 'vibrant colors'
-//     // Build symbols list from icons array
-//     const iconsList = data.icons?.map(icon => SYMBOL_PROMPTS[icon as IconType]).filter(Boolean) || []
-//     const vibe = VIBE_PROMPTS[data.vibe as VibeType] || VIBE_PROMPTS.playful
+function buildPremiumPrompt(data: LogoWizardData): string {
+    const logoStyle = LOGO_STYLE_PROMPTS[data.logoStyle as LogoStyle] || 'modern'
+    const colors = data.colorPalette ? COLOR_PALETTE_PROMPTS[data.colorPalette as ColorPalette] : 'vibrant colors'
+    // Build symbols list from icons array
+    const iconsList = data.icons?.map(icon => SYMBOL_PROMPTS[icon as IconType]).filter(Boolean) || []
+    const vibe = VIBE_PROMPTS[data.vibe as VibeType] || VIBE_PROMPTS.playful
 
-//     // Build prompt following Ideogram's best practices
-//     const businessType = BUSINESS_TYPE_PROMPTS[data.businessType as BusinessType] || data.businessType
-//     let prompt = `A ${vibe.mood} ${logoStyle} vector logo design for a kids' ${businessType}. `
+    // Build prompt following Ideogram's best practices
+    const businessType = BUSINESS_TYPE_PROMPTS[data.businessType as BusinessType] || data.businessType
+    let prompt = `A ${vibe.mood} ${logoStyle} vector logo design for a kids' ${businessType}. `
 
-//     // The exact text in quotes (mandatory for Ideogram) + vibe-controlled typography
-//     prompt += `The text reads "${data.businessName}" in ${vibe.typography}. `
+    // The exact text in quotes (mandatory for Ideogram) + vibe-controlled typography
+    prompt += `The text reads "${data.businessName}" in ${vibe.typography}. `
 
-//     // Emphasize design should relate to company name and business type
-//     prompt += `The design should visually relate to the name "${data.businessName}" and represent a ${businessType}. `
+    // Emphasize design should relate to company name and business type
+    prompt += `The design should visually relate to the name "${data.businessName}" and represent a ${businessType}. `
 
-//     // Add slogan if provided
-//     if (data.slogan) {
-//         prompt += `Below it in smaller text: "${data.slogan}". `
-//     }
+    // Add slogan if provided
+    if (data.slogan) {
+        prompt += `Below it in smaller text: "${data.slogan}". `
+    }
 
-//     // Symbols/icons if selected (up to 3)
-//     if (iconsList.length > 0) {
-//         prompt += `The design features cute ${iconsList.join(' and ')} that match the ${vibe.mood} vibe. `
-//     }
+    // Symbols/icons if selected (up to 3)
+    if (iconsList.length > 0) {
+        prompt += `The design features cute ${iconsList.join(' and ')} that match the ${vibe.mood} vibe. `
+    }
 
-//     // Visual aesthetic controlled by vibe
-//     prompt += `Overall style: ${vibe.style}. `
-//     prompt += `Colors: ${colors}. `
-//     prompt += `High-quality vector art logo, isolated on pure white background.`
+    // Visual aesthetic controlled by vibe
+    prompt += `Overall style: ${vibe.style}. `
+    prompt += `Colors: ${colors}. `
+    prompt += `High-quality vector art logo, isolated on pure white background.`
 
-//     console.log('Generated premium prompt:', prompt)
-//     return prompt
-// }
+    console.log('Generated premium prompt:', prompt)
+    return prompt
+}
 
 // ============================================
 // Handler - Start Predictions (Non-blocking)
@@ -222,7 +222,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             console.log('Starting 1 Imagen 4 premium job...')
 
             const prediction = await replicate.predictions.create({
-                model: 'google/imagen-4-fast',
+                model: 'google/imagen-4',
                 input: {
                     prompt: basePrompt,  // Use same prompt as free version
                     aspect_ratio: '1:1',

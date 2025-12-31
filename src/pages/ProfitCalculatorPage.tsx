@@ -185,7 +185,7 @@ export default function ProfitCalculatorPage() {
           {/* Back to dashboard */}
           <div className="flex justify-center mt-8">
             <Link
-              to="/dashboard"
+              to="/"
               className="inline-flex items-center gap-2 px-8 py-3 rounded-full bg-[var(--sky-blue)] text-white font-bold hover:scale-105 transition-all"
             >
               {t("profit.done")}

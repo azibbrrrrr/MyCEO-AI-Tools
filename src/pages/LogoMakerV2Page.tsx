@@ -287,7 +287,7 @@ export default function LogoMakerV2Page() {
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link
-              to="/dashboard"
+              to="/"
               className="px-4 py-2 bg-white rounded-full shadow-[var(--shadow-low)] hover:shadow-[var(--shadow-medium)] transition-shadow text-[var(--text-secondary)] font-semibold"
             >
               ← Back
@@ -682,7 +682,7 @@ export default function LogoMakerV2Page() {
                       📥 Download
                     </button>
                     <Link
-                      to="/dashboard"
+                      to="/"
                       className="px-6 py-3 rounded-full bg-white text-[var(--text-primary)] font-bold hover:scale-105 transition-transform border-2 border-[var(--border-light)]"
                     >
                       🏠 Dashboard

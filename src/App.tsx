@@ -1,5 +1,4 @@
-import { Routes, Route } from 'react-router-dom'
-import LandingPage from './pages/LandingPage'
+import { Routes, Route, Navigate } from 'react-router-dom'
 import Dashboard from './pages/Dashboard'
 import LogoMakerPage from './pages/LogoMakerPage'
 import LogoMakerV2Page from './pages/LogoMakerV2Page'
@@ -11,23 +10,30 @@ import SalesBuddyPage from './pages/SalesBuddyPage'
 import DevLoginPage from './pages/DevLoginPage'
 import CreationsPage from './pages/CreationsPage'
 import { DevModeBanner } from './components/dev-mode-banner'
+import { RequireAuth } from './components/RequireAuth'
 
 function App() {
   return (
     <>
       <DevModeBanner />
       <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/dev/login" element={<DevLoginPage />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/creations" element={<CreationsPage />} />
-        <Route path="/tools/logo-maker" element={<LogoMakerPage />} />
-        <Route path="/tools/logo-maker-v2" element={<LogoMakerV2Page />} />
-        <Route path="/tools/product-idea" element={<ProductIdeaPage />} />
-        <Route path="/tools/packaging-idea" element={<PackagingIdeaPage />} />
-        <Route path="/tools/booth-ready" element={<BoothReadyPage />} />
-        <Route path="/tools/profit-calculator" element={<ProfitCalculatorPage />} />
-        <Route path="/tools/sales-buddy" element={<SalesBuddyPage />} />
+        {/* Public route */}
+        <Route path="/login" element={<DevLoginPage />} />
+        
+        {/* Protected routes - redirect to /login if not authenticated */}
+        <Route path="/" element={<RequireAuth><Dashboard /></RequireAuth>} />
+        <Route path="/dashboard" element={<Navigate to="/" replace />} />
+        <Route path="/creations" element={<RequireAuth><CreationsPage /></RequireAuth>} />
+        <Route path="/tools/logo-maker" element={<RequireAuth><LogoMakerPage /></RequireAuth>} />
+        <Route path="/tools/logo-maker-v2" element={<RequireAuth><LogoMakerV2Page /></RequireAuth>} />
+        <Route path="/tools/product-idea" element={<RequireAuth><ProductIdeaPage /></RequireAuth>} />
+        <Route path="/tools/packaging-idea" element={<RequireAuth><PackagingIdeaPage /></RequireAuth>} />
+        <Route path="/tools/booth-ready" element={<RequireAuth><BoothReadyPage /></RequireAuth>} />
+        <Route path="/tools/profit-calculator" element={<RequireAuth><ProfitCalculatorPage /></RequireAuth>} />
+        <Route path="/tools/sales-buddy" element={<RequireAuth><SalesBuddyPage /></RequireAuth>} />
+        
+        {/* Catch-all: redirect unknown routes to dashboard (which will redirect to login if needed) */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </>
   )
