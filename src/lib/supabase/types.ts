@@ -489,6 +489,136 @@ export interface Database {
                 }
                 Relationships: []
             }
+
+            // ==========================================
+            // Sales Buddy History Tables
+            // ==========================================
+
+            sales_sessions: {
+                Row: {
+                    id: string
+                    child_id: string
+                    customer_type: 'friendly' | 'picky' | 'bargain'
+                    customer_name: string
+                    customer_age: number
+                    customer_trait: string | null
+                    customer_goal: string | null
+                    customer_social: string | null
+                    product_name: string
+                    product_price: number
+                    product_desc: string | null
+                    final_mood: number | null
+                    outcome: 'success' | 'fail' | 'abandoned' | null
+                    rating: number | null
+                    reflection_review_en: string | null
+                    reflection_review_bm: string | null
+                    reflection_good_en: string | null
+                    reflection_good_bm: string | null
+                    reflection_tip_en: string | null
+                    reflection_tip_bm: string | null
+                    language: 'EN' | 'BM' | null
+                    created_at: string
+                    completed_at: string | null
+                }
+                Insert: {
+                    id?: string
+                    child_id: string
+                    customer_type: 'friendly' | 'picky' | 'bargain'
+                    customer_name: string
+                    customer_age: number
+                    customer_trait?: string | null
+                    customer_goal?: string | null
+                    customer_social?: string | null
+                    product_name: string
+                    product_price: number
+                    product_desc?: string | null
+                    final_mood?: number | null
+                    outcome?: 'success' | 'fail' | 'abandoned' | null
+                    rating?: number | null
+                    reflection_review_en?: string | null
+                    reflection_review_bm?: string | null
+                    reflection_good_en?: string | null
+                    reflection_good_bm?: string | null
+                    reflection_tip_en?: string | null
+                    reflection_tip_bm?: string | null
+                    language?: 'EN' | 'BM' | null
+                    created_at?: string
+                    completed_at?: string | null
+                }
+                Update: {
+                    id?: string
+                    child_id?: string
+                    customer_type?: 'friendly' | 'picky' | 'bargain'
+                    customer_name?: string
+                    customer_age?: number
+                    customer_trait?: string | null
+                    customer_goal?: string | null
+                    customer_social?: string | null
+                    product_name?: string
+                    product_price?: number
+                    product_desc?: string | null
+                    final_mood?: number | null
+                    outcome?: 'success' | 'fail' | 'abandoned' | null
+                    rating?: number | null
+                    reflection_review_en?: string | null
+                    reflection_review_bm?: string | null
+                    reflection_good_en?: string | null
+                    reflection_good_bm?: string | null
+                    reflection_tip_en?: string | null
+                    reflection_tip_bm?: string | null
+                    language?: 'EN' | 'BM' | null
+                    created_at?: string
+                    completed_at?: string | null
+                }
+                Relationships: [
+                    {
+                        foreignKeyName: "sales_sessions_child_id_fkey"
+                        columns: ["child_id"]
+                        isOneToOne: false
+                        referencedRelation: "children"
+                        referencedColumns: ["id"]
+                    }
+                ]
+            }
+
+            sales_messages: {
+                Row: {
+                    id: string
+                    session_id: string
+                    sender: 'user' | 'ai'
+                    message: string
+                    mood_after: number | null
+                    turn_number: number | null
+                    created_at: string
+                }
+                Insert: {
+                    id?: string
+                    session_id: string
+                    sender: 'user' | 'ai'
+                    message: string
+                    mood_after?: number | null
+                    turn_number?: number | null
+                    created_at?: string
+                }
+                Update: {
+                    id?: string
+                    session_id?: string
+                    sender?: 'user' | 'ai'
+                    message?: string
+                    mood_after?: number | null
+                    turn_number?: number | null
+                    created_at?: string
+                }
+                Relationships: [
+                    {
+                        foreignKeyName: "sales_messages_session_id_fkey"
+                        columns: ["session_id"]
+                        isOneToOne: false
+                        referencedRelation: "sales_sessions"
+                        referencedColumns: ["id"]
+                    }
+                ]
+            }
         }
         Views: {
             [_ in never]: never
@@ -525,3 +655,6 @@ export type Company = Tables<'companies'>
 export type Module = Tables<'modules'>
 export type Lesson = Tables<'lessons'>
 export type Achievement = Tables<'achievements'>
+export type SalesSession = Tables<'sales_sessions'>
+export type SalesMessage = Tables<'sales_messages'>
+

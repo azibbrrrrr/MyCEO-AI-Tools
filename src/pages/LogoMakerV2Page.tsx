@@ -679,7 +679,7 @@ export default function LogoMakerV2Page() {
                   {slogan && <p className="text-[var(--text-secondary)] mb-4">"{slogan}"</p>}
                   <div className="flex gap-3">
                     <button className="px-6 py-3 rounded-full bg-[var(--sky-blue)] text-white font-bold hover:scale-105 transition-transform">
-                      📥 Download
+                      Download
                     </button>
                     <Link
                       to="/"

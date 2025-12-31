@@ -41,11 +41,16 @@ interface BilingualText {
     bm: string
 }
 
+interface BilingualArray {
+    en: string[]
+    bm: string[]
+}
+
 interface Reflection {
     outcome: 'success' | 'fail'
     rating: number
     social_review: BilingualText
-    hashtags: BilingualText
+    hashtags: BilingualArray  // Changed: must be arrays for frontend .map()
     good_point: BilingualText
     suggestion: BilingualText
 }
@@ -145,6 +150,19 @@ function safeBilingual(field: unknown, fallbackEn: string, fallbackBm: string): 
             en: typeof obj.en === 'string' ? obj.en : fallbackEn,
             bm: typeof obj.bm === 'string' ? obj.bm : fallbackBm
         }
+    }
+    return { en: fallbackEn, bm: fallbackBm }
+}
+
+// ============================================
+// Helper: Safe Bilingual Array Field (for hashtags)
+// ============================================
+function safeBilingualArray(field: unknown, fallbackEn: string[], fallbackBm: string[]): BilingualArray {
+    if (typeof field === 'object' && field !== null) {
+        const obj = field as Record<string, unknown>
+        const en = Array.isArray(obj.en) ? obj.en.filter((x): x is string => typeof x === 'string') : fallbackEn
+        const bm = Array.isArray(obj.bm) ? obj.bm.filter((x): x is string => typeof x === 'string') : fallbackBm
+        return { en, bm }
     }
     return { en: fallbackEn, bm: fallbackBm }
 }
@@ -305,7 +323,10 @@ You are "AI Sales Buddy", an interactive roleplay simulation for students (ages 
 
 ### 5. BEHAVIOR (REAL LIFE SIMULATION)
 - **Physicality:** Use *actions* in italics (e.g., *picks up item*, *looks skeptical*).
-- **Math Guardrails:** ALWAYS verify User's math. If wrong -> Reject & Scold.
+- **Math Verification (IMPORTANT):**
+  - **WRONG CALCULATION** = Reject. Example: "5 × RM8 = RM35" is WRONG math (should be RM40).
+  - **AGREED DISCOUNT** = ACCEPT! Example: Seller says "OK, RM38 for 5" after negotiation = This is a VALID discount, NOT wrong math. The seller is giving you a deal.
+  - **DO NOT confuse discounts with math errors!**
 - **Customer Psychology:**
   - Rude -> Mood -20.
   - Weak -> Mood -10.
@@ -314,13 +335,15 @@ You are "AI Sales Buddy", an interactive roleplay simulation for students (ages 
 ### 6. GAME PACING RULES (STRICT)
 - **Turns 1-${EXPLORE_END} (Explore):** Ask questions, negotiate.
 - **Turns ${DECIDE_START}-${DECIDE_END} (Decide):**
-  - **CRITICAL:** If Math is WRONG -> **REJECT** immediately.
-  - If Math is CORRECT -> Decide based on Mood:
+  - **CRITICAL:** Only reject if the seller's ARITHMETIC is wrong (e.g., 5×8=35).
+  - If seller offers a DISCOUNT below the calculated price, that is VALID negotiation - ACCEPT THE DEAL!
+  - Decide based on Mood:
     - **Mood > 50:** EASY BUY.
-    - **Mood 25-50:** GRUMPY BUY.
+    - **Mood 25-50:** GRUMPY BUY (buy but complain).
     - **Mood < 25:** RAGE QUIT.
 - **Turn ${MAX_TURNS} (Closing):**
   - Say Goodbye. Set \`is_finished: true\`.
+
 
 ### 7. OUTPUT JSON ONLY
 // *** STRICT ORDER: ALWAYS return options in this EXACT sequence: bad, good, okay. DO NOT shuffle. ***
@@ -329,6 +352,7 @@ You are "AI Sales Buddy", an interactive roleplay simulation for students (ages 
   "response": "String (Spoken reply by CUSTOMER)",
   "mood_score": Number,
   "options": [
+      // *** NOTE: 'text' must be the spoken sentence ONLY. Do NOT add labels like '(Rude)' inside the text. ***
       {"text": "Suggested reply for STUDENT SELLER (Rude/Short)", "type": "bad"},
       {"text": "Suggested reply for STUDENT SELLER (Good/Persuasive)", "type": "good"},
       {"text": "Suggested reply for STUDENT SELLER (Weak/Unsure)", "type": "okay"}
@@ -339,8 +363,13 @@ You are "AI Sales Buddy", an interactive roleplay simulation for students (ages 
   "reflection": {
       "outcome": "success" | "fail",
       "rating": Number (1-5),
-      "social_review": { "en": "String", "bm": "String" },
+      "social_review": { 
+          "en": "String (Write a Social Media Post - FB/IG/TikTok style. Use emojis. If happy, hype it up! If angry, complain virally. Use slang matching your persona's age.)", 
+          "bm": "String (Tulis status Media Sosial - gaya FB/IG/TikTok. Guna emoji. Jika puas hati, puji melambung! Jika marah, kecam viral. Guna bahasa pasar ikut umur watak.)" 
+      },
       "hashtags": { "en": ["#Tag"], "bm": ["#Tag"] },
+
+      // CRITICAL: Feedback must be based on the STUDENT'S OVERALL PERFORMANCE throughout the whole session.
       "good_point": { 
           "en": "String (Specific praise about the student's Pitch, Math, or Politeness)", 
           "bm": "String (Pujian spesifik tentang gaya jualan atau adab murid)" 
@@ -423,7 +452,7 @@ You are "AI Sales Buddy", an interactive roleplay simulation for students (ages 
                 rating: typeof (result.reflection as Record<string, unknown>).rating === 'number'
                     ? Math.max(1, Math.min(5, (result.reflection as Record<string, unknown>).rating as number))
                     : 3,
-                hashtags: safeBilingual((result.reflection as Record<string, unknown>).hashtags, "#SalesBuddy", "#SalesBuddy"),
+                hashtags: safeBilingualArray((result.reflection as Record<string, unknown>).hashtags, ["#SalesBuddy"], ["#SalesBuddy"]),
                 social_review: safeBilingual((result.reflection as Record<string, unknown>).social_review, "No review", "Tiada ulasan"),
                 good_point: safeBilingual((result.reflection as Record<string, unknown>).good_point, "Good effort", "Usaha yang bagus"),
                 suggestion: safeBilingual((result.reflection as Record<string, unknown>).suggestion, "Keep practicing", "Teruskan latihan")

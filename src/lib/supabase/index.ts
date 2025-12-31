@@ -20,6 +20,8 @@ export type {
     Module,
     Lesson,
     Achievement,
+    SalesSession,
+    SalesMessage,
 } from './types'
 
 // AI Tools service
@@ -35,3 +37,16 @@ export {
     getSelectedLogo,
 } from './ai-tools'
 export type { QuotaStatus } from './ai-tools'
+
+// Sales Buddy service
+export {
+    createSession,
+    getChildSessions,
+    getSession,
+    updateSession,
+    deleteSession,
+    saveMessage,
+    getSessionMessages,
+    getSessionWithMessages,
+} from './sales-buddy'
+

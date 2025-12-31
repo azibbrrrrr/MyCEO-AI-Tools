@@ -1,16 +1,18 @@
 import { useState, useEffect, useRef } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useLanguage } from '@/components/language-provider'
 import { LanguageToggle } from '@/components/language-toggle'
 import { FloatingElements } from '@/components/floating-elements'
 import { HelpBubble } from '@/components/help-bubble'
+import { useChildSession } from '@/hooks/useChildSession'
+import { createSession, saveMessage, updateSession, getChildSessions, SalesSession } from '@/lib/supabase'
 import { 
   Coffee, Gift, Utensils, Box, 
   Smile, Search, DollarSign, 
   Send, RefreshCw, 
   Lightbulb, User,
-  ChevronRight, Star,
-  ArrowRight, Heart, MessageSquare, X, ShieldCheck, Meh, Frown, Keyboard
+  ChevronRight, Star, Trophy,
+  ArrowRight, Heart, MessageSquare, X, ShieldCheck, Meh, Frown, Keyboard, ClipboardList
 } from 'lucide-react'
 
 // ============================================
@@ -109,6 +111,8 @@ const CUSTOMERS: Customer[] = [
 
 export default function SalesBuddyPage() {
   const { t, language } = useLanguage()
+  const { child } = useChildSession()
+  const navigate = useNavigate()
   
   // Flow state
   const [step, setStep] = useState<'product' | 'customer' | 'chat' | 'reflection'>('product')
@@ -126,10 +130,15 @@ export default function SalesBuddyPage() {
   const [reflection, setReflection] = useState<Reflection | null>(null)
   const [customerMood, setCustomerMood] = useState(50)
   const [customerInfo, setCustomerInfo] = useState<CustomerInfo | null>(null)
+  const [sessionId, setSessionId] = useState<string | null>(null)
+  const [turnNumber, setTurnNumber] = useState(0)
+  const [recentSessions, setRecentSessions] = useState<SalesSession[]>([])
   
   // Refs
   const chatEndRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const sessionIdRef = useRef<string | null>(null)  // Ref for immediate session ID access
+  const turnNumberRef = useRef(0)  // Ref for immediate turn number access
 
   // Auto-scroll chat
   useEffect(() => {
@@ -138,11 +147,22 @@ export default function SalesBuddyPage() {
     }
   }, [messages, isLoading, options, step])
 
+  // Fetch recent sessions for "Past Adventures" card
+  useEffect(() => {
+    const fetchRecentSessions = async () => {
+      if (child?.id) {
+        const sessions = await getChildSessions(child.id, 2)  // Get last 2 sessions
+        setRecentSessions(sessions)
+      }
+    }
+    fetchRecentSessions()
+  }, [child?.id])
+
   // ============================================
   // API Call
   // ============================================
 
-  const generateResponse = async (userReply: string | null, currentMessages: ChatMessage[] = messages, overrideCustomer?: Customer) => {
+  const generateResponse = async (userReply: string | null, currentMessages: ChatMessage[] = messages, overrideCustomer?: Customer, currentSessionId?: string | null) => {
     setIsLoading(true)
     setOptions([])
 
@@ -194,15 +214,104 @@ export default function SalesBuddyPage() {
         setCustomerMood(result.mood_score)
       }
 
-      // Store customer info from first response
+      // DEBUG: Log which branch we'll enter
+      console.log('🔍 Save logic check:', {
+        hasCustomerInfo: !!result.customerInfo,
+        currentSessionId,
+        userReply,
+        sessionIdRef: sessionIdRef.current
+      })
+
+      // Store customer info from first response and create session
       if (result.customerInfo) {
         setCustomerInfo(result.customerInfo)
+      }
+      
+      // FIRST MESSAGE: Create session and save first AI message
+      if (!sessionIdRef.current && result.customerInfo && child?.id) {
+        console.log('📝 FIRST MESSAGE - Creating session')
+        const newSession = await createSession({
+          child_id: child.id,
+          customer_type: (overrideCustomer || customer)?.id as 'friendly' | 'picky' | 'bargain' || 'friendly',
+          customer_name: result.customerInfo.name,
+          customer_age: result.customerInfo.age,
+          customer_trait: result.customerInfo.trait,
+          customer_goal: result.customerInfo.goal || null,
+          customer_social: result.customerInfo.socialMediaName,
+          product_name: productName || product?.id || 'Unknown',
+          product_price: parseFloat(productPrice) || 0,
+          product_desc: productDesc || null,
+          language: language
+        })
+        
+        if (newSession) {
+          setSessionId(newSession.id)
+          sessionIdRef.current = newSession.id  // Set ref immediately
+          console.log('✅ Session created:', newSession.id)
+          
+          // Save the first AI message
+          await saveMessage({
+            session_id: newSession.id,
+            sender: 'ai',
+            message: result.response,
+            mood_after: result.mood_score,
+            turn_number: 1
+          })
+          setTurnNumber(1)
+          turnNumberRef.current = 1
+        }
+      } 
+      // SUBSEQUENT MESSAGES: Save user message and AI response
+      else if (sessionIdRef.current && userReply) {
+        turnNumberRef.current += 1
+        const newTurn = turnNumberRef.current
+        setTurnNumber(newTurn)
+        
+        console.log('💾 Saving messages for turn:', newTurn, 'sessionId:', sessionIdRef.current)
+        
+        // Save user message
+        const userSaved = await saveMessage({
+          session_id: sessionIdRef.current,
+          sender: 'user',
+          message: userReply,
+          turn_number: newTurn
+        })
+        console.log('User message saved:', userSaved ? '✅' : '❌')
+        
+        // Save AI response
+        const aiSaved = await saveMessage({
+          session_id: sessionIdRef.current,
+          sender: 'ai',
+          message: result.response,
+          mood_after: result.mood_score,
+          turn_number: newTurn
+        })
+        console.log('AI message saved:', aiSaved ? '✅' : '❌')
+      } else {
+        console.log('⚠️ Not saving messages - sessionIdRef:', sessionIdRef.current, 'userReply:', !!userReply, 'hasCustomerInfo:', !!result.customerInfo)
       }
 
       // Handle finish or continue
       if (result.is_finished && result.reflection) {
         setReflection(result.reflection)
         setOptions([])
+        
+        // Update session with final outcome and reflection
+        if (currentSessionId || sessionId) {
+          const finalSessionId = currentSessionId || sessionId
+          await updateSession(finalSessionId!, {
+            outcome: result.reflection.outcome === 'ongoing' ? 'abandoned' : result.reflection.outcome,
+            rating: result.reflection.rating,
+            final_mood: result.mood_score,
+            reflection_review_en: result.reflection.social_review?.en,
+            reflection_review_bm: result.reflection.social_review?.bm,
+            reflection_good_en: result.reflection.good_point?.en,
+            reflection_good_bm: result.reflection.good_point?.bm,
+            reflection_tip_en: result.reflection.suggestion?.en,
+            reflection_tip_bm: result.reflection.suggestion?.bm
+          })
+          console.log('✅ Session updated with reflection')
+        }
       } else {
         // Display options exactly as received (no shuffle)
         setOptions(result.options || [])
@@ -228,7 +337,11 @@ export default function SalesBuddyPage() {
     setMessages([])
     setCustomerMood(50)
     setReflection(null)
-    generateResponse(null, [], selectedCustomer)  // Pass empty array for start
+    setSessionId(null)  // Reset session ID for new simulation
+    sessionIdRef.current = null  // Reset ref too
+    setTurnNumber(0)
+    turnNumberRef.current = 0  // Reset turn number ref
+    generateResponse(null, [], selectedCustomer, null)  // Pass null for new session
   }
 
   const handleUserReply = (text: string) => {
@@ -244,7 +357,8 @@ export default function SalesBuddyPage() {
       textareaRef.current.style.height = 'auto'
     }
     
-    generateResponse(text.trim(), updatedMessages)  // Pass the updated array directly
+    // Use ref for immediate session ID access (state might be stale)
+    generateResponse(text.trim(), updatedMessages, undefined, sessionIdRef.current)
   }
 
   const handleRestart = () => {
@@ -259,6 +373,10 @@ export default function SalesBuddyPage() {
     setOptions([])
     setInputText('')
     setCustomerMood(50)
+    setSessionId(null)  // Clear session ID
+    sessionIdRef.current = null  // Clear ref too
+    setTurnNumber(0)
+    turnNumberRef.current = 0  // Clear turn number ref
   }
 
   const handleInputResize = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -347,7 +465,17 @@ export default function SalesBuddyPage() {
             <span className="text-2xl">🎯</span>
             <span className="font-bold text-[var(--text-primary)] hidden sm:block">{t("tool.salesBuddy")}</span>
           </div>
-          <LanguageToggle />
+          <div className="flex items-center gap-2">
+            <Link
+              to="/tools/sales-buddy/history"
+              className="flex items-center gap-1.5 bg-white rounded-full px-3 py-2 shadow-[var(--shadow-low)] hover:shadow-[var(--shadow-medium)] transition-all text-[var(--text-primary)]"
+              title={language === 'BM' ? 'Sejarah Latihan' : 'Practice History'}
+            >
+              <ClipboardList size={18} />
+              <span className="font-semibold text-sm hidden sm:block">{language === 'BM' ? 'Sejarah' : 'History'}</span>
+            </Link>
+            <LanguageToggle />
+          </div>
         </header>
 
         <main className="relative z-10 px-4 md:px-8 py-8">
@@ -431,6 +559,90 @@ export default function SalesBuddyPage() {
             >
               {t("common.next")} <ChevronRight size={20} />
             </button>
+
+            {/* Past Adventures Card */}
+            {recentSessions.length > 0 && (
+              <div className="mt-8 bg-gradient-to-br from-[var(--sunshine-orange-light)] to-[#fff5e6] rounded-3xl p-5 border-2 border-[var(--sunshine-orange)] shadow-[var(--shadow-medium)]">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="p-2 rounded-full bg-[var(--sunshine-orange)] text-white">
+                    <Trophy size={20} />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-[var(--text-primary)]">
+                      {language === 'BM' ? 'Latihan Lepas Kamu' : 'Your Past Adventures'}
+                    </h3>
+                    <p className="text-xs text-[var(--text-muted)]">
+                      {language === 'BM' ? 'Lihat prestasi terdahulu' : 'See how you did before'}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  {recentSessions.map((session) => {
+                    const timeAgo = (() => {
+                      const now = new Date()
+                      const created = new Date(session.created_at!)
+                      const diffHours = Math.floor((now.getTime() - created.getTime()) / (1000 * 60 * 60))
+                      if (diffHours < 1) return language === 'BM' ? 'Baru je' : 'Just now'
+                      if (diffHours < 24) return language === 'BM' ? `${diffHours} jam lepas` : `${diffHours}h ago`
+                      const diffDays = Math.floor(diffHours / 24)
+                      return language === 'BM' ? `${diffDays} hari lepas` : `${diffDays}d ago`
+                    })()
+                    
+                    const customerEmoji = session.customer_type === 'friendly' ? '😊' : 
+                                         session.customer_type === 'picky' ? '🔍' : '💰'
+                    
+                    return (
+                      <div 
+                        key={session.id}
+                        className="bg-white rounded-xl p-3 flex items-center gap-3 hover:shadow-md transition-all cursor-pointer"
+                        onClick={() => navigate('/tools/sales-buddy/history')}
+                      >
+                        <span className="text-xl">{customerEmoji}</span>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-sm text-[var(--text-primary)] truncate">
+                            {session.product_name}
+                          </p>
+                          <div className="flex items-center gap-2">
+                            <div className="flex">
+                              {[...Array(5)].map((_, i) => (
+                                <Star 
+                                  key={i} 
+                                  size={10} 
+                                  className={i < (session.rating || 0) 
+                                    ? "fill-[var(--golden-yellow)] text-[var(--golden-yellow)]" 
+                                    : "text-[var(--border-light)]"
+                                  } 
+                                />
+                              ))}
+                            </div>
+                            <span className="text-xs text-[var(--text-muted)]">{timeAgo}</span>
+                          </div>
+                        </div>
+                        <div className={`text-xs font-bold px-2 py-1 rounded-full ${
+                          session.outcome === 'success' 
+                            ? 'bg-[var(--mint-green-light)] text-[var(--mint-green-dark)]'
+                            : 'bg-[var(--coral-pink-light)] text-[var(--coral-pink-dark)]'
+                        }`}>
+                          {session.outcome === 'success' 
+                            ? (language === 'BM' ? '✓ Berjaya' : '✓ Success')
+                            : (language === 'BM' ? '✗ Cuba lagi' : '✗ Try again')
+                          }
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+
+                <Link 
+                  to="/tools/sales-buddy/history"
+                  className="mt-4 w-full bg-[var(--sunshine-orange)] hover:bg-[var(--sunshine-orange-dark)] text-white font-bold py-3 px-4 rounded-full transition-all flex items-center justify-center gap-2 shadow-[var(--shadow-low)]"
+                >
+                  <ClipboardList size={18} />
+                  {language === 'BM' ? 'Lihat Semua Latihan' : 'View All Practice'}
+                </Link>
+              </div>
+            )}
           </div>
         </main>
 
@@ -719,13 +931,22 @@ export default function SalesBuddyPage() {
             </div>
           </div>
 
-          <div className="p-4 bg-white border-t border-[var(--border-light)] shrink-0">
+          <div className="p-4 bg-white border-t border-[var(--border-light)] shrink-0 space-y-3">
             <button 
               onClick={handleRestart}
               className="w-full bg-[var(--sky-blue)] text-white font-bold py-3 rounded-full hover:bg-[var(--sky-blue-dark)] transition-colors shadow-[var(--shadow-medium)]"
             >
               {t("salesBuddy.tryAgain")}
             </button>
+            
+            {/* View History Button */}
+            <Link 
+              to="/tools/sales-buddy/history"
+              className="w-full bg-white border-2 border-[var(--sunshine-orange)] text-[var(--sunshine-orange)] font-bold py-3 rounded-full hover:bg-[var(--sunshine-orange-light)] transition-colors flex items-center justify-center gap-2"
+            >
+              <Trophy size={18} />
+              {language === 'BM' ? 'Lihat Semua Latihan' : 'View All Practice History'}
+            </Link>
           </div>
         </div>
       </div>

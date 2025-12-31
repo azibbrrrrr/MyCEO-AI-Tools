@@ -153,7 +153,7 @@ export function LogoZoomModal({
             onClick={handleDownload}
             className="flex-1 px-4 py-3 rounded-full bg-gray-100 text-[var(--text-primary)] font-bold hover:bg-gray-200 transition-colors flex items-center justify-center gap-2"
           >
-            📥 Download
+           Download
           </button>
           {showPickButton && onPick && (
             <button
@@ -171,7 +171,7 @@ export function LogoZoomModal({
             onClick={onDelete}
             className="w-full mt-3 px-4 py-2.5 rounded-full border-2 border-red-400 text-red-500 font-semibold hover:bg-red-50 transition-colors flex items-center justify-center gap-2"
           >
-            🗑️ Delete Logo
+            Delete Logo
           </button>
         )}
       </div>
