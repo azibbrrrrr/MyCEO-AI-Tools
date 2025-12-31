@@ -102,26 +102,26 @@ const PREDEFINED_PERSONAS = {
         { name: "Tok Wan", age: 72, trait: "Complains about modern things", socialMediaName: "@tokwan1952", goal: "Says 'zaman dulu lagi sedap', very cerewet" },
         { name: "Makcik Ros", age: 65, trait: "Retired chef, ultra critical", socialMediaName: "@makcik_ros", goal: "Criticizes your technique, asks many questions" }
     ],
-    // BARGAIN: Focus on PRICE, DISCOUNTS, FREEBIES
+    // BARGAIN: Focus on DISCOUNTS & NEGOTIATION (percentage-based, works with any price)
     bargain: [
         // Kids/Peers
-        { name: "Danial", age: 10, trait: "Low pocket money, wants freebies", socialMediaName: "@danial_games", goal: "Only has RM3, asking for discount" },
-        { name: "Mei Ling", age: 11, trait: "Saves every cent", socialMediaName: "@meiling_saver", goal: "Brought exactly RM4, wants extras free" },
-        { name: "Adik Bongsu", age: 8, trait: "Crying kid, wants free", socialMediaName: "N/A", goal: "Wants candy but has no money" },
+        { name: "Danial", age: 10, trait: "Low pocket money, wants freebies", socialMediaName: "@danial_games", goal: "Asks for 50% discount or free sample" },
+        { name: "Mei Ling", age: 11, trait: "Saves every cent", socialMediaName: "@meiling_saver", goal: "Wants something extra free with purchase" },
+        { name: "Adik Bongsu", age: 8, trait: "Crying kid, wants free", socialMediaName: "N/A", goal: "Begs for free item, no money at all" },
         // Teens
-        { name: "Farah", age: 16, trait: "Student on tight budget", socialMediaName: "@farah_saver", goal: "Wants 50% off, max RM5" },
-        { name: "Zul", age: 15, trait: "Always asks 'ada diskaun?'", socialMediaName: "@zul_bargain", goal: "Negotiates everything, has RM6" },
-        { name: "Siti", age: 17, trait: "Compares prices on phone", socialMediaName: "@siti_deals", goal: "Found cheaper online, will you match? RM7" },
-        { name: "Brian", age: 20, trait: "Broke Gamer", socialMediaName: "@brian_gaming", goal: "Spent all money on games, only has RM1.50" },
+        { name: "Farah", age: 16, trait: "Student on tight budget", socialMediaName: "@farah_saver", goal: "Wants minimum 30% off the price" },
+        { name: "Zul", age: 15, trait: "Always asks 'ada diskaun?'", socialMediaName: "@zul_bargain", goal: "Never accepts first price, wants 20% off" },
+        { name: "Siti", age: 17, trait: "Compares prices on phone", socialMediaName: "@siti_deals", goal: "Claims found cheaper elsewhere, asks to match" },
+        { name: "Brian", age: 20, trait: "Broke Gamer", socialMediaName: "@brian_gaming", goal: "Offers half price, take it or leave it" },
         // Young Adults
-        { name: "Hafiz", age: 21, trait: "Uni student, wants big portions", socialMediaName: "@hafiz_uni", goal: "Wants cheap & big portion, budget RM7" },
-        { name: "Kavitha", age: 23, trait: "Fresh grad, counting every ringgit", socialMediaName: "@kavi_budget", goal: "Can you do RM5 instead of RM8?" },
+        { name: "Hafiz", age: 21, trait: "Uni student, wants big portions", socialMediaName: "@hafiz_uni", goal: "Wants double portion for same price" },
+        { name: "Kavitha", age: 23, trait: "Fresh grad, counting every ringgit", socialMediaName: "@kavi_budget", goal: "Asks for 25% student discount" },
         // Adults
-        { name: "Uncle Lim", age: 48, trait: "Expert haggler, never pays full", socialMediaName: "@unclelim_deals", goal: "Will offer RM5 for RM10 item" },
-        { name: "Pakcik Ali", age: 55, trait: "Market regular, knows all tricks", socialMediaName: "@pakcik_ali", goal: "Bulk discount? Wants RM50 for RM80 worth" },
-        { name: "Kak Sya", age: 35, trait: "Budget Mom feeding 5 kids", socialMediaName: "@sya_family", goal: "Needs family discount, max RM10" },
+        { name: "Uncle Lim", age: 48, trait: "Expert haggler, never pays full", socialMediaName: "@unclelim_deals", goal: "Starts negotiation at 40% off" },
+        { name: "Pakcik Ali", age: 55, trait: "Market regular, knows all tricks", socialMediaName: "@pakcik_ali", goal: "Wants bulk discount, buy 3 pay for 2" },
+        { name: "Kak Sya", age: 35, trait: "Budget Mom feeding 5 kids", socialMediaName: "@sya_family", goal: "Asks for family bundle deal" },
         // Elderly
-        { name: "Nenek Aminah", age: 70, trait: "Remembers cheaper old prices", socialMediaName: "@nenek_aminah", goal: "Thinks everything should be RM2 like 1990s" }
+        { name: "Nenek Aminah", age: 70, trait: "Remembers cheaper old prices", socialMediaName: "@nenek_aminah", goal: "Complains price too high, wants 50% off" }
     ]
 };
 
