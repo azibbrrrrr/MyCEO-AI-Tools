@@ -265,6 +265,10 @@ const translations: Record<string, Record<Language, string>> = {
   "salesBuddy.strength": { EN: "Strength", BM: "Kekuatan" },
   "salesBuddy.suggestion": { EN: "Suggestion", BM: "Cadangan" },
   "salesBuddy.justNow": { EN: "Just now", BM: "Baru sahaja" },
+
+  // Mini Website Tool
+  "tool.miniWebsite": { EN: "Mini Website", BM: "Mini Website" },
+  "tool.miniWebsite.desc": { EN: "Build a landing page for your product!", BM: "Bina laman web untuk produk anda!" },
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined)

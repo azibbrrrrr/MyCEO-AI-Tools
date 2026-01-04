@@ -8,7 +8,7 @@
 
 export interface ToolConfig {
     icon: string
-    iconImageKey: 'logoMaker' | 'booth' | 'calculator' | 'productIdea' | 'packaging' | 'salesBuddy'
+    iconImageKey: 'logoMaker' | 'booth' | 'calculator' | 'productIdea' | 'packaging' | 'salesBuddy' | 'miniWebsite'
     titleKey: string
     descKey: string
     href: string
@@ -46,6 +46,14 @@ export const AVAILABLE_TOOLS: ToolConfig[] = [
         titleKey: "tool.salesBuddy",
         descKey: "tool.salesBuddy.desc",
         href: "/tools/sales-buddy",
+        state: "available",
+    },
+    {
+        icon: "🌐",
+        iconImageKey: "miniWebsite",
+        titleKey: "tool.miniWebsite",
+        descKey: "tool.miniWebsite.desc",
+        href: "/tools/mini-website",
         state: "available",
     },
 ]

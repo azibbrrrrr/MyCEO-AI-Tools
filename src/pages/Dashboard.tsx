@@ -28,6 +28,7 @@ const toolIcons: Record<string, string> = {
   productIdea: productIdeaIcon,
   packaging: packagingIcon,
   salesBuddy: salesBuddyIcon,
+  miniWebsite: salesBuddyIcon, // TODO: Replace with dedicated mini-website icon
 }
 
 // Helper to format date

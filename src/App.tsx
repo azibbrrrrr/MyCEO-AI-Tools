@@ -8,6 +8,7 @@ import BoothReadyPage from './pages/BoothReadyPage'
 import ProfitCalculatorPage from './pages/ProfitCalculatorPage'
 import SalesBuddyPage from './pages/SalesBuddyPage'
 import SalesBuddyHistoryPage from './pages/SalesBuddyHistoryPage'
+import MiniWebsitePage from './pages/MiniWebsitePage'
 import DevLoginPage from './pages/DevLoginPage'
 import CreationsPage from './pages/CreationsPage'
 import { DevModeBanner } from './components/dev-mode-banner'
@@ -33,6 +34,7 @@ function App() {
         <Route path="/tools/profit-calculator" element={<RequireAuth><ProfitCalculatorPage /></RequireAuth>} />
         <Route path="/tools/sales-buddy" element={<RequireAuth><SalesBuddyPage /></RequireAuth>} />
         <Route path="/tools/sales-buddy/history" element={<RequireAuth><SalesBuddyHistoryPage /></RequireAuth>} />
+        <Route path="/tools/mini-website" element={<RequireAuth><MiniWebsitePage /></RequireAuth>} />
         
         {/* Catch-all: redirect unknown routes to dashboard (which will redirect to login if needed) */}
         <Route path="*" element={<Navigate to="/" replace />} />
