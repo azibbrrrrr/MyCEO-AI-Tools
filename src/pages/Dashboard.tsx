@@ -19,6 +19,7 @@ import calculatorIcon from "@/assets/calculator-icon.png"
 import productIdeaIcon from "@/assets/product-idea-icon.png"
 import packagingIcon from "@/assets/packaging-icon.png"
 import salesBuddyIcon from "@/assets/sales-buddy-icon.png"
+import miniWebsiteIcon from "@/assets/mini-website-icon.png"
 
 // Tool icon mapping
 const toolIcons: Record<string, string> = {
@@ -28,7 +29,7 @@ const toolIcons: Record<string, string> = {
   productIdea: productIdeaIcon,
   packaging: packagingIcon,
   salesBuddy: salesBuddyIcon,
-  miniWebsite: salesBuddyIcon, // TODO: Replace with dedicated mini-website icon
+  miniWebsite: miniWebsiteIcon,
 }
 
 // Helper to format date
