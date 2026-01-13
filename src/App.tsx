@@ -11,6 +11,7 @@ import SalesBuddyHistoryPage from './pages/SalesBuddyHistoryPage'
 import MiniWebsitePage from './pages/MiniWebsitePage'
 import DevLoginPage from './pages/DevLoginPage'
 import CreationsPage from './pages/CreationsPage'
+import PublicWebsitePage from './pages/PublicWebsitePage'
 import { DevModeBanner } from './components/dev-mode-banner'
 import { RequireAuth } from './components/RequireAuth'
 
@@ -35,6 +36,9 @@ function App() {
         <Route path="/tools/sales-buddy" element={<RequireAuth><SalesBuddyPage /></RequireAuth>} />
         <Route path="/tools/sales-buddy/history" element={<RequireAuth><SalesBuddyHistoryPage /></RequireAuth>} />
         <Route path="/tools/mini-website" element={<RequireAuth><MiniWebsitePage /></RequireAuth>} />
+        
+        {/* Public Mini Website Route */}
+        <Route path="/site/:slug" element={<PublicWebsitePage />} />
         
         {/* Catch-all: redirect unknown routes to dashboard (which will redirect to login if needed) */}
         <Route path="*" element={<Navigate to="/" replace />} />

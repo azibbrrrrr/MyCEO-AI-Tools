@@ -619,6 +619,51 @@ export interface Database {
                     }
                 ]
             }
+
+            mini_websites: {
+                Row: {
+                    id: string
+                    child_id: string
+                    title: string
+                    data: Json
+                    is_published: boolean
+                    url_slug: string | null
+                    published_at: string | null
+                    created_at: string
+                    updated_at: string
+                }
+                Insert: {
+                    id?: string
+                    child_id: string
+                    title?: string
+                    data: Json
+                    is_published?: boolean
+                    url_slug?: string | null
+                    published_at?: string | null
+                    created_at?: string
+                    updated_at?: string
+                }
+                Update: {
+                    id?: string
+                    child_id?: string
+                    title?: string
+                    data?: Json
+                    is_published?: boolean
+                    url_slug?: string | null
+                    published_at?: string | null
+                    created_at?: string
+                    updated_at?: string
+                }
+                Relationships: [
+                    {
+                        foreignKeyName: "mini_websites_child_id_fkey"
+                        columns: ["child_id"]
+                        isOneToOne: false
+                        referencedRelation: "children"
+                        referencedColumns: ["id"]
+                    }
+                ]
+            }
         }
         Views: {
             [_ in never]: never
@@ -657,4 +702,5 @@ export type Lesson = Tables<'lessons'>
 export type Achievement = Tables<'achievements'>
 export type SalesSession = Tables<'sales_sessions'>
 export type SalesMessage = Tables<'sales_messages'>
+export type MiniWebsite = Tables<'mini_websites'>
 

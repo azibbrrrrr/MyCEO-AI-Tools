@@ -619,6 +619,16 @@ interface ContentTabProps {
 export const ContentTab = ({ siteConfig }: ContentTabProps) => {
   const [activeTab, setActiveTab] = useState('hero');
 
+  const scrollToSection = (id: string) => {
+    // Small timeout to allow state update if needed, though usually not strictly necessary for scroll
+    setTimeout(() => {
+        const element = document.getElementById(id);
+        if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    }, 0);
+  };
+
   const tabs = [
     { id: 'hero', label: 'Hero' },
     { id: 'features', label: 'Features' },
@@ -633,7 +643,20 @@ export const ContentTab = ({ siteConfig }: ContentTabProps) => {
         {tabs.map((tab) => (
           <button
             key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
+            onClick={() => {
+                setActiveTab(tab.id);
+                // Map internal tab IDs to preview DOM IDs
+                const mapping: Record<string, string> = {
+                    'hero': 'preview-hero',
+                    'features': 'preview-usp',
+                    'products': 'preview-product',
+                    'reviews': 'preview-social-proof',
+                    'cta': 'preview-cta'
+                };
+                if (mapping[tab.id]) {
+                    scrollToSection(mapping[tab.id]);
+                }
+            }}
             className={`flex-1 px-3 py-1.5 text-xs font-medium rounded-md transition-all whitespace-nowrap ${
               activeTab === tab.id
                 ? 'bg-white text-blue-600 shadow-sm ring-1 ring-black/5'

@@ -10,11 +10,21 @@ interface LayoutsTabProps {
 export const LayoutsTab = ({ siteConfig }: LayoutsTabProps) => {
   const { config, setLayout } = siteConfig;
 
+  const scrollToSection = (id: string) => {
+    const element = document.getElementById(id);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
   return (
     <div className="space-y-8 p-1">
       {/* Hero Section */}
       <section>
-        <h3 className="flex items-center gap-2 text-xs font-bold text-gray-500 uppercase tracking-wide mb-4">
+        <h3 
+            onClick={() => scrollToSection('preview-hero')}
+            className="flex items-center gap-2 text-xs font-bold text-gray-500 uppercase tracking-wide mb-4 cursor-pointer hover:text-primary transition-colors"
+        >
           🎯 Hero Section
         </h3>
         <div className="grid grid-cols-3 gap-3">
@@ -33,7 +43,10 @@ export const LayoutsTab = ({ siteConfig }: LayoutsTabProps) => {
 
       {/* USP Section */}
       <section>
-        <h3 className="flex items-center gap-2 text-xs font-bold text-gray-500 uppercase tracking-wide mb-4">
+        <h3 
+            onClick={() => scrollToSection('preview-usp')}
+            className="flex items-center gap-2 text-xs font-bold text-gray-500 uppercase tracking-wide mb-4 cursor-pointer hover:text-primary transition-colors"
+        >
           ✨ USP Section
         </h3>
         <div className="grid grid-cols-3 gap-3">
@@ -52,7 +65,10 @@ export const LayoutsTab = ({ siteConfig }: LayoutsTabProps) => {
 
       {/* Social Proof Section */}
       <section>
-        <h3 className="flex items-center gap-2 text-xs font-bold text-gray-500 uppercase tracking-wide mb-4">
+        <h3 
+            onClick={() => scrollToSection('preview-social-proof')}
+            className="flex items-center gap-2 text-xs font-bold text-gray-500 uppercase tracking-wide mb-4 cursor-pointer hover:text-primary transition-colors"
+        >
           ⭐ Social Proof
         </h3>
         <div className="grid grid-cols-2 gap-3">
@@ -71,7 +87,10 @@ export const LayoutsTab = ({ siteConfig }: LayoutsTabProps) => {
 
       {/* Product Section */}
       <section>
-        <h3 className="flex items-center gap-2 text-xs font-bold text-gray-500 uppercase tracking-wide mb-4">
+        <h3 
+            onClick={() => scrollToSection('preview-product')}
+            className="flex items-center gap-2 text-xs font-bold text-gray-500 uppercase tracking-wide mb-4 cursor-pointer hover:text-primary transition-colors"
+        >
           🛍️ Product Section
         </h3>
         <div className="grid grid-cols-3 gap-3">

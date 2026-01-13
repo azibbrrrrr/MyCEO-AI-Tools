@@ -21,28 +21,40 @@ export const SitePreview = ({ config, siteConfig, isMobile }: SitePreviewProps) 
         className="transition-all duration-300 section-gap flex flex-col"
       >
         {/* Hero Section */}
-        <HeroSection 
-          config={config} 
-          siteConfig={siteConfig} 
-          isMobile={isMobile} 
-        />
+        <div id="preview-hero" className="scroll-mt-4">
+          <HeroSection 
+            config={config} 
+            siteConfig={siteConfig} 
+            isMobile={isMobile} 
+          />
+        </div>
 
         {/* USP/Features Section */}
-        <USPSection config={config} isMobile={isMobile} />
+        <div id="preview-usp" className="scroll-mt-4">
+           <USPSection config={config} isMobile={isMobile} />
+        </div>
 
         {/* Social Proof Section */}
-        <SocialProofSection config={config} isMobile={isMobile} />
+        <div id="preview-social-proof" className="scroll-mt-4">
+           <SocialProofSection config={config} isMobile={isMobile} />
+        </div>
 
         {/* Product Section */}
-        <ProductSection config={config} isMobile={isMobile} />
+        <div id="preview-product" className="scroll-mt-4">
+           <ProductSection config={config} isMobile={isMobile} />
+        </div>
 
         {/* Scarcity Bar */}
         {config.content.scarcityEnabled && (
-          <ScarcityBar config={config} />
+          <div id="preview-scarcity" className="scroll-mt-4">
+            <ScarcityBar config={config} />
+          </div>
         )}
 
         {/* CTA Section */}
-        <CTASection config={config} />
+        <div id="preview-cta" className="scroll-mt-4">
+           <CTASection config={config} />
+        </div>
       </motion.div>
     </div>
   );
