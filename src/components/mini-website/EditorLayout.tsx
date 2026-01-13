@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   Monitor,
@@ -36,13 +37,24 @@ export const EditorLayout = ({ siteConfig }: EditorLayoutProps) => {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       {/* Standard Navbar - same as other tools */}
-      <header className="relative z-10 flex items-center justify-between p-4 md:p-6 bg-white/50 backdrop-blur-sm border-b border-[var(--border-light)] shrink-0">
-        <div className="flex items-center gap-2">
+      <header className="relative z-10 flex items-center justify-between p-4 md:p-6 bg-white/80 backdrop-blur-sm border-b border-[var(--border-light)] shrink-0">
+        <div className="flex items-center gap-4 z-20">
+          <Link
+            to="/"
+            className="px-4 py-2 bg-white rounded-full shadow-[var(--shadow-low)] hover:shadow-[var(--shadow-medium)] transition-shadow text-[var(--text-secondary)] font-semibold flex items-center gap-2"
+          >
+            <span>←</span> {t("common.back")}
+          </Link>
+        </div>
+
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-2 z-10">
           <span className="text-2xl">🌐</span>
           <span className="font-bold text-[var(--text-primary)] hidden sm:block">{t("tool.miniWebsite")}</span>
         </div>
         
-        <LanguageToggle />
+        <div className="z-20">
+          <LanguageToggle />
+        </div>
       </header>
 
       {/* Tool Bar - device toggle, boss mode, preview */}
