@@ -37,8 +37,12 @@ const GridProduct = ({ config, isMobile }: ProductSectionProps) => {
             viewport={{ once: true }}
             className={`bg-card ${cornerRadius} overflow-hidden shadow-md hover:shadow-xl transition-shadow`}
           >
-            <div className="aspect-square bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center">
-              <Package className="w-12 h-12 text-primary/40" />
+            <div className="aspect-square bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center relative overflow-hidden">
+              {product.image ? (
+                <img src={product.image} alt={product.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+              ) : (
+                <Package className="w-12 h-12 text-primary/40" />
+              )}
             </div>
             <div className="p-4">
               <h3 className="font-semibold mb-2">{product.name}</h3>
@@ -89,10 +93,14 @@ const CarouselProduct = ({ config }: ProductSectionProps) => {
         </div>
         
         <div ref={scrollRef} className="flex gap-6 overflow-x-auto snap-x snap-mandatory px-6 pb-4" style={{ scrollbarWidth: 'none' }}>
-          {[...products, ...products].map((product, index) => (
+          {products.map((product, index) => (
             <motion.div key={index} className={`flex-none w-64 snap-center bg-card ${cornerRadius} overflow-hidden shadow-md`}>
-              <div className="aspect-square bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center">
-                <Package className="w-10 h-10 text-primary/40" />
+              <div className="aspect-square bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center relative overflow-hidden">
+                {product.image ? (
+                  <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
+                ) : (
+                  <Package className="w-10 h-10 text-primary/40" />
+                )}
               </div>
               <div className="p-4">
                 <h3 className="font-medium">{product.name}</h3>
@@ -113,46 +121,53 @@ const CarouselProduct = ({ config }: ProductSectionProps) => {
 const BundleProduct = ({ config, isMobile }: ProductSectionProps) => {
   const products = config.content.products;
   const cornerRadius = config.styles.cornerRadius;
+  const buttonStyle = config.styles.buttonStyle;
   
   const totalOriginal = products.reduce((sum, p) => sum + (p.originalPrice || p.price), 0);
   const totalBundle = Math.round(products.reduce((sum, p) => sum + p.price, 0) * 0.8);
   const savings = totalOriginal - totalBundle;
+
+  const buttonClasses = getButtonClasses(buttonStyle, cornerRadius);
   
   return (
-    <section className="section-padding px-6 bg-gradient-to-b from-slate-800 to-slate-900">
+    <section className="section-padding px-6 bg-gradient-to-b from-muted to-background">
       <div className="max-w-4xl mx-auto text-center">
-        <span className="text-xs uppercase tracking-widest text-blue-400 font-semibold">Complete Bundle</span>
-        <h2 className="text-3xl font-bold mt-2 text-white mb-8">Everything You Need</h2>
+        <span className="text-xs uppercase tracking-widest text-primary font-semibold">Complete Bundle</span>
+        <h2 className="text-3xl font-bold mt-2 text-foreground mb-8">Everything You Need</h2>
         
-        <div className={`bg-slate-700/50 ${cornerRadius} p-8 border border-slate-600`}>
+        <div className={`bg-card ${cornerRadius} p-8 border border-border shadow-xl`}>
           <div className={`flex ${isMobile ? 'flex-col gap-4' : 'flex-row items-center justify-center gap-6'} mb-8`}>
             {products.map((product, index) => (
               <div key={product.id} className="flex items-center gap-4">
-                <div className="w-24 h-24 bg-slate-600 rounded-xl flex items-center justify-center shadow-lg border border-slate-500">
-                  <Package className="w-10 h-10 text-slate-300" />
+                <div className="w-24 h-24 bg-muted/50 rounded-xl flex items-center justify-center shadow-sm border border-border relative overflow-hidden">
+                  {product.image ? (
+                    <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
+                  ) : (
+                    <Package className="w-10 h-10 text-muted-foreground" />
+                  )}
                 </div>
-                {index < products.length - 1 && !isMobile && <Plus className="w-8 h-8 text-blue-400" />}
+                {index < products.length - 1 && !isMobile && <Plus className="w-8 h-8 text-primary" />}
               </div>
             ))}
             {!isMobile && products.length > 1 && (
               <>
-                <Equal className="w-8 h-8 text-green-400" />
-                <div className="w-32 h-32 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg">
-                  <Sparkles className="w-12 h-12 text-white" />
+                <Equal className="w-8 h-8 text-primary" />
+                <div className="w-32 h-32 bg-primary/10 rounded-xl flex items-center justify-center shadow-lg border-2 border-primary/20">
+                  <Sparkles className="w-12 h-12 text-primary animate-pulse" />
                 </div>
               </>
             )}
           </div>
           
-          <div className="text-white">
+          <div className="text-foreground">
             <div className="flex items-center justify-center gap-4 mb-4">
-              <span className="text-2xl text-slate-400 line-through">${totalOriginal}</span>
-              <span className="text-5xl font-bold text-green-400">${totalBundle}</span>
+              <span className="text-2xl text-muted-foreground line-through">${totalOriginal}</span>
+              <span className="text-5xl font-bold text-primary">${totalBundle}</span>
             </div>
-            <div className="inline-block px-4 py-2 bg-green-500/20 text-green-400 rounded-full font-semibold mb-6">
+            <div className="inline-block px-4 py-2 bg-primary/10 text-primary rounded-full font-semibold mb-6 animate-bounce-gentle">
               You Save ${savings}! 🎉
             </div>
-            <button className="block w-full max-w-md mx-auto px-8 py-4 bg-gradient-to-r from-blue-500 to-cyan-500 text-white font-bold rounded-xl text-lg hover:from-blue-600 hover:to-cyan-600 transition-all">
+            <button className={`${buttonClasses} w-full max-w-md mx-auto py-4 text-lg`}>
               Get the Bundle →
             </button>
           </div>
@@ -165,25 +180,33 @@ const BundleProduct = ({ config, isMobile }: ProductSectionProps) => {
 // List variant
 const ListProduct = ({ config }: ProductSectionProps) => {
   const products = config.content.products;
+  const cornerRadius = config.styles.cornerRadius;
+  const buttonStyle = config.styles.buttonStyle;
+  const buttonClasses = getButtonClasses(buttonStyle, cornerRadius);
   
   return (
-    <section className="section-padding px-6 bg-gradient-to-b from-amber-50 to-orange-50">
+    <section className="section-padding px-6 bg-muted/20">
       <div className="max-w-lg mx-auto">
-        <h2 className="text-2xl font-bold text-center mb-8 font-serif">Our Menu</h2>
-        <div className="bg-white p-8 rounded-lg shadow-lg border-4 border-double border-amber-200">
+        <h2 className="text-2xl font-bold text-center mb-8">Our Menu</h2>
+        <div className={`bg-card p-8 ${cornerRadius} shadow-lg border-4 border-double border-primary/20`}>
           <div className="space-y-4">
             {products.map((product) => (
               <div key={product.id} className="flex items-end">
+                {product.image && (
+                  <div className="w-12 h-12 rounded-md overflow-hidden bg-muted/20 mr-3 mb-1 shrink-0 border border-border/50">
+                    <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
+                  </div>
+                )}
                 <span className="font-semibold text-lg">{product.name}</span>
-                <span className="flex-1 border-b border-dotted border-amber-300 mx-3 mb-1" />
+                <span className="flex-1 border-b border-dotted border-muted-foreground/30 mx-3 mb-1" />
                 <div className="text-right">
                   {product.originalPrice && <span className="text-sm text-muted-foreground line-through mr-2">${product.originalPrice}</span>}
-                  <span className="font-bold text-xl text-amber-700">${product.price}</span>
+                  <span className="font-bold text-xl text-primary">${product.price}</span>
                 </div>
               </div>
             ))}
           </div>
-          <button className="w-full mt-8 py-3 bg-amber-600 text-white font-bold rounded-lg hover:bg-amber-700 transition-colors">
+          <button className={`${buttonClasses} mt-8 w-full`}>
             Order Now
           </button>
         </div>
@@ -214,6 +237,11 @@ const ComparisonProduct = ({ config, isMobile }: ProductSectionProps) => {
           >
             {index === 1 && <div className="bg-primary-foreground/20 text-center py-1 text-sm font-bold">MOST POPULAR</div>}
             <div className="p-6">
+              {product.image && (
+                <div className="mb-4 aspect-video rounded-md overflow-hidden bg-muted/20 border border-border/50">
+                  <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
+                </div>
+              )}
               <h3 className="text-xl font-bold mb-2">{product.name}</h3>
               <div className="mb-4">
                 <span className="text-4xl font-bold">${product.price}</span>

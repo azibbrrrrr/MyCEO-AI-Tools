@@ -13,7 +13,7 @@ export const PreviewMode = ({ siteConfig }: PreviewModeProps) => {
   const { language } = useLanguage();
 
   return (
-    <div className={`min-h-screen palette-${config.styles.palette}`}>
+    <div className={`min-h-screen palette-${config.styles.palette} font-style-${config.styles.fontPair} spacing-${config.styles.spacingDensity}`}>
       {/* Only back button - no navbar in preview mode */}
       <motion.button
         initial={{ opacity: 0, x: -20 }}

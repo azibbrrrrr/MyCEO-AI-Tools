@@ -5,7 +5,7 @@ export type Mode = 'editor' | 'preview';
 export type Palette = 'warm' | 'pastel' | 'neon' | 'dark';
 export type CornerRadius = 'rounded-none' | 'rounded-lg' | 'rounded-2xl' | 'rounded-full';
 export type ButtonStyle = 'solid' | 'outline' | 'shadow-pop';
-export type FontScale = 'compact' | 'normal' | 'large';
+export type FontPair = 'modern' | 'professional' | 'elegant' | 'friendly' | 'tech';
 export type SpacingDensity = 'tight' | 'normal' | 'relaxed';
 
 export interface Review {
@@ -14,6 +14,7 @@ export interface Review {
     rating: number;
     text: string;
     avatar?: string;
+    image?: string;
 }
 
 export interface Feature {
@@ -55,7 +56,7 @@ export interface SiteConfig {
         palette: Palette;
         cornerRadius: CornerRadius;
         buttonStyle: ButtonStyle;
-        fontScale: FontScale;
+        fontPair: FontPair;
         spacingDensity: SpacingDensity;
     };
     content: {
@@ -98,7 +99,7 @@ export const createInitialConfig = (): SiteConfig => ({
         palette: 'pastel',
         cornerRadius: 'rounded-lg',
         buttonStyle: 'solid',
-        fontScale: 'normal',
+        fontPair: 'modern',
         spacingDensity: 'normal',
     },
     content: {
@@ -170,6 +171,18 @@ export function useSiteConfig() {
             content: {
                 ...prev.content,
                 reviews: [...prev.content.reviews, newReview],
+            },
+        }));
+    }, []);
+
+    const updateReview = useCallback((id: string, updates: Partial<Omit<Review, 'id'>>) => {
+        setConfig(prev => ({
+            ...prev,
+            content: {
+                ...prev.content,
+                reviews: prev.content.reviews.map(r =>
+                    r.id === id ? { ...r, ...updates } : r
+                ),
             },
         }));
     }, []);
@@ -259,6 +272,7 @@ export function useSiteConfig() {
         setStyle,
         setContent,
         addReview,
+        updateReview,
         removeReview,
         addFeature,
         updateFeature,

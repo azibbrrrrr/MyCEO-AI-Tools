@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { Check } from 'lucide-react';
-import type { UseSiteConfigReturn, Palette, CornerRadius, ButtonStyle, FontScale, SpacingDensity } from '@/hooks/useSiteConfig';
+import type { UseSiteConfigReturn, Palette, CornerRadius, ButtonStyle, FontPair, SpacingDensity } from '@/hooks/useSiteConfig';
 
 interface StylesTabProps {
   siteConfig: UseSiteConfigReturn;
@@ -26,10 +26,12 @@ const buttonStyles: { value: ButtonStyle; label: string }[] = [
   { value: 'shadow-pop', label: 'Pop!' },
 ];
 
-const fontScales: { value: FontScale; label: string; preview: string }[] = [
-  { value: 'compact', label: 'Compact', preview: 'Aa' },
-  { value: 'normal', label: 'Normal', preview: 'Aa' },
-  { value: 'large', label: 'Large', preview: 'Aa' },
+const fontPairs: { value: FontPair; label: string; preview: string; description: string }[] = [
+  { value: 'modern', label: 'Modern', preview: 'Aa', description: 'Clean & Simple' },
+  { value: 'professional', label: 'Professional', preview: 'Bb', description: 'Trustworthy' },
+  { value: 'elegant', label: 'Elegant', preview: 'Cc', description: 'Sophisticated' },
+  { value: 'friendly', label: 'Friendly', preview: 'Dd', description: 'Warm & Open' },
+  { value: 'tech', label: 'Tech', preview: 'Ee', description: 'Future Ready' },
 ];
 
 const spacingOptions: { value: SpacingDensity; label: string; bars: number }[] = [
@@ -139,37 +141,38 @@ export const StylesTab = ({ siteConfig }: StylesTabProps) => {
         </div>
       </section>
 
-      {/* Font Scale */}
+      {/* Font Style */}
       <section>
         <h3 className="flex items-center gap-2 text-xs font-bold text-gray-500 uppercase tracking-wide mb-4">
-          🔤 Font Scale
+          🔤 Font Style
         </h3>
-        <div className="grid grid-cols-3 gap-3">
-          {fontScales.map((scale) => (
+        <div className="grid grid-cols-2 gap-3">
+          {fontPairs.map((font) => (
             <motion.button
-              key={scale.value}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => setStyle('fontScale', scale.value)}
-              className={`p-3 border-2 rounded-xl transition-all ${
-                config.styles.fontScale === scale.value
+              key={font.value}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => setStyle('fontPair', font.value)}
+              className={`p-3 border-2 rounded-xl text-left transition-all ${
+                config.styles.fontPair === font.value
                    ? 'border-blue-500 bg-blue-50'
                   : 'bg-white border-gray-200 hover:border-blue-300 hover:shadow-md shadow-sm'
               }`}
             >
-              <div 
-                className={`font-bold mb-2 ${
-                  config.styles.fontScale === scale.value ? 'text-blue-600' : 'text-gray-800'
-                }`}
-                style={{ 
-                  fontSize: scale.value === 'compact' ? '0.875rem' : scale.value === 'large' ? '1.25rem' : '1rem' 
-                }}
-              >
-                {scale.preview}
+              <div className="flex items-center justify-between mb-1">
+                <span className={`text-2xl font-bold font-style-${font.value} ${
+                  config.styles.fontPair === font.value ? 'text-blue-600' : 'text-gray-800'
+                } leading-none`}>
+                  {font.preview}
+                </span>
+                {config.styles.fontPair === font.value && (
+                  <Check className="w-3.5 h-3.5 text-blue-500" />
+                )}
               </div>
-              <p className={`text-xs font-medium ${
-                config.styles.fontScale === scale.value ? 'text-blue-700' : 'text-gray-700'
-              }`}>{scale.label}</p>
+              <p className={`text-sm font-medium ${
+                config.styles.fontPair === font.value ? 'text-blue-700' : 'text-gray-800'
+              }`}>{font.label}</p>
+              <p className="text-[10px] text-gray-500">{font.description}</p>
             </motion.button>
           ))}
         </div>

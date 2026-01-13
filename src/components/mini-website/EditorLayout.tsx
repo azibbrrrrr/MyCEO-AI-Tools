@@ -4,11 +4,10 @@ import {
   Monitor,
   Smartphone,
   Eye,
-  Zap,
   ChevronUp,
 } from 'lucide-react';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
+// import { Switch } from '@/components/ui/switch';
+// import { Label } from '@/components/ui/label';
 import type { UseSiteConfigReturn } from '@/hooks/useSiteConfig';
 import { SitePreview } from './preview/SitePreview';
 import { MarketingCoachWidget } from './MarketingCoachWidget';
@@ -23,7 +22,7 @@ interface EditorLayoutProps {
 }
 
 export const EditorLayout = ({ siteConfig }: EditorLayoutProps) => {
-  const { config, setMode, toggleBossMode } = siteConfig;
+  const { config, setMode } = siteConfig;
   const [deviceView, setDeviceView] = useState<'desktop' | 'mobile'>('desktop');
   const [activeTab, setActiveTab] = useState('layouts');
   const isMobile = useIsMobile();
@@ -76,7 +75,7 @@ export const EditorLayout = ({ siteConfig }: EditorLayoutProps) => {
         </div>
 
         <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
+          {/* <div className="flex items-center gap-2">
             <Switch
               id="boss-mode"
               checked={config.bossMode}
@@ -86,7 +85,7 @@ export const EditorLayout = ({ siteConfig }: EditorLayoutProps) => {
               <Zap className="w-4 h-4 text-accent" />
               <span className="hidden sm:inline">{language === 'EN' ? 'Boss Mode' : 'Mod Boss'}</span>
             </Label>
-          </div>
+          </div> */}
 
           <button
             onClick={() => setMode('preview')}
@@ -144,7 +143,7 @@ export const EditorLayout = ({ siteConfig }: EditorLayoutProps) => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className={`palette-${config.styles.palette} font-scale-${config.styles.fontScale} spacing-${config.styles.spacingDensity} transition-all duration-300 ${
+            className={`palette-${config.styles.palette} font-style-${config.styles.fontPair} spacing-${config.styles.spacingDensity} transition-all duration-300 ${
               isMobile 
                 ? 'w-full h-full min-h-screen bg-background text-foreground' 
                 : `bg-background text-foreground rounded-xl shadow-2xl ${

@@ -48,7 +48,7 @@ const PosterHero = ({ config, isMobile }: HeroSectionProps) => {
       <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} className="relative z-10 text-center text-white px-6 max-w-2xl">
         <h1 className={`text-4xl ${isMobile ? '' : 'md:text-6xl'} font-bold mb-4 drop-shadow-lg`}>{config.content.heroHeading}</h1>
         <p className={`text-xl ${isMobile ? '' : 'md:text-2xl'} mb-8 opacity-90`}>{config.content.heroSubheading}</p>
-        <button className={`${buttonClasses} bg-white text-foreground hover:bg-white/90`}>Learn More</button>
+        <button className={buttonClasses}>Learn More</button>
       </motion.div>
     </section>
   );
@@ -81,7 +81,7 @@ const CinematicHero = ({ config, isMobile }: HeroSectionProps) => {
         <span className="text-sm uppercase tracking-widest opacity-70 mb-2 block">Featured</span>
         <h1 className={`text-4xl ${isMobile ? '' : 'md:text-6xl'} font-bold mb-4`}>{config.content.heroHeading}</h1>
         <p className="text-xl opacity-90 mb-8 max-w-xl">{config.content.heroSubheading}</p>
-        <button className={`${buttonClasses} bg-white text-foreground hover:bg-white/90`}>Explore Now</button>
+        <button className={buttonClasses}>Explore Now</button>
       </motion.div>
     </section>
   );
