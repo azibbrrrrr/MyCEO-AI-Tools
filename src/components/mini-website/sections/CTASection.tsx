@@ -1,17 +1,58 @@
 import { motion } from 'framer-motion';
-import { ShoppingCart, ArrowRight } from 'lucide-react';
-import type { SiteConfig } from '@/hooks/useSiteConfig';
+import { ShoppingCart, MessageCircle, Mail, Phone, ExternalLink } from 'lucide-react';
+import type { SiteConfig, CTAButton, CTAActionType } from '@/hooks/useSiteConfig';
 
 interface CTASectionProps {
   config: SiteConfig;
 }
 
+// Generate proper URL based on action type
+const getButtonHref = (button: CTAButton): string => {
+  switch (button.type) {
+    case 'whatsapp':
+      return `https://wa.me/${button.value}`;
+    case 'email':
+      return `mailto:${button.value}`;
+    case 'phone':
+      return `tel:${button.value}`;
+    case 'shop':
+    case 'custom':
+    default:
+      return button.value || '#';
+  }
+};
+
+// Get icon based on action type
+const getButtonIcon = (type: CTAActionType) => {
+  switch (type) {
+    case 'whatsapp':
+      return MessageCircle;
+    case 'email':
+      return Mail;
+    case 'phone':
+      return Phone;
+    case 'shop':
+      return ShoppingCart;
+    case 'custom':
+    default:
+      return ExternalLink;
+  }
+};
+
 export const CTASection = ({ config }: CTASectionProps) => {
   const cornerRadius = config.styles.cornerRadius;
   const buttonStyle = config.styles.buttonStyle;
+  const buttons = config.content.ctaButtons;
 
-  const getButtonClasses = () => {
-    const base = `px-8 py-4 font-bold text-lg transition-all ${cornerRadius} flex items-center gap-2`;
+  const getButtonClasses = (isPrimary: boolean) => {
+    const base = `px-6 py-3 font-bold text-base transition-all ${cornerRadius} flex items-center justify-center gap-2`;
+    
+    if (!isPrimary) {
+      // Secondary button - outline style
+      return `${base} border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground`;
+    }
+    
+    // Primary button - follow button style setting
     if (buttonStyle === 'solid') {
       return `${base} bg-primary text-primary-foreground hover:opacity-90`;
     }
@@ -22,31 +63,44 @@ export const CTASection = ({ config }: CTASectionProps) => {
   };
 
   return (
-    <section className="py-16 px-6 bg-gray-50">
+    <section className="py-16 px-6 bg-muted/30">
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         className="text-center max-w-xl mx-auto"
       >
-        <h2 className="text-3xl font-bold mb-4">Ready to Order? 🚀</h2>
+        <h2 className="text-3xl font-bold mb-4">{config.content.ctaHeading} 🚀</h2>
         <p className="text-muted-foreground mb-8">
-          Don't miss out on this amazing offer. Order now and join our happy customers!
+          {config.content.ctaSubtext}
         </p>
 
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          className={getButtonClasses()}
-        >
-          <ShoppingCart className="w-5 h-5" />
-          Order Now
-          <ArrowRight className="w-5 h-5" />
-        </motion.button>
+        {/* CTA Buttons */}
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+          {buttons.map((button) => {
+            const Icon = getButtonIcon(button.type);
+            const href = getButtonHref(button);
+            
+            return (
+              <motion.a
+                key={button.id}
+                href={href}
+                target={button.type === 'shop' || button.type === 'custom' ? '_blank' : undefined}
+                rel={button.type === 'shop' || button.type === 'custom' ? 'noopener noreferrer' : undefined}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className={getButtonClasses(button.isPrimary)}
+              >
+                <Icon className="w-5 h-5" />
+                {button.text}
+              </motion.a>
+            );
+          })}
+        </div>
 
-        <p className="text-xs text-muted-foreground mt-4">
+        {/* <p className="text-xs text-muted-foreground mt-6">
           ✓ Free shipping  ✓ 30-day returns  ✓ Secure checkout
-        </p>
+        </p> */}
       </motion.div>
     </section>
   );

@@ -60,18 +60,18 @@ export function useMarketingCoach(config: SiteConfig): CoachResult {
         });
         if (hasReviews) score += 15;
 
-        // Stickers check (15 pts)
-        const hasStickers = config.content.stickers.length >= 1;
+        // Features check (15 pts)
+        const hasFeatures = config.content.features.length >= 3;
         tips.push({
-            id: 'stickers',
-            message: hasStickers
-                ? '✓ Badges make your products stand out!'
-                : 'Add stickers like "Best Seller" to highlight your products!',
+            id: 'features',
+            message: hasFeatures
+                ? '✓ Great features! They show your value!'
+                : 'Add at least 3 features to highlight your product benefits!',
             points: 15,
-            completed: hasStickers,
+            completed: hasFeatures,
             category: 'design',
         });
-        if (hasStickers) score += 15;
+        if (hasFeatures) score += 15;
 
         // Scarcity check (10 pts)
         const hasScarcity = config.content.scarcityEnabled;

@@ -25,7 +25,7 @@ export const PreviewMode = ({ siteConfig }: PreviewModeProps) => {
         {language === 'EN' ? 'Back to Editor' : 'Kembali ke Editor'}
       </motion.button>
 
-      <SitePreview config={config} isMobile={false} />
+      <SitePreview config={config} siteConfig={siteConfig} isMobile={false} />
     </div>
   );
 };

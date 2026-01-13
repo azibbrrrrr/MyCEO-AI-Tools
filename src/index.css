@@ -709,3 +709,127 @@ input[type="range"]::-moz-range-thumb:hover {
   transform: scale(1.1);
   border-color: var(--sunshine-orange);
 }
+
+/* ===========================================
+   MINI-WEBSITE BUILDER DESIGN SYSTEM
+   =========================================== */
+
+/* Font scale and spacing density base variables */
+:root {
+  --font-scale: 1;
+  --section-space: 1.5rem;
+}
+
+/* Palette themes for the mini-website builder */
+.palette-warm {
+  --primary: 15 90% 55%;
+  --secondary: 35 95% 60%;
+  --accent: 45 100% 65%;
+  --background: 35 40% 96%;
+  --foreground: 25 30% 15%;
+  --card: 35 35% 98%;
+  --card-foreground: 25 30% 15%;
+  --muted: 35 25% 90%;
+  --muted-foreground: 25 15% 45%;
+}
+
+.palette-pastel {
+  --primary: 280 60% 75%;
+  --secondary: 180 50% 70%;
+  --accent: 60 70% 80%;
+  --background: 280 30% 97%;
+  --foreground: 280 20% 15%;
+  --card: 280 25% 99%;
+  --card-foreground: 280 20% 15%;
+  --muted: 280 20% 92%;
+  --muted-foreground: 280 10% 45%;
+}
+
+.palette-neon {
+  --primary: 165 100% 45%;
+  --secondary: 280 100% 60%;
+  --accent: 55 100% 50%;
+  --background: 240 20% 8%;
+  --foreground: 0 0% 95%;
+  --card: 240 20% 12%;
+  --card-foreground: 0 0% 95%;
+  --muted: 240 15% 18%;
+  --muted-foreground: 240 5% 65%;
+}
+
+.palette-dark {
+  --primary: 220 70% 50%;
+  --secondary: 280 60% 55%;
+  --accent: 45 90% 55%;
+  --background: 230 25% 10%;
+  --foreground: 0 0% 95%;
+  --card: 230 25% 14%;
+  --card-foreground: 0 0% 95%;
+  --muted: 230 20% 20%;
+  --muted-foreground: 230 10% 60%;
+}
+
+/* Font scale classes */
+.font-scale-compact {
+  --font-scale: 0.875;
+}
+
+.font-scale-normal {
+  --font-scale: 1;
+}
+
+.font-scale-large {
+  --font-scale: 1.125;
+}
+
+/* Spacing density classes */
+.spacing-tight {
+  --section-space: 1rem;
+}
+
+.spacing-normal {
+  --section-space: 1.5rem;
+}
+
+.spacing-relaxed {
+  --section-space: 2.5rem;
+}
+
+/* Scaled typography utilities */
+.text-scaled-xs { font-size: calc(0.75rem * var(--font-scale)); }
+.text-scaled-sm { font-size: calc(0.875rem * var(--font-scale)); }
+.text-scaled-base { font-size: calc(1rem * var(--font-scale)); }
+.text-scaled-lg { font-size: calc(1.125rem * var(--font-scale)); }
+.text-scaled-xl { font-size: calc(1.25rem * var(--font-scale)); }
+.text-scaled-2xl { font-size: calc(1.5rem * var(--font-scale)); }
+.text-scaled-3xl { font-size: calc(1.875rem * var(--font-scale)); }
+.text-scaled-4xl { font-size: calc(2.25rem * var(--font-scale)); }
+.text-scaled-5xl { font-size: calc(3rem * var(--font-scale)); }
+
+/* Section spacing utilities */
+.section-padding { 
+  padding-top: var(--section-space); 
+  padding-bottom: var(--section-space); 
+}
+
+.section-gap { 
+  gap: var(--section-space); 
+}
+
+/* Text gradient for mini-website builder */
+.text-gradient {
+  background: linear-gradient(90deg, hsl(var(--primary)) 0%, hsl(var(--secondary)) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Marquee animation for scarcity bar */
+@keyframes marquee {
+  0% { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
+}
+
+.animate-marquee {
+  animation: marquee 10s linear infinite;
+}

@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { Check } from 'lucide-react';
-import type { UseSiteConfigReturn, Palette, CornerRadius, ButtonStyle } from '@/hooks/useSiteConfig';
+import type { UseSiteConfigReturn, Palette, CornerRadius, ButtonStyle, FontScale, SpacingDensity } from '@/hooks/useSiteConfig';
 
 interface StylesTabProps {
   siteConfig: UseSiteConfigReturn;
@@ -26,14 +26,26 @@ const buttonStyles: { value: ButtonStyle; label: string }[] = [
   { value: 'shadow-pop', label: 'Pop!' },
 ];
 
+const fontScales: { value: FontScale; label: string; preview: string }[] = [
+  { value: 'compact', label: 'Compact', preview: 'Aa' },
+  { value: 'normal', label: 'Normal', preview: 'Aa' },
+  { value: 'large', label: 'Large', preview: 'Aa' },
+];
+
+const spacingOptions: { value: SpacingDensity; label: string; bars: number }[] = [
+  { value: 'tight', label: 'Tight', bars: 2 },
+  { value: 'normal', label: 'Normal', bars: 3 },
+  { value: 'relaxed', label: 'Relaxed', bars: 4 },
+];
+
 export const StylesTab = ({ siteConfig }: StylesTabProps) => {
   const { config, setStyle } = siteConfig;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 p-1">
       {/* Color Palette */}
-      <div>
-        <h3 className="font-semibold mb-3 text-sm text-muted-foreground uppercase tracking-wide">
+      <section>
+        <h3 className="flex items-center gap-2 text-xs font-bold text-gray-500 uppercase tracking-wide mb-4">
           🎨 Color Palette
         </h3>
         <div className="grid grid-cols-2 gap-3">
@@ -43,35 +55,37 @@ export const StylesTab = ({ siteConfig }: StylesTabProps) => {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => setStyle('palette', palette.value)}
-              className={`relative p-3 rounded-xl border-2 transition-colors ${
+              className={`relative p-3 rounded-xl border-2 transition-all ${
                 config.styles.palette === palette.value
-                  ? 'border-primary bg-primary/5'
-                  : 'border-border hover:border-primary/30'
+                  ? 'border-blue-500 bg-blue-50'
+                  : 'bg-white border-gray-200 hover:border-blue-300 hover:shadow-md shadow-sm'
               }`}
             >
               {config.styles.palette === palette.value && (
-                <div className="absolute top-2 right-2 w-5 h-5 bg-primary rounded-full flex items-center justify-center">
-                  <Check className="w-3 h-3 text-primary-foreground" />
+                <div className="absolute top-2 right-2 w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center">
+                  <Check className="w-3 h-3 text-white" />
                 </div>
               )}
               <div className="flex gap-1 mb-2">
                 {palette.colors.map((color, i) => (
                   <div
                     key={i}
-                    className="w-6 h-6 rounded-full shadow-inner"
+                    className="w-6 h-6 rounded-full shadow-inner ring-1 ring-black/5"
                     style={{ backgroundColor: color }}
                   />
                 ))}
               </div>
-              <p className="text-sm font-medium">{palette.label}</p>
+              <p className={`text-sm font-medium ${
+                config.styles.palette === palette.value ? 'text-blue-700' : 'text-gray-700'
+              }`}>{palette.label}</p>
             </motion.button>
           ))}
         </div>
-      </div>
+      </section>
 
       {/* Corner Radius */}
-      <div>
-        <h3 className="font-semibold mb-3 text-sm text-muted-foreground uppercase tracking-wide">
+      <section>
+        <h3 className="flex items-center gap-2 text-xs font-bold text-gray-500 uppercase tracking-wide mb-4">
           📐 Corner Style
         </h3>
         <div className="grid grid-cols-4 gap-2">
@@ -81,45 +95,124 @@ export const StylesTab = ({ siteConfig }: StylesTabProps) => {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => setStyle('cornerRadius', corner.value)}
-              className={`p-3 border-2 transition-colors ${corner.value} ${
+              className={`p-3 border-2 transition-all ${corner.value} ${
                 config.styles.cornerRadius === corner.value
-                  ? 'border-primary bg-primary/10'
-                  : 'border-border hover:border-primary/30'
+                  ? 'border-blue-500 bg-blue-50'
+                  : 'bg-white border-gray-200 hover:border-blue-300 hover:shadow-md shadow-sm'
               }`}
             >
               <div
-                className={`w-full aspect-square bg-gradient-to-br from-primary/30 to-secondary/30 ${corner.value} mb-2`}
+                className={`w-full aspect-square bg-gradient-to-br from-blue-100 to-indigo-100 ${corner.value} mb-2 border border-blue-200`}
               />
-              <p className="text-xs font-medium">{corner.label}</p>
+              <p className={`text-xs font-medium ${
+                config.styles.cornerRadius === corner.value ? 'text-blue-700' : 'text-gray-700'
+              }`}>{corner.label}</p>
             </motion.button>
           ))}
         </div>
-      </div>
+      </section>
 
       {/* Button Style */}
-      <div>
-        <h3 className="font-semibold mb-3 text-sm text-muted-foreground uppercase tracking-wide">
+      <section>
+        <h3 className="flex items-center gap-2 text-xs font-bold text-gray-500 uppercase tracking-wide mb-4">
           🔘 Button Style
         </h3>
-        <div className="space-y-2">
+        <div className="space-y-3">
           {buttonStyles.map((style) => (
             <motion.button
               key={style.value}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+              whileHover={{ scale: 1.01 }}
+              whileTap={{ scale: 0.99 }}
               onClick={() => setStyle('buttonStyle', style.value)}
-              className={`w-full p-3 rounded-lg border-2 flex items-center justify-between transition-colors ${
+              className={`w-full p-4 rounded-xl border-2 flex items-center justify-between transition-all ${
                 config.styles.buttonStyle === style.value
-                  ? 'border-primary bg-primary/5'
-                  : 'border-border hover:border-primary/30'
+                  ? 'border-blue-500 bg-blue-50'
+                  : 'bg-white border-gray-200 hover:border-blue-300 hover:shadow-md shadow-sm'
               }`}
             >
-              <span className="text-sm font-medium">{style.label}</span>
+              <span className={`text-sm font-medium ${
+                config.styles.buttonStyle === style.value ? 'text-blue-700' : 'text-gray-700'
+              }`}>{style.label}</span>
               <ButtonPreview style={style.value} cornerRadius={config.styles.cornerRadius} />
             </motion.button>
           ))}
         </div>
-      </div>
+      </section>
+
+      {/* Font Scale */}
+      <section>
+        <h3 className="flex items-center gap-2 text-xs font-bold text-gray-500 uppercase tracking-wide mb-4">
+          🔤 Font Scale
+        </h3>
+        <div className="grid grid-cols-3 gap-3">
+          {fontScales.map((scale) => (
+            <motion.button
+              key={scale.value}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setStyle('fontScale', scale.value)}
+              className={`p-3 border-2 rounded-xl transition-all ${
+                config.styles.fontScale === scale.value
+                   ? 'border-blue-500 bg-blue-50'
+                  : 'bg-white border-gray-200 hover:border-blue-300 hover:shadow-md shadow-sm'
+              }`}
+            >
+              <div 
+                className={`font-bold mb-2 ${
+                  config.styles.fontScale === scale.value ? 'text-blue-600' : 'text-gray-800'
+                }`}
+                style={{ 
+                  fontSize: scale.value === 'compact' ? '0.875rem' : scale.value === 'large' ? '1.25rem' : '1rem' 
+                }}
+              >
+                {scale.preview}
+              </div>
+              <p className={`text-xs font-medium ${
+                config.styles.fontScale === scale.value ? 'text-blue-700' : 'text-gray-700'
+              }`}>{scale.label}</p>
+            </motion.button>
+          ))}
+        </div>
+      </section>
+
+      {/* Spacing Density */}
+      <section>
+        <h3 className="flex items-center gap-2 text-xs font-bold text-gray-500 uppercase tracking-wide mb-4">
+          📏 Spacing Density
+        </h3>
+        <div className="grid grid-cols-3 gap-3">
+          {spacingOptions.map((spacing) => (
+            <motion.button
+              key={spacing.value}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setStyle('spacingDensity', spacing.value)}
+              className={`p-3 border-2 rounded-xl transition-all ${
+                config.styles.spacingDensity === spacing.value
+                  ? 'border-blue-500 bg-blue-50'
+                  : 'bg-white border-gray-200 hover:border-blue-300 hover:shadow-md shadow-sm'
+              }`}
+            >
+              <div className="flex flex-col items-center gap-0.5 mb-2 h-8 justify-center">
+                {Array.from({ length: spacing.bars }).map((_, i) => (
+                  <div 
+                    key={i} 
+                    className={`w-6 h-1 rounded-full ${
+                       config.styles.spacingDensity === spacing.value ? 'bg-blue-400' : 'bg-gray-300'
+                    }`}
+                    style={{ 
+                      marginTop: i > 0 ? (spacing.value === 'tight' ? '2px' : spacing.value === 'relaxed' ? '6px' : '4px') : 0 
+                    }}
+                  />
+                ))}
+              </div>
+              <p className={`text-xs font-medium ${
+                config.styles.spacingDensity === spacing.value ? 'text-blue-700' : 'text-gray-700'
+              }`}>{spacing.label}</p>
+            </motion.button>
+          ))}
+        </div>
+      </section>
     </div>
   );
 };

@@ -70,6 +70,7 @@
     "replicate": "^1.4.0",
     "tailwindcss": "^3.4.16",
     "typescript": "^5",
+    "vercel": "^50.1.6",
     "vite": "^6.0.3"
   }
 }

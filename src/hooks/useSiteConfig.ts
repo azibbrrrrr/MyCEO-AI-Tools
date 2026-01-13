@@ -1,20 +1,12 @@
 import { useState, useCallback } from 'react';
+import type { HeroVariant, USPVariant, SocialProofVariant, ProductVariant } from '@/lib/layoutRegistry';
 
-export type BusinessType = 'food' | 'crafts' | 'toys' | 'accessories' | 'diy';
-export type Mode = 'selection' | 'editor' | 'preview';
-export type HeroLayout = 'split' | 'poster' | 'minimal';
-export type FeaturesLayout = 'grid' | 'list' | 'cards';
-export type OfferLayout = 'cards' | 'bundle';
+export type Mode = 'editor' | 'preview';
 export type Palette = 'warm' | 'pastel' | 'neon' | 'dark';
 export type CornerRadius = 'rounded-none' | 'rounded-lg' | 'rounded-2xl' | 'rounded-full';
 export type ButtonStyle = 'solid' | 'outline' | 'shadow-pop';
-
-export interface Sticker {
-    id: string;
-    type: 'best-seller' | 'halal' | 'handmade' | 'limited' | 'new' | 'sparkle' | 'star' | 'heart';
-    x: number;
-    y: number;
-}
+export type FontScale = 'compact' | 'normal' | 'large';
+export type SpacingDensity = 'tight' | 'normal' | 'relaxed';
 
 export interface Review {
     id: string;
@@ -24,119 +16,109 @@ export interface Review {
     avatar?: string;
 }
 
+export interface Feature {
+    id: string;
+    title: string;
+    description: string;
+}
+
+export interface Product {
+    id: string;
+    name: string;
+    price: number;
+    originalPrice?: number;
+    image?: string;
+    description?: string;
+    badge?: string;
+}
+
+export type CTAActionType = 'shop' | 'whatsapp' | 'email' | 'phone' | 'custom';
+
+export interface CTAButton {
+    id: string;
+    type: CTAActionType;
+    text: string;
+    value: string; // phone number, email, or URL depending on type
+    isPrimary: boolean;
+}
+
 export interface SiteConfig {
     mode: Mode;
-    businessType: BusinessType;
     bossMode: boolean;
     layouts: {
-        hero: HeroLayout;
-        features: FeaturesLayout;
-        offer: OfferLayout;
+        hero: HeroVariant;
+        usp: USPVariant;
+        socialProof: SocialProofVariant;
+        product: ProductVariant;
     };
     styles: {
         palette: Palette;
         cornerRadius: CornerRadius;
         buttonStyle: ButtonStyle;
+        fontScale: FontScale;
+        spacingDensity: SpacingDensity;
     };
     content: {
         heroHeading: string;
         heroSubheading: string;
         heroImage: string | null;
-        stickers: Sticker[];
+        heroBeforeImage: string | null;
         scarcityText: string;
         scarcityEnabled: boolean;
         reviews: Review[];
-        features: { icon: string; title: string; description: string }[];
-        products: { name: string; price: number; originalPrice?: number; image?: string }[];
+        features: Feature[];
+        products: Product[];
+        ctaHeading: string;
+        ctaSubtext: string;
+        ctaButtons: CTAButton[];
     };
 }
 
-const defaultFeatures: Record<BusinessType, { icon: string; title: string; description: string }[]> = {
-    food: [
-        { icon: 'ChefHat', title: 'Fresh Daily', description: 'Made fresh every morning' },
-        { icon: 'Heart', title: 'Made with Love', description: 'Family recipes passed down' },
-        { icon: 'Leaf', title: 'Quality Ingredients', description: 'Only the best for you' },
-    ],
-    crafts: [
-        { icon: 'Palette', title: 'Handcrafted', description: 'Each piece is unique' },
-        { icon: 'Sparkles', title: 'Custom Orders', description: 'Made just for you' },
-        { icon: 'Gift', title: 'Gift Ready', description: 'Beautiful packaging included' },
-    ],
-    toys: [
-        { icon: 'Shield', title: 'Safe Materials', description: 'Kid-friendly and tested' },
-        { icon: 'Smile', title: 'Hours of Fun', description: 'Entertainment guaranteed' },
-        { icon: 'Package', title: 'Fast Shipping', description: 'Get it in 2-3 days' },
-    ],
-    accessories: [
-        { icon: 'Gem', title: 'Premium Quality', description: 'Built to last' },
-        { icon: 'Sparkles', title: 'Trendy Designs', description: 'Stay stylish' },
-        { icon: 'Gift', title: 'Gift Wrapping', description: 'Perfect for gifting' },
-    ],
-    diy: [
-        { icon: 'Wrench', title: 'Easy Assembly', description: 'Clear instructions included' },
-        { icon: 'Book', title: 'Tutorial Videos', description: 'Step-by-step guides' },
-        { icon: 'MessageCircle', title: 'Support', description: "We're here to help" },
-    ],
-};
+const defaultFeatures: Feature[] = [
+    { id: 'f1', title: 'Premium Quality', description: 'Only the best for you' },
+    { id: 'f2', title: 'Made with Love', description: 'Crafted with care' },
+    { id: 'f3', title: 'Guaranteed', description: '100% satisfaction' },
+];
 
-const defaultProducts: Record<BusinessType, { name: string; price: number; originalPrice?: number }[]> = {
-    food: [
-        { name: 'Classic Box', price: 15, originalPrice: 20 },
-        { name: 'Family Pack', price: 35, originalPrice: 45 },
-    ],
-    crafts: [
-        { name: 'Starter Kit', price: 25, originalPrice: 35 },
-        { name: 'Pro Bundle', price: 55, originalPrice: 70 },
-    ],
-    toys: [
-        { name: 'Single Toy', price: 12, originalPrice: 15 },
-        { name: 'Play Set', price: 30, originalPrice: 40 },
-    ],
-    accessories: [
-        { name: 'Essential', price: 20, originalPrice: 28 },
-        { name: 'Complete Set', price: 45, originalPrice: 60 },
-    ],
-    diy: [
-        { name: 'Beginner Kit', price: 18, originalPrice: 25 },
-        { name: 'Master Bundle', price: 40, originalPrice: 55 },
-    ],
-};
+const defaultProducts: Product[] = [
+    { id: '1', name: 'Starter Pack', price: 29, originalPrice: 39 },
+    { id: '2', name: 'Pro Bundle', price: 59, originalPrice: 79 },
+];
 
-const defaultHeadings: Record<BusinessType, { heading: string; subheading: string }> = {
-    food: { heading: 'Delicious Treats Made Fresh', subheading: 'Taste the difference of homemade goodness' },
-    crafts: { heading: 'Handcrafted with Love', subheading: 'Unique creations just for you' },
-    toys: { heading: 'Playtime Adventures Await', subheading: 'Fun that never stops' },
-    accessories: { heading: 'Style That Shines', subheading: 'Accessories that make you sparkle' },
-    diy: { heading: 'Build Something Amazing', subheading: 'Create, learn, and have fun' },
-};
-
-export const createInitialConfig = (businessType: BusinessType = 'food'): SiteConfig => ({
-    mode: 'selection',
-    businessType,
+export const createInitialConfig = (): SiteConfig => ({
+    mode: 'editor',
     bossMode: false,
     layouts: {
         hero: 'split',
-        features: 'grid',
-        offer: 'cards',
+        usp: 'badges',
+        socialProof: 'cards',
+        product: 'grid',
     },
     styles: {
-        palette: 'warm',
+        palette: 'pastel',
         cornerRadius: 'rounded-lg',
         buttonStyle: 'solid',
+        fontScale: 'normal',
+        spacingDensity: 'normal',
     },
     content: {
-        heroHeading: defaultHeadings[businessType].heading,
-        heroSubheading: defaultHeadings[businessType].subheading,
+        heroHeading: 'Welcome to Your Store',
+        heroSubheading: 'Discover amazing products made just for you',
         heroImage: null,
-        stickers: [],
+        heroBeforeImage: null,
         scarcityText: 'Only 3 left!',
         scarcityEnabled: true,
         reviews: [
             { id: '1', name: 'Happy Customer', rating: 5, text: 'Absolutely loved it! Will buy again.' },
             { id: '2', name: 'Satisfied Buyer', rating: 4, text: 'Great quality and fast delivery!' },
         ],
-        features: defaultFeatures[businessType],
-        products: defaultProducts[businessType],
+        features: defaultFeatures,
+        products: defaultProducts,
+        ctaHeading: 'Ready to Order?',
+        ctaSubtext: "Don't miss out on this amazing offer. Order now and join our happy customers!",
+        ctaButtons: [
+            { id: 'cta1', type: 'shop', text: 'Order Now', value: '', isPrimary: true },
+        ],
     },
 });
 
@@ -145,20 +127,6 @@ export function useSiteConfig() {
 
     const setMode = useCallback((mode: Mode) => {
         setConfig(prev => ({ ...prev, mode }));
-    }, []);
-
-    const setBusinessType = useCallback((businessType: BusinessType) => {
-        setConfig(prev => ({
-            ...prev,
-            businessType,
-            content: {
-                ...prev.content,
-                heroHeading: defaultHeadings[businessType].heading,
-                heroSubheading: defaultHeadings[businessType].subheading,
-                features: defaultFeatures[businessType],
-                products: defaultProducts[businessType],
-            },
-        }));
     }, []);
 
     const toggleBossMode = useCallback(() => {
@@ -195,40 +163,6 @@ export function useSiteConfig() {
         }));
     }, []);
 
-    const addSticker = useCallback((sticker: Omit<Sticker, 'id'>) => {
-        const newSticker: Sticker = { ...sticker, id: crypto.randomUUID() };
-        setConfig(prev => ({
-            ...prev,
-            content: {
-                ...prev.content,
-                stickers: [...prev.content.stickers, newSticker],
-            },
-        }));
-        return newSticker.id;
-    }, []);
-
-    const updateSticker = useCallback((id: string, updates: Partial<Omit<Sticker, 'id'>>) => {
-        setConfig(prev => ({
-            ...prev,
-            content: {
-                ...prev.content,
-                stickers: prev.content.stickers.map(s =>
-                    s.id === id ? { ...s, ...updates } : s
-                ),
-            },
-        }));
-    }, []);
-
-    const removeSticker = useCallback((id: string) => {
-        setConfig(prev => ({
-            ...prev,
-            content: {
-                ...prev.content,
-                stickers: prev.content.stickers.filter(s => s.id !== id),
-            },
-        }));
-    }, []);
-
     const addReview = useCallback((review: Omit<Review, 'id'>) => {
         const newReview: Review = { ...review, id: crypto.randomUUID() };
         setConfig(prev => ({
@@ -250,20 +184,88 @@ export function useSiteConfig() {
         }));
     }, []);
 
+    const addFeature = useCallback((feature: Omit<Feature, 'id'>) => {
+        const newFeature: Feature = { ...feature, id: crypto.randomUUID() };
+        setConfig(prev => ({
+            ...prev,
+            content: {
+                ...prev.content,
+                features: [...prev.content.features, newFeature],
+            },
+        }));
+    }, []);
+
+    const updateFeature = useCallback((index: number, feature: Partial<Feature>) => {
+        setConfig(prev => ({
+            ...prev,
+            content: {
+                ...prev.content,
+                features: prev.content.features.map((f, i) =>
+                    i === index ? { ...f, ...feature } : f
+                ),
+            },
+        }));
+    }, []);
+
+    const removeFeature = useCallback((index: number) => {
+        setConfig(prev => ({
+            ...prev,
+            content: {
+                ...prev.content,
+                features: prev.content.features.filter((_, i) => i !== index),
+            },
+        }));
+    }, []);
+
+    const addProduct = useCallback((product: Omit<Product, 'id'>) => {
+        const newProduct: Product = { ...product, id: crypto.randomUUID() };
+        setConfig(prev => ({
+            ...prev,
+            content: {
+                ...prev.content,
+                products: [...prev.content.products, newProduct],
+            },
+        }));
+    }, []);
+
+    const updateProduct = useCallback((id: string, updates: Partial<Omit<Product, 'id'>>) => {
+        setConfig(prev => ({
+            ...prev,
+            content: {
+                ...prev.content,
+                products: prev.content.products.map(p =>
+                    p.id === id ? { ...p, ...updates } : p
+                ),
+            },
+        }));
+    }, []);
+
+    const removeProduct = useCallback((id: string) => {
+        setConfig(prev => ({
+            ...prev,
+            content: {
+                ...prev.content,
+                products: prev.content.products.filter(p => p.id !== id),
+            },
+        }));
+    }, []);
+
     return {
         config,
         setConfig,
         setMode,
-        setBusinessType,
         toggleBossMode,
         setLayout,
         setStyle,
         setContent,
-        addSticker,
-        updateSticker,
-        removeSticker,
         addReview,
         removeReview,
+        addFeature,
+        updateFeature,
+        removeFeature,
+        addProduct,
+        updateProduct,
+        removeProduct,
     };
 }
 

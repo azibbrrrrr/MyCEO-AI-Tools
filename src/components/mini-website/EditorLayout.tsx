@@ -38,14 +38,6 @@ export const EditorLayout = ({ siteConfig }: EditorLayoutProps) => {
     <div className="min-h-screen bg-gray-50 flex flex-col">
       {/* Standard Navbar - same as other tools */}
       <header className="relative z-10 flex items-center justify-between p-4 md:p-6 bg-white/50 backdrop-blur-sm border-b border-[var(--border-light)] shrink-0">
-        <button
-          onClick={() => setMode('selection')}
-          className="flex items-center gap-2 bg-white rounded-full px-4 py-2 shadow-sm border border-gray-200 hover:shadow-md transition-all"
-        >
-          <span>←</span>
-          <span className="font-semibold text-gray-700 text-sm">{language === 'EN' ? 'Back' : 'Kembali'}</span>
-        </button>
-        
         <div className="flex items-center gap-2">
           <span className="text-2xl">🌐</span>
           <span className="font-bold text-[var(--text-primary)] hidden sm:block">{t("tool.miniWebsite")}</span>
@@ -152,15 +144,15 @@ export const EditorLayout = ({ siteConfig }: EditorLayoutProps) => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className={`transition-all duration-300 ${
+            className={`palette-${config.styles.palette} font-scale-${config.styles.fontScale} spacing-${config.styles.spacingDensity} transition-all duration-300 ${
               isMobile 
-                ? 'w-full h-full min-h-screen bg-background' 
-                : `bg-background rounded-xl shadow-2xl ${
+                ? 'w-full h-full min-h-screen bg-background text-foreground' 
+                : `bg-background text-foreground rounded-xl shadow-2xl ${
                     deviceView === 'mobile' ? 'w-[375px] min-h-[667px] overflow-hidden' : 'w-full max-w-5xl min-h-[600px]'
                   }`
             }`}
           >
-            <SitePreview config={config} isMobile={isMobile || deviceView === 'mobile'} />
+            <SitePreview config={config} siteConfig={siteConfig} isMobile={isMobile || deviceView === 'mobile'} />
           </motion.div>
         </main>
       </div>
