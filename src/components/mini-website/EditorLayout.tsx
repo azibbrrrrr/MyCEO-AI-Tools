@@ -19,19 +19,19 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-// import { Label } from "@/components/ui/label"; // Check if used
-import { ExternalLink } from 'lucide-react'; // For Visit Site button
+import { ExternalLink } from 'lucide-react'; 
 
 import type { UseSiteConfigReturn, SiteConfig } from '@/hooks/useSiteConfig';
 import { SitePreview } from './preview/SitePreview';
 import { MarketingCoachWidget } from './MarketingCoachWidget';
 import { EditorSidebarContent } from './EditorSidebarContent';
-import { useChildSession } from '@/hooks/useChildSession'; // Import session hook
-import { saveWebsite, publishWebsite, getWebsite } from '@/lib/supabase/mini-website'; // Import service functions
+import { useChildSession } from '@/hooks/useChildSession'; 
+import { saveWebsite, publishWebsite, getWebsite } from '@/lib/supabase/mini-website'; 
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Drawer, DrawerContent, DrawerTrigger } from '@/components/ui/drawer';
 import { useLanguage } from '@/components/language-provider';
 import { LanguageToggle } from '@/components/language-toggle';
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface EditorLayoutProps {
   siteConfig: UseSiteConfigReturn;
@@ -47,6 +47,12 @@ export const EditorLayout = ({ siteConfig }: EditorLayoutProps) => {
   // Track the config that is currently in the DB to determine if there are changes
   const [savedConfig, setSavedConfig] = useState<SiteConfig | null>(null);
   const [savedSlug, setSavedSlug] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true); // Default to true to show skeleton immediately
+  
+  // Publish Modal State
+  const [isPublishModalOpen, setIsPublishModalOpen] = useState(false);
+  const [slugInput, setSlugInput] = useState('');
+  const [publishedUrl, setPublishedUrl] = useState<string | null>(null);
   const { child } = useChildSession();
   const isMobile = useIsMobile();
   const { t, language } = useLanguage();
@@ -54,50 +60,55 @@ export const EditorLayout = ({ siteConfig }: EditorLayoutProps) => {
   // Check for unsaved changes
   const hasUnsavedChanges = savedConfig 
     ? JSON.stringify(config) !== JSON.stringify(savedConfig) 
-    // If we haven't loaded a saved config yet (but might have one), assume no changes to avoid flash
-    // If it's a new site (savedConfig is null but we tried to load), then everything is new... 
-    // actually, valid use case: if savedConfg is null, it means we haven't saved ever. 
-    // But we init with default config. 
-    // Let's assume if 'lastSaved' is null, we can save.
-    : true; 
+    : false; 
 
   // Load website data on mount
   useEffect(() => {
     const loadSavedSite = async () => {
-        if (!child?.id) return;
+        if (!child?.id) {
+            setIsLoading(false);
+            return;
+        }
         
         try {
             const savedSite = await getWebsite(child.id);
             if (savedSite && savedSite.data) {
                 const loadedConfig = savedSite.data as unknown as SiteConfig;
-                // Determine if we need to merge or replace. For now, replacing seems safest to fully restore state.
                 siteConfig.setConfig(loadedConfig);
-                setSavedConfig(loadedConfig); // Set the baseline for dirty check
+                setSavedConfig(loadedConfig); 
                 setLastSaved(new Date(savedSite.updated_at));
                 if (savedSite.url_slug) {
                     setSavedSlug(savedSite.url_slug);
                 }
-                if (savedSite.is_published && savedSite.url_slug) {
-                    // We can set some state here if we want to show the published URL immediately
-                }
             } else {
-                // If no site exists yet, the current initial config is "unsaved"
-                setSavedConfig(config); // Or null? If we set to config, button disabled. 
-                // Let's set to null so "Save" is enabled for first time save.
-                // Actually, if we set it to current config, it's "clean". 
-                // Let's force initial state to be clean so we don't nag user immediately.
                 setSavedConfig(config);
             }
         } catch (error) {
             console.error("Failed to load site:", error);
+        } finally {
+            setIsLoading(false);
         }
     };
 
     if (child?.id) {
         loadSavedSite();
+    } else {
+        // If child ID isn't immediately available but might be coming, we might want to wait?
+        // But for now, if no child, we just stop loading so they see the empty/default editor.
+        // Actually, child session might take a moment. 
+        // If child is undefined, useChildSession might still be loading.
+        // Let's rely on the session hook's loading state if available, but here we just check ID.
+        // If ID is missing, we might render default.
+        // Let's set timeout just in case simple render passes.
+        const timer = setTimeout(() => setIsLoading(false), 1000);
+        return () => clearTimeout(timer);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [child?.id, siteConfig.setConfig]); // Remove config from dependency to avoid loop, though it shouldn't cause one if logic is correct
+  }, [child?.id, siteConfig.setConfig]); 
+
+  // Auto-switch to mobile view on mobile devices
+  if (isMobile && deviceView !== 'mobile') {
+    setDeviceView('mobile');
+  }
 
   const handleSave = async () => {
     if (!child?.id) {
@@ -114,16 +125,6 @@ export const EditorLayout = ({ siteConfig }: EditorLayoutProps) => {
         alert("Failed to save website. Please try again.");
     }
   };
-
-  // Publish Modal State
-  const [isPublishModalOpen, setIsPublishModalOpen] = useState(false);
-  const [slugInput, setSlugInput] = useState('');
-  const [publishedUrl, setPublishedUrl] = useState<string | null>(null);
-
-  // Auto-switch to mobile view on mobile devices
-  if (isMobile && deviceView !== 'mobile') {
-    setDeviceView('mobile');
-  }
 
   const handleOpenPublishModal = () => {
     if (!child?.id) {
@@ -163,6 +164,50 @@ export const EditorLayout = ({ siteConfig }: EditorLayoutProps) => {
         alert(`Failed to publish: ${result.error}`);
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex flex-col">
+        {/* Header Skeleton */}
+        <header className="sticky top-0 z-40 h-20 flex items-center justify-between p-4 md:p-6 bg-white/80 border-b shrink-0">
+          <Skeleton className="h-10 w-24 rounded-full" />
+          <Skeleton className="h-8 w-48 hidden sm:block" />
+          <Skeleton className="h-10 w-10 rounded-full" />
+        </header>
+
+        <div className="flex flex-1 relative items-start">
+          {/* Sidebar Skeleton */}
+          {!isMobile && (
+            <aside className="sticky top-20 h-[calc(100vh-5rem)] w-full md:w-80 lg:w-96 bg-card border-r shrink-0 hidden md:block p-4 space-y-4">
+               <Skeleton className="h-10 w-full" />
+               <div className="space-y-2">
+                 <Skeleton className="h-24 w-full" />
+                 <Skeleton className="h-24 w-full" />
+                 <Skeleton className="h-24 w-full" />
+               </div>
+            </aside>
+          )}
+
+          {/* Main Content Skeleton */}
+          <main className="flex-1 flex flex-col min-w-0">
+             {/* Toolbar Skeleton */}
+             <div className="h-16 border-b px-6 py-3 flex items-center justify-between sticky top-20 bg-white/50">
+                <Skeleton className="h-9 w-24 rounded-full" />
+                <div className="flex gap-2">
+                    <Skeleton className="h-9 w-24 rounded-full" />
+                    <Skeleton className="h-9 w-24 rounded-full" />
+                </div>
+             </div>
+             
+             {/* Preview Skeleton */}
+             <div className="flex-1 p-6 flex items-start justify-center">
+                <Skeleton className="w-full max-w-5xl h-[600px] rounded-xl" />
+             </div>
+          </main>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
