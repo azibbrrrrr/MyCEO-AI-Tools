@@ -1,27 +1,17 @@
 /**
  * RequireAuth Component
- * Redirects unauthenticated users to the Main Portal
+ * Shows auth required message for unauthenticated users (no redirect)
  */
 
-import { useEffect } from 'react'
 import { useChildSession } from '@/hooks/useChildSession'
+import { FloatingElements } from '@/components/floating-elements'
 
 interface RequireAuthProps {
   children: React.ReactNode
 }
 
-// Main Portal URL for redirect when not authenticated
-const MAIN_PORTAL_URL = import.meta.env.VITE_MAIN_PORTAL_URL || 'https://my-ceo.com'
-
 export function RequireAuth({ children }: RequireAuthProps) {
   const { child, loading } = useChildSession()
-
-  useEffect(() => {
-    if (!loading && !child) {
-      // Redirect to Main Portal if not authenticated
-      window.location.href = MAIN_PORTAL_URL
-    }
-  }, [child, loading])
 
   // Show loading state while checking auth
   if (loading) {
@@ -35,9 +25,33 @@ export function RequireAuth({ children }: RequireAuthProps) {
     )
   }
 
-  // Don't render children until we've confirmed auth
+  // Show auth required message if not logged in
   if (!child) {
-    return null
+    return (
+      <div className="min-h-screen bg-sky-gradient relative overflow-hidden">
+        <FloatingElements />
+
+        <main className="relative z-10 flex items-center justify-center min-h-screen px-4">
+          <div className="w-full max-w-md">
+            <div className="bg-white rounded-3xl p-8 shadow-[var(--shadow-high)] text-center">
+              <div className="text-5xl mb-4">🔐</div>
+              <h1 className="text-2xl font-extrabold text-[var(--text-primary)] mb-2">
+                Login Required
+              </h1>
+              <p className="text-[var(--text-secondary)] mb-6">
+                Please access this page from the main portal to continue.
+              </p>
+              <button
+                onClick={() => window.location.reload()}
+                className="w-full px-6 py-3 bg-[var(--sky-blue)] text-white font-bold rounded-full hover:scale-105 transition-transform shadow-[var(--shadow-medium)]"
+              >
+                Refresh
+              </button>
+            </div>
+          </div>
+        </main>
+      </div>
+    )
   }
 
   return <>{children}</>

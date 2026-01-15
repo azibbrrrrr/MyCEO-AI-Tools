@@ -27,7 +27,7 @@ export default function AuthCallbackPage() {
     const ticket = searchParams.get('ticket')
     
     if (!ticket) {
-      setError('No SSO ticket provided')
+      setError('No SSO ticket provided. Please access this page from the main portal.')
       setIsProcessing(false)
       return
     }
@@ -39,7 +39,7 @@ export default function AuthCallbackPage() {
         if (success) {
           navigate('/', { replace: true })
         } else {
-          setError('Failed to authenticate. The link may have expired.')
+          setError('Failed to authenticate. The link may have expired or already been used.')
           setIsProcessing(false)
         }
       } catch (err) {
@@ -74,22 +74,27 @@ export default function AuthCallbackPage() {
               </>
             ) : error ? (
               <>
-                <div className="text-5xl mb-4">😕</div>
+                <div className="text-5xl mb-4">🔐</div>
                 <h1 className="text-2xl font-extrabold text-[var(--text-primary)] mb-2">
-                  Oops!
+                  Login Required
                 </h1>
                 <p className="text-[var(--text-secondary)] mb-6">
                   {error}
                 </p>
-                <a
-                  href={import.meta.env.VITE_MAIN_PORTAL_URL || '/'}
-                  className="inline-block px-6 py-3 bg-[var(--sky-blue)] text-white font-bold rounded-full hover:scale-105 transition-transform shadow-[var(--shadow-medium)]"
+                <button
+                  onClick={() => window.location.reload()}
+                  className="w-full px-6 py-3 bg-[var(--sky-blue)] text-white font-bold rounded-full hover:scale-105 transition-transform shadow-[var(--shadow-medium)]"
                 >
-                  Go to Main Portal
-                </a>
+                  Try Again
+                </button>
               </>
             ) : null}
           </div>
+
+          {/* Footer info */}
+          <p className="text-center text-sm text-[var(--text-muted)] mt-6">
+            Having trouble? Contact support or try logging in again from the main portal.
+          </p>
         </div>
       </main>
     </div>
