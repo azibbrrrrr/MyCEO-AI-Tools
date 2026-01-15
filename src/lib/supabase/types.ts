@@ -664,6 +664,47 @@ export interface Database {
                     }
                 ]
             }
+
+            // ==========================================
+            // SSO Authentication Table
+            // ==========================================
+
+            sso_tokens: {
+                Row: {
+                    id: string
+                    ticket: string
+                    actor_type: 'child' | 'parent' | 'admin'
+                    actor_id: string
+                    parent_id: string | null
+                    plan: string
+                    expires_at: string
+                    used_at: string | null
+                    created_at: string
+                }
+                Insert: {
+                    id?: string
+                    ticket: string
+                    actor_type: 'child' | 'parent' | 'admin'
+                    actor_id: string
+                    parent_id?: string | null
+                    plan?: string
+                    expires_at: string
+                    used_at?: string | null
+                    created_at?: string
+                }
+                Update: {
+                    id?: string
+                    ticket?: string
+                    actor_type?: 'child' | 'parent' | 'admin'
+                    actor_id?: string
+                    parent_id?: string | null
+                    plan?: string
+                    expires_at?: string
+                    used_at?: string | null
+                    created_at?: string
+                }
+                Relationships: []
+            }
         }
         Views: {
             [_ in never]: never
@@ -704,3 +745,15 @@ export type SalesSession = Tables<'sales_sessions'>
 export type SalesMessage = Tables<'sales_messages'>
 export type MiniWebsite = Tables<'mini_websites'>
 
+// SSO Token type (defined in migration, not in generated types yet)
+export interface SsoToken {
+    id: string
+    ticket: string
+    actor_type: 'child' | 'parent' | 'admin'
+    actor_id: string
+    parent_id: string | null
+    plan: string
+    expires_at: string
+    used_at: string | null
+    created_at: string
+}

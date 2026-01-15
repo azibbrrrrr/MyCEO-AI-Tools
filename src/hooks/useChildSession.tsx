@@ -1,32 +1,48 @@
 /**
- * Child Session Context
- * DEV-ONLY: Manages the currently "impersonated" child for development
+ * Session Context
+ * Manages the current user session (child/parent/admin)
  */
 
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react'
 import { supabase } from '@/lib/supabase'
 import type { Child, Company } from '@/lib/supabase/types'
 
+// Actor types supported by SSO
+export type ActorType = 'child' | 'parent' | 'admin'
+
 interface ChildWithCompany extends Child {
   companies: Company[]
   parent_email?: string
 }
 
-interface ChildSessionContextType {
+interface SessionData {
+  actorType: ActorType
+  actorId: string
+  parentId?: string | null
+  plan?: string
+  child?: ChildWithCompany
+}
+
+interface SessionContextType {
+  // Session state
+  session: SessionData | null
   child: ChildWithCompany | null
   loading: boolean
-  isDevMode: boolean
-  login: (childId: string) => Promise<boolean>
+  
+  // Auth methods
+  loginWithToken: (ticket: string) => Promise<boolean>
   logout: () => void
+  
+  // Utility methods
   updateCompanyLogoUrl: (logoUrl: string) => void
 }
 
-const ChildSessionContext = createContext<ChildSessionContextType | undefined>(undefined)
+const SessionContext = createContext<SessionContextType | undefined>(undefined)
 
-const STORAGE_KEY = 'dev_child_session'
+const STORAGE_KEY = 'session'
 
 export function ChildSessionProvider({ children }: { children: ReactNode }) {
-  const [child, setChild] = useState<ChildWithCompany | null>(null)
+  const [session, setSession] = useState<SessionData | null>(null)
   const [loading, setLoading] = useState(true)
 
   // Load session from localStorage on mount
@@ -35,7 +51,7 @@ export function ChildSessionProvider({ children }: { children: ReactNode }) {
     if (stored) {
       try {
         const parsed = JSON.parse(stored)
-        setChild(parsed)
+        setSession(parsed)
       } catch {
         localStorage.removeItem(STORAGE_KEY)
       }
@@ -43,56 +59,107 @@ export function ChildSessionProvider({ children }: { children: ReactNode }) {
     setLoading(false)
   }, [])
 
-  const login = useCallback(async (childId: string): Promise<boolean> => {
+  // Login with SSO ticket
+  const loginWithToken = useCallback(async (ticket: string): Promise<boolean> => {
     setLoading(true)
     try {
-      // Fetch child with companies
-      const { data: childData, error: childError } = await supabase
-        .from('children')
-        .select(`
-          *,
-          companies (*)
-        `)
-        .eq('id', childId)
+      // Exchange ticket for session data
+      // First, find and validate the token
+      const { data: tokenData, error: tokenError } = await supabase
+        .from('sso_tokens')
+        .select('*')
+        .eq('ticket', ticket)
+        .is('used_at', null)
+        .gt('expires_at', new Date().toISOString())
         .single()
 
-      if (childError || !childData) {
-        console.error('Error fetching child:', childError)
+      if (tokenError || !tokenData) {
+        console.error('SSO ticket exchange failed:', tokenError?.message || 'Invalid or expired ticket')
         setLoading(false)
         return false
       }
 
-      // Fetch parent email
-      const { data: parentData } = await supabase
-        .from('parents')
-        .select('users (email)')
-        .eq('id', childData.parent_id)
-        .single()
+      // Mark ticket as used immediately
+      await supabase
+        .from('sso_tokens')
+        .update({ used_at: new Date().toISOString() })
+        .eq('id', tokenData.id)
 
-      const childWithCompany: ChildWithCompany = {
-        ...childData,
-        // Supabase can return `companies` as an object (single) or array (multiple)
-        // Normalize to always be an array
-        companies: Array.isArray(childData.companies) 
-          ? childData.companies 
-          : childData.companies 
-            ? [childData.companies] 
-            : [],
-        parent_email: (parentData?.users as { email: string } | null)?.email,
+      const { actor_type, actor_id, parent_id, plan } = tokenData as {
+        actor_type: ActorType
+        actor_id: string
+        parent_id: string | null
+        plan: string
       }
 
-      setChild(childWithCompany)
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(childWithCompany))
+      // For child actors, fetch the full child data with companies
+      if (actor_type === 'child') {
+        const { data: childData, error: childError } = await supabase
+          .from('children')
+          .select(`
+            *,
+            companies (*)
+          `)
+          .eq('id', actor_id)
+          .single()
 
-      // Log impersonation
-      console.log('🚨 DEV MODE: Impersonating child', {
-        child_id: childId,
-        child_name: childData.name,
-        impersonated: true,
-      })
+        if (childError || !childData) {
+          console.error('Error fetching child:', childError)
+          setLoading(false)
+          return false
+        }
 
+        // Fetch parent email
+        const { data: parentData } = await supabase
+          .from('parents')
+          .select('users (email)')
+          .eq('id', childData.parent_id)
+          .single()
+
+        const childWithCompany: ChildWithCompany = {
+          ...childData,
+          companies: Array.isArray(childData.companies) 
+            ? childData.companies 
+            : childData.companies 
+              ? [childData.companies] 
+              : [],
+          parent_email: (parentData?.users as { email: string } | null)?.email,
+        }
+
+        const sessionData: SessionData = {
+          actorType: actor_type,
+          actorId: actor_id,
+          parentId: parent_id ?? undefined,
+          plan,
+          child: childWithCompany,
+        }
+
+        setSession(sessionData)
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(sessionData))
+
+        console.log('✅ SSO login successful', {
+          actor_type,
+          actor_id,
+          child_name: childData.name,
+        })
+
+        setLoading(false)
+        return true
+      }
+
+      // For parent/admin actors (future implementation)
+      const sessionData: SessionData = {
+        actorType: actor_type,
+        actorId: actor_id,
+        parentId: parent_id ?? undefined,
+        plan,
+      }
+
+      setSession(sessionData)
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(sessionData))
       setLoading(false)
       return true
+
     } catch (error) {
       console.error('Login error:', error)
       setLoading(false)
@@ -101,47 +168,52 @@ export function ChildSessionProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const logout = useCallback(() => {
-    setChild(null)
+    setSession(null)
     localStorage.removeItem(STORAGE_KEY)
   }, [])
 
   // Update company logo URL in session without full refresh
   const updateCompanyLogoUrl = useCallback((logoUrl: string) => {
-    setChild(prev => {
-      if (!prev || !prev.companies?.[0]) return prev
+    setSession(prev => {
+      if (!prev || !prev.child || !prev.child.companies?.[0]) return prev
       
       const updatedChild: ChildWithCompany = {
-        ...prev,
-        companies: prev.companies.map((company, index) => 
+        ...prev.child,
+        companies: prev.child.companies.map((company, index) => 
           index === 0 ? { ...company, logo_url: logoUrl } : company
         )
       }
+
+      const updatedSession: SessionData = {
+        ...prev,
+        child: updatedChild,
+      }
       
       // Persist to localStorage
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedChild))
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedSession))
       console.log('✅ Session updated with new logo URL:', logoUrl)
-      return updatedChild
+      return updatedSession
     })
   }, [])
 
   return (
-    <ChildSessionContext.Provider
+    <SessionContext.Provider
       value={{
-        child,
+        session,
+        child: session?.child ?? null,
         loading,
-        isDevMode: true, // Always true for now
-        login,
+        loginWithToken,
         logout,
         updateCompanyLogoUrl,
       }}
     >
       {children}
-    </ChildSessionContext.Provider>
+    </SessionContext.Provider>
   )
 }
 
 export function useChildSession() {
-  const context = useContext(ChildSessionContext)
+  const context = useContext(SessionContext)
   if (context === undefined) {
     throw new Error('useChildSession must be used within a ChildSessionProvider')
   }

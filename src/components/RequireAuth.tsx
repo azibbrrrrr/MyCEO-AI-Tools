@@ -1,25 +1,27 @@
 /**
  * RequireAuth Component
- * Redirects unauthenticated users to the login page
+ * Redirects unauthenticated users to the Main Portal
  */
 
 import { useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { useChildSession } from '@/hooks/useChildSession'
 
 interface RequireAuthProps {
   children: React.ReactNode
 }
 
+// Main Portal URL for redirect when not authenticated
+const MAIN_PORTAL_URL = import.meta.env.VITE_MAIN_PORTAL_URL || 'https://my-ceo.com'
+
 export function RequireAuth({ children }: RequireAuthProps) {
   const { child, loading } = useChildSession()
-  const navigate = useNavigate()
 
   useEffect(() => {
     if (!loading && !child) {
-      navigate('/login', { replace: true })
+      // Redirect to Main Portal if not authenticated
+      window.location.href = MAIN_PORTAL_URL
     }
-  }, [child, loading, navigate])
+  }, [child, loading])
 
   // Show loading state while checking auth
   if (loading) {
