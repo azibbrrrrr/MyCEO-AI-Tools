@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { Routes, Route } from 'react-router-dom'
 import Dashboard from './pages/Dashboard'
 import LogoMakerPage from './pages/LogoMakerPage'
 import LogoMakerV2Page from './pages/LogoMakerV2Page'
@@ -12,6 +12,7 @@ import MiniWebsitePage from './pages/MiniWebsitePage'
 import AuthCallbackPage from './pages/AuthCallbackPage'
 import CreationsPage from './pages/CreationsPage'
 import PublicWebsitePage from './pages/PublicWebsitePage'
+import NotFoundPage from './pages/NotFoundPage'
 import { RequireAuth } from './components/RequireAuth'
 
 function App() {
@@ -20,9 +21,9 @@ function App() {
       {/* SSO Auth callback - handles ticket exchange */}
       <Route path="/auth/callback" element={<AuthCallbackPage />} />
       
-      {/* Protected routes - redirect to Main Portal if not authenticated */}
+      {/* Protected routes - shows login required if not authenticated */}
       <Route path="/" element={<RequireAuth><Dashboard /></RequireAuth>} />
-      <Route path="/dashboard" element={<Navigate to="/" replace />} />
+      <Route path="/dashboard" element={<RequireAuth><Dashboard /></RequireAuth>} />
       <Route path="/creations" element={<RequireAuth><CreationsPage /></RequireAuth>} />
       <Route path="/tools/logo-maker" element={<RequireAuth><LogoMakerPage /></RequireAuth>} />
       <Route path="/tools/logo-maker-v2" element={<RequireAuth><LogoMakerV2Page /></RequireAuth>} />
@@ -37,8 +38,8 @@ function App() {
       {/* Public Mini Website Route */}
       <Route path="/site/:slug" element={<PublicWebsitePage />} />
       
-      {/* Catch-all: redirect unknown routes to dashboard (which will redirect to Main Portal if needed) */}
-      <Route path="*" element={<Navigate to="/" replace />} />
+      {/* Catch-all: show 404 page for unknown routes */}
+      <Route path="*" element={<NotFoundPage />} />
     </Routes>
   )
 }
