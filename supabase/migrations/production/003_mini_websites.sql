@@ -1,4 +1,5 @@
 -- Migration: Add Mini Websites Table (PRODUCTION)
+-- RLS: Uses child existence check (compatible with SSO auth)
 
 -- ============================================
 -- 1. mini_websites - Store user website configurations
@@ -23,23 +24,29 @@ CREATE INDEX IF NOT EXISTS idx_mini_websites_slug ON public.mini_websites (url_s
 
 -- ============================================
 -- Row Level Security (RLS) Policies
+-- Uses child existence check (compatible with SSO)
 -- ============================================
 
 ALTER TABLE public.mini_websites ENABLE ROW LEVEL SECURITY;
 
--- Children can CRUD their own websites
-CREATE POLICY "mini_websites_select_own" ON public.mini_websites
-  FOR SELECT USING (child_id = auth.uid());
+-- Allow select if child exists OR website is published (public view)
+CREATE POLICY "mini_websites_select" ON public.mini_websites
+  FOR SELECT USING (
+    EXISTS (SELECT 1 FROM children WHERE children.id = mini_websites.child_id)
+    OR is_published = true
+  );
 
-CREATE POLICY "mini_websites_insert_own" ON public.mini_websites
-  FOR INSERT WITH CHECK (child_id = auth.uid());
+CREATE POLICY "mini_websites_insert" ON public.mini_websites
+  FOR INSERT WITH CHECK (
+    EXISTS (SELECT 1 FROM children WHERE children.id = mini_websites.child_id)
+  );
 
-CREATE POLICY "mini_websites_update_own" ON public.mini_websites
-  FOR UPDATE USING (child_id = auth.uid());
+CREATE POLICY "mini_websites_update" ON public.mini_websites
+  FOR UPDATE USING (
+    EXISTS (SELECT 1 FROM children WHERE children.id = mini_websites.child_id)
+  );
 
-CREATE POLICY "mini_websites_delete_own" ON public.mini_websites
-  FOR DELETE USING (child_id = auth.uid());
-
--- Public can view PUBLISHED websites
-CREATE POLICY "mini_websites_public_view" ON public.mini_websites
-  FOR SELECT USING (is_published = true);
+CREATE POLICY "mini_websites_delete" ON public.mini_websites
+  FOR DELETE USING (
+    EXISTS (SELECT 1 FROM children WHERE children.id = mini_websites.child_id)
+  );

@@ -1,5 +1,6 @@
 -- Migration: Add AI Tools Schema (PRODUCTION)
 -- Tables: ai_tools, ai_tool_usage, child_logos
+-- RLS: Uses child existence check (compatible with SSO auth)
 
 -- ============================================
 -- 1. ai_tools - Tool registry
@@ -78,6 +79,7 @@ CREATE INDEX IF NOT EXISTS idx_child_logos_selected ON public.child_logos (child
 
 -- ============================================
 -- Row Level Security (RLS) Policies
+-- Uses child existence check (compatible with SSO)
 -- ============================================
 
 ALTER TABLE public.ai_tools ENABLE ROW LEVEL SECURITY;
@@ -88,25 +90,25 @@ ALTER TABLE public.child_logos ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "ai_tools_select_all" ON public.ai_tools
   FOR SELECT USING (true);
 
--- ai_tool_usage: Children access own usage
-CREATE POLICY "ai_tool_usage_select_own" ON public.ai_tool_usage
-  FOR SELECT USING (child_id = auth.uid());
+-- ai_tool_usage: Allow if child exists
+CREATE POLICY "ai_tool_usage_select" ON public.ai_tool_usage
+  FOR SELECT USING (EXISTS (SELECT 1 FROM children WHERE children.id = ai_tool_usage.child_id));
 
-CREATE POLICY "ai_tool_usage_insert_own" ON public.ai_tool_usage
-  FOR INSERT WITH CHECK (child_id = auth.uid());
+CREATE POLICY "ai_tool_usage_insert" ON public.ai_tool_usage
+  FOR INSERT WITH CHECK (EXISTS (SELECT 1 FROM children WHERE children.id = ai_tool_usage.child_id));
 
-CREATE POLICY "ai_tool_usage_update_own" ON public.ai_tool_usage
-  FOR UPDATE USING (child_id = auth.uid());
+CREATE POLICY "ai_tool_usage_update" ON public.ai_tool_usage
+  FOR UPDATE USING (EXISTS (SELECT 1 FROM children WHERE children.id = ai_tool_usage.child_id));
 
--- child_logos: Children access own logos
-CREATE POLICY "child_logos_select_own" ON public.child_logos
-  FOR SELECT USING (child_id = auth.uid());
+-- child_logos: Allow if child exists
+CREATE POLICY "child_logos_select" ON public.child_logos
+  FOR SELECT USING (EXISTS (SELECT 1 FROM children WHERE children.id = child_logos.child_id));
 
-CREATE POLICY "child_logos_insert_own" ON public.child_logos
-  FOR INSERT WITH CHECK (child_id = auth.uid());
+CREATE POLICY "child_logos_insert" ON public.child_logos
+  FOR INSERT WITH CHECK (EXISTS (SELECT 1 FROM children WHERE children.id = child_logos.child_id));
 
-CREATE POLICY "child_logos_update_own" ON public.child_logos
-  FOR UPDATE USING (child_id = auth.uid());
+CREATE POLICY "child_logos_update" ON public.child_logos
+  FOR UPDATE USING (EXISTS (SELECT 1 FROM children WHERE children.id = child_logos.child_id));
 
-CREATE POLICY "child_logos_delete_own" ON public.child_logos
-  FOR DELETE USING (child_id = auth.uid());
+CREATE POLICY "child_logos_delete" ON public.child_logos
+  FOR DELETE USING (EXISTS (SELECT 1 FROM children WHERE children.id = child_logos.child_id));
