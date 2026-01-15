@@ -10,6 +10,9 @@ interface RequireAuthProps {
   children: React.ReactNode
 }
 
+// Main Portal URL
+const MAIN_PORTAL_URL = import.meta.env.VITE_MAIN_PORTAL_URL || 'https://my-ceo.com'
+
 export function RequireAuth({ children }: RequireAuthProps) {
   const { child, loading } = useChildSession()
 
@@ -41,12 +44,20 @@ export function RequireAuth({ children }: RequireAuthProps) {
               <p className="text-[var(--text-secondary)] mb-6">
                 Please access this page from the main portal to continue.
               </p>
-              <button
-                onClick={() => window.location.reload()}
-                className="w-full px-6 py-3 bg-[var(--sky-blue)] text-white font-bold rounded-full hover:scale-105 transition-transform shadow-[var(--shadow-medium)]"
-              >
-                Refresh
-              </button>
+              <div className="space-y-3">
+                <a
+                  href={MAIN_PORTAL_URL}
+                  className="block w-full px-6 py-3 bg-[var(--sky-blue)] text-white font-bold rounded-full hover:scale-105 transition-transform shadow-[var(--shadow-medium)]"
+                >
+                  Go to Main Portal
+                </a>
+                <button
+                  onClick={() => window.location.reload()}
+                  className="block w-full px-6 py-3 bg-gray-100 text-[var(--text-secondary)] font-medium rounded-full hover:bg-gray-200 transition-colors"
+                >
+                  Refresh
+                </button>
+              </div>
             </div>
           </div>
         </main>

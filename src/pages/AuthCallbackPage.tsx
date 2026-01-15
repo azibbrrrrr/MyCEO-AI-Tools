@@ -10,6 +10,9 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useChildSession } from '@/hooks/useChildSession'
 import { FloatingElements } from '@/components/floating-elements'
 
+// Main Portal URL
+const MAIN_PORTAL_URL = import.meta.env.VITE_MAIN_PORTAL_URL || 'https://my-ceo.com'
+
 export default function AuthCallbackPage() {
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
@@ -81,12 +84,20 @@ export default function AuthCallbackPage() {
                 <p className="text-[var(--text-secondary)] mb-6">
                   {error}
                 </p>
-                <button
-                  onClick={() => window.location.reload()}
-                  className="w-full px-6 py-3 bg-[var(--sky-blue)] text-white font-bold rounded-full hover:scale-105 transition-transform shadow-[var(--shadow-medium)]"
-                >
-                  Try Again
-                </button>
+                <div className="space-y-3">
+                  <a
+                    href={MAIN_PORTAL_URL}
+                    className="block w-full px-6 py-3 bg-[var(--sky-blue)] text-white font-bold rounded-full hover:scale-105 transition-transform shadow-[var(--shadow-medium)]"
+                  >
+                    Go to Main Portal
+                  </a>
+                  <button
+                    onClick={() => window.location.reload()}
+                    className="block w-full px-6 py-3 bg-gray-100 text-[var(--text-secondary)] font-medium rounded-full hover:bg-gray-200 transition-colors"
+                  >
+                    Try Again
+                  </button>
+                </div>
               </>
             ) : null}
           </div>
