@@ -128,8 +128,8 @@ export default function LogoMakerPage() {
         const res = await fetch(`/api/check-status?id=${ids[0]}`)
         const data = await res.json()
         
-        // Update all 3 cards with same progress
-        setCardProgress([data.progress, data.progress, data.progress])
+        // Update progress
+        setCardProgress([data.progress])
         
         if (data.status === 'succeeded' && data.output) {
           return data.output as string[]
@@ -264,7 +264,7 @@ export default function LogoMakerPage() {
       setError(null)
       setLogos([])
       setSelectedLogo(null)
-      setCardProgress(plan === 'premium' ? [0] : [0, 0, 0])
+      setCardProgress([0])
       setStep(5)
 
       try {
@@ -304,7 +304,7 @@ export default function LogoMakerPage() {
              tempUrls = images
              isDirect = true
              // Set progress to complete
-             setCardProgress(plan === 'premium' ? [100] : [100, 100, 100])
+             setCardProgress([100])
           }
         } else {
              // Polling response (Flux)
@@ -616,16 +616,16 @@ export default function LogoMakerPage() {
               </div>
               <h3 className="text-xl font-bold text-[var(--text-primary)] mb-2">Quick & Easy</h3>
               <p className="text-sm text-[var(--text-secondary)] mb-4">
-                Great for exploring ideas! Get 3 logo variations quickly.
+                Great for exploring ideas! Generate a logo concept in seconds.
               </p>
               <ul className="space-y-2 text-sm">
                 <li className="flex items-center gap-2 text-[var(--text-secondary)]">
                   <span className="text-[var(--mint-green)]">✓</span>
-                  3 logo options per generation
+                  1 logo concept per generation
                 </li>
                 <li className="flex items-center gap-2 text-[var(--text-secondary)]">
                   <span className="text-[var(--mint-green)]">✓</span>
-                  Fast results (~15 seconds)
+                  Fast results
                 </li>
                 <li className="flex items-center gap-2 text-[var(--text-secondary)]">
                   <span className="text-[var(--mint-green)]">✓</span>
@@ -730,7 +730,7 @@ export default function LogoMakerPage() {
             <p className="text-[var(--text-secondary)] mb-6 text-center max-w-md">
               {plan === "premium"
                 ? "Our AI is crafting a high-quality, professional logo just for you. This usually takes about 10-15 seconds."
-                : "Ideally generating 3 creative concepts based on your choices..."}
+                : "Drafting a creative concept based on your choices..."}
             </p>
             
             <div className="flex justify-center mb-8">
@@ -739,7 +739,7 @@ export default function LogoMakerPage() {
 
             {/* Progress pills just for visual feedback */}
             <div className="flex gap-2">
-               {(plan === 'premium' ? [0] : [0, 1, 2]).map((i) => (
+               {[0].map((i) => (
                   <div key={i} className={`h-2 w-16 rounded-full transition-all duration-500 ${cardProgress[i] === 100 ? 'bg-[var(--mint-green)]' : 'bg-gray-200 overflow-hidden'}`}>
                      <div 
                        className="h-full bg-[var(--sky-blue)] transition-all duration-300" 
@@ -759,7 +759,7 @@ export default function LogoMakerPage() {
       {/* Step 6: Select logo */}
       {step === 6 && logos.length > 0 && (
         <StepCard title={t("logo.step5.title")} subtitle={t("logo.step5.subtitle")} icon="👑">
-          <div className={`grid gap-6 ${logos.length === 1 ? 'grid-cols-1 max-w-xs mx-auto' : 'grid-cols-1 sm:grid-cols-3'}`}>
+          <div className="grid gap-6 w-full grid-cols-1 max-w-xs mx-auto">
             {logos.map((logo, index) => {
                const isSelected = selectedLogo === index
                return (
@@ -777,7 +777,7 @@ export default function LogoMakerPage() {
                     )}
                     
                     <h3 className="text-lg font-bold mb-4 text-[var(--text-primary)]">
-                       {logos.length === 1 ? 'Your Premium Logo' : `Logo ${index + 1}`}
+                       {plan === 'premium' ? 'Premium Logo' : 'Your Draft Logo'}
                     </h3>
 
                     <div className="relative w-full aspect-square rounded-xl overflow-hidden shadow-sm">
@@ -802,7 +802,7 @@ export default function LogoMakerPage() {
                 setStep(5)
                 setGenerating(true)
                 setError(null)
-                setCardProgress(plan === 'premium' ? [0] : [0, 0, 0])
+                setCardProgress([0])
                 
                 try {
                   const response = await fetch('/api/predict', {
@@ -837,7 +837,7 @@ export default function LogoMakerPage() {
                          if (images && Array.isArray(images)) {
                               tempUrls = images
                               isDirect = true
-                              setCardProgress(plan === 'premium' ? [100] : [100, 100, 100])
+                              setCardProgress([100])
                          }
                     } else {
                          const { ids } = data

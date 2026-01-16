@@ -16,7 +16,7 @@ export const QUOTA_LIMITS = {
     free: {
         maxGenerations: Infinity,
         maxImages: Infinity,
-        imagesPerGeneration: 3,
+        imagesPerGeneration: 1,
     },
 } as const
 

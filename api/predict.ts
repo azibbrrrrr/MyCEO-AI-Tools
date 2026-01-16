@@ -156,6 +156,38 @@ Output quality:
     return prompt
 }
 
+// Optimized prompt for Flux Schnell (Text-First Structure)
+function buildFluxPrompt(data: LogoWizardData): string {
+    const businessType = BUSINESS_TYPE_PROMPTS[data.businessType as BusinessType] || data.businessType
+    const logoStyle = LOGO_STYLE_PROMPTS[data.logoStyle as LogoStyle] || 'modern'
+    const vibe = VIBE_PROMPTS[data.vibe as VibeType] || VIBE_PROMPTS.playful
+    const colors = data.colorPalette ? COLOR_PALETTE_PROMPTS[data.colorPalette as ColorPalette] : 'vibrant colors'
+
+    // Build icons text
+    const iconsList = data.icons?.map(icon => SYMBOL_PROMPTS[icon as IconType]).filter(Boolean) || []
+    const iconDescription = iconsList.length > 0
+        ? `a simple vector icon of ${iconsList.join(' and ')}`
+        : `a design element representing a ${businessType}`
+
+    // Text-First structural formula:
+    // "A logo design with text "[NAME]" written in [Font Style]. The text is in the center. Above the text is [Icon Description]. [Style Context]. [Quality Modifiers]."
+
+    let prompt = `A logo design with the text "${data.businessName.toUpperCase()}" written in clear ${vibe.typography}. `
+    prompt += `The text is in the center. `
+    prompt += `Above the text is ${iconDescription}. `
+
+    if (data.slogan) {
+        prompt += `Below the main text is the slogan "${data.slogan}" in smaller font. `
+    }
+
+    prompt += `This is for a ${businessType} in a ${logoStyle}. `
+    prompt += `Style: Professional minimalist vector art, ${vibe.style}, white background. `
+    prompt += `Colors: ${colors}. High contrast, sharp lines, clean composition.`
+
+    console.log('Generated Flux prompt (Structured):', prompt)
+    return prompt
+}
+
 // Premium prompt for Google Imagen 4 (premium tier)
 // Imagen 4 excels at typography and high-quality image generation
 // Formula: [Medium] + [Text in "Quotes"] + [Typography Style] + [Visual Aesthetic]
@@ -252,7 +284,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
 
         const replicate = new Replicate({ auth: process.env.REPLICATE_API_TOKEN })
-        const basePrompt = buildPrompt(logoWizardData)
+
+        // Select prompt builder based on plan
+        const basePrompt = plan === 'premium' ? buildPrompt(logoWizardData) : buildFluxPrompt(logoWizardData)
 
         if (plan === 'premium') {
             // ==========================================
@@ -339,7 +373,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                     aspect_ratio: '1:1',
                     output_format: 'webp',
                     output_quality: 80,
-                    num_outputs: 3,
+                    num_outputs: 1,
                     num_inference_steps: 4,
                     go_fast: true,
                     disable_safety_checker: false,
