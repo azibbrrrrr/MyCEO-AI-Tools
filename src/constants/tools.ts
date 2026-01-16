@@ -25,14 +25,6 @@ export const AVAILABLE_TOOLS: ToolConfig[] = [
         state: "available",
     },
     {
-        icon: "🏪",
-        iconImageKey: "booth",
-        titleKey: "tool.booth",
-        descKey: "tool.booth.desc",
-        href: "/tools/booth-ready",
-        state: "available",
-    },
-    {
         icon: "💰",
         iconImageKey: "calculator",
         titleKey: "tool.profit",
@@ -58,24 +50,7 @@ export const AVAILABLE_TOOLS: ToolConfig[] = [
     },
 ]
 
-export const COMING_SOON_TOOLS: ToolConfig[] = [
-    {
-        icon: "💡",
-        iconImageKey: "productIdea",
-        titleKey: "tool.product",
-        descKey: "tool.product.desc",
-        href: "#",
-        state: "comingSoon",
-    },
-    {
-        icon: "📦",
-        iconImageKey: "packaging",
-        titleKey: "tool.packaging",
-        descKey: "tool.packaging.desc",
-        href: "#",
-        state: "comingSoon",
-    },
-]
+export const COMING_SOON_TOOLS: ToolConfig[] = []
 
 // Tool icon mapping type (for use with dynamic imports)
 export type ToolIconKey = ToolConfig['iconImageKey']

@@ -13,6 +13,7 @@ import type { PlanType, Logo, ColorPalette } from "@/constants"
 import { useChildSession } from "@/hooks/useChildSession"
 import { saveLogos, getToolByKey, selectLogoAndUpdateCompany, checkQuota, incrementUsage, QUOTA_LIMITS } from "@/lib/supabase/ai-tools"
 import { LogoZoomModal } from "@/components/LogoZoomModal"
+import { PulsingBrandLoader } from '@/components/PulsingBrandLoader'
 import { Celebration } from "@/components/celebration"
 
 export default function LogoMakerV2Page() {
@@ -583,32 +584,7 @@ export default function LogoMakerV2Page() {
                   ✨ Creating your logos...
                 </h3>
                 <div className="flex justify-center py-8">
-                  <div className="relative w-24 h-24">
-                    <svg className="w-full h-full animate-spin" viewBox="0 0 100 100">
-                      <circle
-                        cx="50"
-                        cy="50"
-                        r="40"
-                        fill="none"
-                        stroke="var(--border-light)"
-                        strokeWidth="8"
-                      />
-                      <circle
-                        cx="50"
-                        cy="50"
-                        r="40"
-                        fill="none"
-                        stroke="var(--sky-blue)"
-                        strokeWidth="8"
-                        strokeLinecap="round"
-                        strokeDasharray="251"
-                        strokeDashoffset="188"
-                      />
-                    </svg>
-                    <div className="absolute inset-0 flex items-center justify-center text-3xl">
-                      🎨
-                    </div>
-                  </div>
+                  <PulsingBrandLoader size="lg" icon="✨" />
                 </div>
               </div>
             )}

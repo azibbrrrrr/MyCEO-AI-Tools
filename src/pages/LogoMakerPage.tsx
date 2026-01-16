@@ -18,7 +18,7 @@ import type { PlanType, Logo, ColorPalette } from "@/constants"
 import { useChildSession } from "@/hooks/useChildSession"
 import { saveLogos, getToolByKey, selectLogoAndUpdateCompany, checkQuota, incrementUsage, QUOTA_LIMITS } from "@/lib/supabase/ai-tools"
 import { LogoZoomModal } from "@/components/LogoZoomModal"
-import { LogoCard } from "@/components/LogoCard"
+import { PulsingBrandLoader } from '@/components/PulsingBrandLoader'
 
 export default function LogoMakerPage() {
   const { t } = useLanguage()
@@ -88,7 +88,7 @@ export default function LogoMakerPage() {
   }
 
   const selectAndClose = (index: number) => {
-    setSelectedLogo(index)
+    setSelectedLogo(prev => prev === index ? null : index)
     closeZoomModal()
   }
 
@@ -239,6 +239,7 @@ export default function LogoMakerPage() {
       setGenerating(true)
       setError(null)
       setLogos([])
+      setSelectedLogo(null)
       setCardProgress(plan === 'premium' ? [0] : [0, 0, 0])
       setStep(5)
 
@@ -338,6 +339,29 @@ export default function LogoMakerPage() {
     if (step === 4) return plan !== ""
     if (step === 6) return selectedLogo !== null
     return true
+  }
+
+  const downloadAsPng = (imageUrl: string, filename: string) => {
+    const img = new Image()
+    img.crossOrigin = "anonymous"
+    img.src = imageUrl
+    img.onload = () => {
+      const canvas = document.createElement('canvas')
+      canvas.width = img.width
+      canvas.height = img.height
+      const ctx = canvas.getContext('2d')
+      if (ctx) {
+        ctx.drawImage(img, 0, 0)
+        const pngUrl = canvas.toDataURL('image/png')
+        
+        const link = document.createElement('a')
+        link.href = pngUrl
+        link.download = filename
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+      }
+    }
   }
 
   return (
@@ -667,56 +691,28 @@ export default function LogoMakerPage() {
             <div className={`grid gap-6 w-full ${plan === 'premium' ? 'grid-cols-1 max-w-xs mx-auto' : 'grid-cols-3'}`}>
               {(plan === 'premium' ? [0] : [0, 1, 2]).map((i) => {
                 const progress = cardProgress[i] || 0
-                const circumference = 2 * Math.PI * 45 // radius = 45
-                const strokeDashoffset = circumference - (progress / 100) * circumference
                 
                 return (
-                  <div key={i} className="flex flex-col items-center">
-                    {/* Circular Progress Loader */}
-                    <div className="relative w-28 h-28">
-                      {/* Background circle */}
-                      <svg className="w-full h-full transform -rotate-90">
-                        <circle
-                          cx="56"
-                          cy="56"
-                          r="45"
-                          fill="none"
-                          stroke="var(--border-light)"
-                          strokeWidth="8"
-                        />
-                        {/* Progress circle */}
-                        <circle
-                          cx="56"
-                          cy="56"
-                          r="45"
-                          fill="none"
-                          stroke={plan === 'premium' ? 'var(--golden-yellow)' : 'var(--sky-blue)'}
-                          strokeWidth="8"
-                          strokeLinecap="round"
-                          strokeDasharray={circumference}
-                          strokeDashoffset={strokeDashoffset}
-                          style={{ transition: 'stroke-dashoffset 0.3s ease-out' }}
-                        />
-                      </svg>
-                      
-                      {/* Center content */}
-                      <div className="absolute inset-0 flex flex-col items-center justify-center">
-                        {progress < 100 ? (
-                          <>
-                            <span className="text-2xl font-bold text-[var(--text-primary)]">
-                              {progress}%
-                            </span>
-                          </>
-                        ) : (
-                          <div className={`text-3xl ${plan === 'premium' ? 'text-[var(--golden-yellow)]' : 'text-[var(--sky-blue)]'}`}>✓</div>
-                        )}
-                      </div>
+                  <div key={i} className="bg-white p-6 rounded-3xl shadow-[var(--shadow-medium)] flex flex-col items-center border-gray-200 border-4 relative overflow-hidden transition-all duration-300 transform hover:scale-[1.02]">
+                    <div className="absolute top-0 right-0 bg-[var(--sky-blue)] text-white text-xs font-bold px-3 py-1 rounded-bl-xl">
+                      {progress < 100 ? "CREATING" : "READY"}
                     </div>
                     
-                    {/* Label */}
-                    <span className="mt-3 text-sm font-semibold text-[var(--text-primary)]">
-                      {plan === 'premium' ? 'Premium Logo' : `Logo ${i + 1}`}
-                    </span>
+                    <h3 className="text-lg font-bold mb-4 text-[var(--text-primary)]">
+                       {plan === 'premium' ? 'Premium Logo' : `Logo ${i + 1}`}
+                    </h3>
+
+                    <div className="flex items-center justify-center h-28 w-28 py-2">
+                      {progress < 100 ? (
+                         <PulsingBrandLoader size="sm" icon={plan === "premium" ? "👑" : "🎨"} />
+                      ) : (
+                         <div className="text-5xl animate-pulse">✨</div>
+                      )}
+                    </div>
+                    
+                    <p className="text-sm text-[var(--text-muted)] mt-4 text-center">
+                       {progress < 100 ? "AI is refining details..." : "Design complete!"}
+                    </p>
                   </div>
                 )
               })}
@@ -728,16 +724,33 @@ export default function LogoMakerPage() {
       {/* Step 6: Select logo */}
       {step === 6 && logos.length > 0 && (
         <StepCard title={t("logo.step5.title")} subtitle={t("logo.step5.subtitle")} icon="👑">
-          <div className={`grid gap-4 ${logos.length === 1 ? 'grid-cols-1 max-w-xs mx-auto' : 'grid-cols-1 sm:grid-cols-3'}`}>
-            {logos.map((logo, index) => (
-              <LogoCard
-                key={logo.id}
-                imageUrl={logo.imageUrl}
-                title={logos.length === 1 ? 'Your Premium Logo' : `Option ${index + 1}`}
-                isSelected={selectedLogo === index}
-                onClick={() => openZoomModal(index)}
-              />
-            ))}
+          <div className={`grid gap-6 ${logos.length === 1 ? 'grid-cols-1 max-w-xs mx-auto' : 'grid-cols-1 sm:grid-cols-3'}`}>
+            {logos.map((logo, index) => {
+               const isSelected = selectedLogo === index
+               return (
+                  <div 
+                    key={logo.id}
+                    onClick={() => openZoomModal(index)}
+                    className={`bg-white p-6 rounded-3xl shadow-[var(--shadow-medium)] flex flex-col items-center border-4 relative overflow-hidden transition-all duration-300 transform hover:scale-[1.02] cursor-pointer ${
+                      isSelected ? 'border-[var(--sky-blue)]' : 'border-gray-200'
+                    }`}
+                  >
+                    {isSelected && (
+                      <div className="absolute top-0 right-0 bg-[var(--sky-blue)] text-white text-xs font-bold px-3 py-1 rounded-bl-xl">
+                        SELECTED
+                      </div>
+                    )}
+                    
+                    <h3 className="text-lg font-bold mb-4 text-[var(--text-primary)]">
+                       {logos.length === 1 ? 'Your Premium Logo' : `Logo ${index + 1}`}
+                    </h3>
+
+                    <div className="relative w-full aspect-square rounded-xl overflow-hidden shadow-sm">
+                       <img src={logo.imageUrl} alt="Logo" className="w-full h-full object-cover" />
+                    </div>
+                  </div>
+               )
+            })}
           </div>
           
           {/* Regenerate button */}
@@ -808,7 +821,7 @@ export default function LogoMakerPage() {
               }}
               className="px-5 py-2.5 rounded-full border-2 border-[var(--sky-blue)] text-[var(--sky-blue)] font-semibold hover:bg-[var(--sky-blue)]/10 transition-colors flex items-center gap-2"
             >
-              🔄 Generate Again
+              Generate Again
             </button>
           </div>
           
@@ -824,8 +837,9 @@ export default function LogoMakerPage() {
           title={`Option ${zoomLogoIndex + 1}`}
           onClose={closeZoomModal}
           showPickButton={true}
-          pickButtonLabel="Pick This One! 🎨"
-          onPick={() => selectAndClose(zoomLogoIndex)}
+          pickButtonLabel={selectedLogo === zoomLogoIndex ? "Unpick Selection ❌" : "Pick This One! 🎨"}
+          pickButtonColor={selectedLogo === zoomLogoIndex ? "bg-red-500 hover:bg-red-600" : undefined}
+          onPick={() => zoomLogoIndex !== null && selectAndClose(zoomLogoIndex)}
         />
       )}
 
@@ -840,7 +854,13 @@ export default function LogoMakerPage() {
             {slogan && <p className="text-[var(--text-secondary)] mb-4">"{slogan}"</p>}
 
             <div className="flex gap-3">
-              <button className="px-6 py-3 rounded-full bg-[var(--sky-blue)] text-white font-bold hover:scale-105 transition-transform border-2 border-[var(--border-light)]">
+              <button 
+                onClick={() => {
+                  const filename = `logo-${shopName.replace(/\s+/g, '-').toLowerCase()}-${Date.now()}.png`
+                  downloadAsPng(logos[selectedLogo].imageUrl, filename)
+                }}
+                className="px-6 py-3 rounded-full bg-[var(--sky-blue)] text-white font-bold hover:scale-105 transition-transform border-2 border-[var(--border-light)]"
+              >
                 {t("logo.download")} 📥
               </button>
               <Link

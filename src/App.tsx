@@ -14,12 +14,14 @@ import CreationsPage from './pages/CreationsPage'
 import PublicWebsitePage from './pages/PublicWebsitePage'
 import NotFoundPage from './pages/NotFoundPage'
 import { RequireAuth } from './components/RequireAuth'
+import LoadingShowcasePage from './pages/LoadingShowcasePage'
 
 function App() {
   return (
     <Routes>
       {/* SSO Auth callback - handles ticket exchange */}
       <Route path="/auth/callback" element={<AuthCallbackPage />} />
+      <Route path="/loading-showcase" element={<LoadingShowcasePage />} />
       
       {/* Protected routes - shows login required if not authenticated */}
       <Route path="/" element={<RequireAuth><Dashboard /></RequireAuth>} />

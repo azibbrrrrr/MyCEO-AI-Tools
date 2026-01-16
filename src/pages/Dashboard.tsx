@@ -107,13 +107,13 @@ export default function Dashboard() {
 
       {/* Header */}
       <header className="relative z-10 flex items-center justify-between p-4 md:p-6 bg-white/50 backdrop-blur-sm">
-        <Link
-          to="/"
+        <a
+          href={import.meta.env.VITE_MAIN_PORTAL_URL}
           className="flex items-center gap-2 bg-white rounded-full px-4 py-2 shadow-[var(--shadow-low)] hover:shadow-[var(--shadow-medium)] transition-all"
         >
           <span className="text-2xl">🏠</span>
           <span className="font-bold text-[var(--text-primary)] hidden sm:inline">Home</span>
-        </Link>
+        </a>
 
         <div className="flex items-center gap-4">
           <LanguageToggle />
@@ -205,7 +205,7 @@ export default function Dashboard() {
             </div>
 
             {/* Coming Soon Tools */}
-            <h3 className="text-lg font-bold text-[var(--text-muted)] mt-8 mb-4">🔮 Coming Soon</h3>
+            {/* <h3 className="text-lg font-bold text-[var(--text-muted)] mt-8 mb-4">🔮 Coming Soon</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {COMING_SOON_TOOLS.map((tool) => (
                 <ToolCard
@@ -218,7 +218,7 @@ export default function Dashboard() {
                   state={tool.state}
                 />
               ))}
-            </div>
+            </div> */}
           </section>
 
           {/* Recent Creations */}

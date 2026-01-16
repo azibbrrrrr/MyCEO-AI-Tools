@@ -14,6 +14,7 @@ export interface LogoZoomModalProps {
   onPick?: () => void  // Optional: for Logo Maker selection
   showPickButton?: boolean
   pickButtonLabel?: string
+  pickButtonColor?: string // Custom color class (e.g. "bg-red-500")
   onDelete?: () => void  // Optional: for Creations page
   showDeleteButton?: boolean
 }
@@ -27,9 +28,11 @@ export function LogoZoomModal({
   onPick,
   showPickButton = false,
   pickButtonLabel = "Pick This One! 🎨",
+  pickButtonColor,
   onDelete,
   showDeleteButton = false,
 }: LogoZoomModalProps) {
+  // ... existing state ...
   const [zoomLevel, setZoomLevel] = useState(100)
   const [dragPosition, setDragPosition] = useState({ x: 0, y: 0 })
   const [isDragging, setIsDragging] = useState(false)
@@ -37,6 +40,7 @@ export function LogoZoomModal({
 
   if (!isOpen) return null
 
+  // ... existing handlers ...
   const handleZoomIn = () => setZoomLevel((prev) => Math.min(prev + 25, 300))
   const handleZoomOut = () => setZoomLevel((prev) => Math.max(prev - 25, 50))
 
@@ -68,13 +72,28 @@ export function LogoZoomModal({
   }
 
   const handleDownload = () => {
-    const link = document.createElement('a')
-    link.href = imageUrl
-    link.download = `logo-${Date.now()}.webp`
-    link.target = '_blank'
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
+    const filename = `logo-${Date.now()}.png`
+    
+    const img = new Image()
+    img.crossOrigin = "anonymous"
+    img.src = imageUrl
+    img.onload = () => {
+      const canvas = document.createElement('canvas')
+      canvas.width = img.width
+      canvas.height = img.height
+      const ctx = canvas.getContext('2d')
+      if (ctx) {
+        ctx.drawImage(img, 0, 0)
+        const pngUrl = canvas.toDataURL('image/png')
+        
+        const link = document.createElement('a')
+        link.href = pngUrl
+        link.download = filename
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+      }
+    }
   }
 
   const resetZoom = () => {
@@ -158,7 +177,7 @@ export function LogoZoomModal({
           {showPickButton && onPick && (
             <button
               onClick={onPick}
-              className="flex-1 px-4 py-3 rounded-full bg-[var(--sunshine-orange)] text-white font-bold hover:scale-105 transition-transform"
+              className={`flex-1 px-4 py-3 rounded-full text-white font-bold hover:scale-105 transition-transform ${pickButtonColor || "bg-[var(--sunshine-orange)]"}`}
             >
               {pickButtonLabel}
             </button>
