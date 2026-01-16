@@ -267,13 +267,29 @@ export default function LogoMakerPage() {
           throw new Error(errorData.error || 'Failed to start generation')
         }
 
-        const { mode, ids } = await response.json()
+        const data = await response.json()
+        const { mode } = data
 
-        // Step 2: Poll for results with progress updates
-        const tempUrls = await pollPredictions(mode, ids)
+        let tempUrls: string[] = []
+        let isDirect = false
+
+        if (mode === 'direct') {
+          // Direct response (Imagen 4) - no polling needed
+          const { images } = data
+          if (images && Array.isArray(images)) {
+             tempUrls = images
+             isDirect = true
+             // Set progress to complete
+             setCardProgress(plan === 'premium' ? [100] : [100, 100, 100])
+          }
+        } else {
+             // Polling response (Flux)
+             const { ids } = data
+             tempUrls = await pollPredictions(mode, ids)
+        }
         
-        // Step 3: Upload to permanent storage
-        const permanentUrls = await uploadImages(tempUrls)
+        // Step 3: Upload to permanent storage (skip if direct mode as they are already permanent)
+        const permanentUrls = isDirect ? tempUrls : await uploadImages(tempUrls)
         
         // Step 4: Convert to Logo format
         const generatedLogos: Logo[] = permanentUrls.map((url, i) => ({
@@ -791,11 +807,26 @@ export default function LogoMakerPage() {
                     throw new Error('Failed to start regeneration')
                   }
 
-                    const { mode, ids } = await response.json()
-                    const tempUrls = await pollPredictions(mode, ids)
+                    const data = await response.json()
+                    const { mode } = data
+
+                    let tempUrls: string[] = []
+                    let isDirect = false
+
+                    if (mode === 'direct') {
+                         const { images } = data
+                         if (images && Array.isArray(images)) {
+                              tempUrls = images
+                              isDirect = true
+                              setCardProgress(plan === 'premium' ? [100] : [100, 100, 100])
+                         }
+                    } else {
+                         const { ids } = data
+                         tempUrls = await pollPredictions(mode, ids)
+                    }
                     
-                    // Upload to permanent storage
-                    const permanentUrls = await uploadImages(tempUrls)
+                    // Upload to permanent storage (skip if direct)
+                    const permanentUrls = isDirect ? tempUrls : await uploadImages(tempUrls)
                     
                     const generatedLogos: Logo[] = permanentUrls.map((url, i) => ({
                       id: `logo-${Date.now()}-${i}`,
@@ -861,13 +892,13 @@ export default function LogoMakerPage() {
                 }}
                 className="px-6 py-3 rounded-full bg-[var(--sky-blue)] text-white font-bold hover:scale-105 transition-transform border-2 border-[var(--border-light)]"
               >
-                {t("logo.download")} 📥
+                {t("logo.download")}
               </button>
               <Link
                 to="/"
                 className="px-6 py-3 rounded-full bg-white text-[var(--text-primary)] font-bold hover:scale-105 transition-transform border-2 border-[var(--border-light)]"
               >
-                {t("logo.backToDashboard")} 🏠
+                {t("logo.backToDashboard")}
               </Link>
             </div>
           </div>

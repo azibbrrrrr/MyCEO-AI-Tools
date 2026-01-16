@@ -187,11 +187,21 @@ export default function LogoMakerV2Page() {
         throw new Error(errorData.error || 'Failed to start generation')
       }
 
-      const { mode, ids } = await response.json()
+      const data = await response.json()
+      const { mode } = data
 
       // Poll for results
       const results: (string | null)[] = []
-      if (mode === 'batch') {
+      let isDirect = false
+
+      if (mode === 'direct') {
+        const { images } = data
+        if (images && Array.isArray(images)) {
+            results.push(...images)
+            isDirect = true
+        }
+      } else if (mode === 'batch') {
+        const ids = data.ids
         const result = await pollPrediction(ids[0])
         if (result) {
           if (Array.isArray(result)) {
@@ -201,6 +211,7 @@ export default function LogoMakerV2Page() {
           }
         }
       } else {
+        const ids = data.ids
         for (const id of ids) {
           const result = await pollPrediction(id)
           results.push(result)
@@ -212,8 +223,8 @@ export default function LogoMakerV2Page() {
         throw new Error('No logos generated')
       }
 
-      // Upload to permanent storage
-      const permanentUrls = await uploadImages(tempUrls)
+      // Upload to permanent storage (skip if direct mode as they are already permanent)
+      const permanentUrls = isDirect ? tempUrls : await uploadImages(tempUrls)
 
       // Create logo objects
       const generatedLogos: Logo[] = permanentUrls.map((url, i) => ({
