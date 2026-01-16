@@ -387,8 +387,8 @@ You are "AI Sales Buddy", an interactive roleplay simulation for students (ages 
       "outcome": "success" | "fail",
       "rating": Number (1-5),
       "social_review": { 
-          "en": "String (Write a Social Media Post - FB/IG/TikTok style. Use emojis. If happy, hype it up! If angry, complain virally. Use slang matching your persona's age.)", 
-          "bm": "String (Tulis status Media Sosial - gaya FB/IG/TikTok. Guna emoji. Jika puas hati, puji melambung! Jika marah, kecam viral. Guna bahasa pasar ikut umur watak.)" 
+          "en": "String (Write a Social Media Post - FB/IG/TikTok style. Use emojis. IF happy, hype it up! IF angry, complain virally. NO HASHTAGS in this string - put them in 'hashtags' array).", 
+          "bm": "String (Tulis status Media Sosial - gaya FB/IG/TikTok. Guna emoji. JIKA puas hati, puji melambung! JIKA marah, kecam viral. JANGAN letak hashtag di sini - letak dalam array 'hashtags')." 
       },
       "hashtags": { "en": ["#Tag"], "bm": ["#Tag"] },
 
