@@ -267,7 +267,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             }
 
             const ai = new GoogleGenAI({ apiKey })
-            // const premiumPrompt = buildPremiumPrompt(logoWizardData)
 
             const response = await ai.models.generateImages({
                 model: 'imagen-4.0-generate-001',

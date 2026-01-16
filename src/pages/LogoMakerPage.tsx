@@ -18,7 +18,7 @@ import type { PlanType, Logo, ColorPalette } from "@/constants"
 import { useChildSession } from "@/hooks/useChildSession"
 import { saveLogos, getToolByKey, selectLogoAndUpdateCompany, checkQuota, incrementUsage, QUOTA_LIMITS } from "@/lib/supabase/ai-tools"
 import { LogoZoomModal } from "@/components/LogoZoomModal"
-import { PulsingBrandLoader } from '@/components/PulsingBrandLoader'
+
 
 export default function LogoMakerPage() {
   const { t } = useLanguage()
@@ -54,6 +54,30 @@ export default function LogoMakerPage() {
 
   // Polling state for progressive loading
   const [cardProgress, setCardProgress] = useState<number[]>([0, 0, 0]) // Progress % for each card
+  
+  // Dynamic loading messages
+  const [loadingMessage, setLoadingMessage] = useState("Preparing your canvas...")
+  const LOADING_MESSAGES = [
+    "Mixing the perfect colors...",
+    "Sketching initial concepts...",
+    "Adding a sprinkle of magic...",
+    "Polishing the details...",
+    "Adding finishing touches...",
+    "Almost ready!"
+  ]
+
+  // Rotate loading messages
+  useEffect(() => {
+    if (generating) {
+      let msgIndex = 0
+      setLoadingMessage(LOADING_MESSAGES[0])
+      const interval = setInterval(() => {
+        msgIndex = (msgIndex + 1) % LOADING_MESSAGES.length
+        setLoadingMessage(LOADING_MESSAGES[msgIndex])
+      }, 2000)
+      return () => clearInterval(interval)
+    }
+  }, [generating])
 
   // Fetch premium credits on mount
   useEffect(() => {
@@ -693,46 +717,41 @@ export default function LogoMakerPage() {
         </StepCard>
       )}
 
-      {/* Step 5: Generating animation with progress bars */}
+      {/* Step 5: Generating animation with rocket */}
       {step === 5 && generating && (
         <StepCard title={t("logo.generating.title")} subtitle={t("logo.generating.subtitle")} icon="🎨">
-          <div className="flex flex-col items-center py-4">
-            <p className="text-center text-[var(--text-secondary)] mb-6">
+          <div className="flex flex-col items-center py-8">
+            <div className="text-5xl mb-4 animate-bounce">🚀</div>
+            <h3 className="text-2xl font-bold text-[var(--text-primary)] mb-2">
               {plan === "premium" 
-                ? "Creating premium-quality logos with enhanced details..." 
-                : "Generating creative logo ideas..."}
+                ? "Designing Premium Logo..." 
+                : "Sketching Logo Ideas..."}
+            </h3>
+            <p className="text-[var(--text-secondary)] mb-6 text-center max-w-md">
+              {plan === "premium"
+                ? "Our AI is crafting a high-quality, professional logo just for you. This usually takes about 10-15 seconds."
+                : "Ideally generating 3 creative concepts based on your choices..."}
             </p>
             
-            {/* Logo Cards with Circular Progress - 1 for premium, 3 for free */}
-            <div className={`grid gap-6 w-full ${plan === 'premium' ? 'grid-cols-1 max-w-xs mx-auto' : 'grid-cols-3'}`}>
-              {(plan === 'premium' ? [0] : [0, 1, 2]).map((i) => {
-                const progress = cardProgress[i] || 0
-                
-                return (
-                  <div key={i} className="bg-white p-6 rounded-3xl shadow-[var(--shadow-medium)] flex flex-col items-center border-gray-200 border-4 relative overflow-hidden transition-all duration-300 transform hover:scale-[1.02]">
-                    <div className="absolute top-0 right-0 bg-[var(--sky-blue)] text-white text-xs font-bold px-3 py-1 rounded-bl-xl">
-                      {progress < 100 ? "CREATING" : "READY"}
-                    </div>
-                    
-                    <h3 className="text-lg font-bold mb-4 text-[var(--text-primary)]">
-                       {plan === 'premium' ? 'Premium Logo' : `Logo ${i + 1}`}
-                    </h3>
-
-                    <div className="flex items-center justify-center h-28 w-28 py-2">
-                      {progress < 100 ? (
-                         <PulsingBrandLoader size="sm" icon={plan === "premium" ? "👑" : "🎨"} />
-                      ) : (
-                         <div className="text-5xl animate-pulse">✨</div>
-                      )}
-                    </div>
-                    
-                    <p className="text-sm text-[var(--text-muted)] mt-4 text-center">
-                       {progress < 100 ? "AI is refining details..." : "Design complete!"}
-                    </p>
-                  </div>
-                )
-              })}
+            <div className="flex justify-center mb-8">
+              <div className="w-12 h-12 border-4 border-[var(--sky-blue)] border-t-transparent rounded-full animate-spin" />
             </div>
+
+            {/* Progress pills just for visual feedback */}
+            <div className="flex gap-2">
+               {(plan === 'premium' ? [0] : [0, 1, 2]).map((i) => (
+                  <div key={i} className={`h-2 w-16 rounded-full transition-all duration-500 ${cardProgress[i] === 100 ? 'bg-[var(--mint-green)]' : 'bg-gray-200 overflow-hidden'}`}>
+                     <div 
+                       className="h-full bg-[var(--sky-blue)] transition-all duration-300" 
+                       style={{ width: `${cardProgress[i]}%` }}
+                     />
+                  </div>
+               ))}
+            </div>
+            
+            <p className="text-sm font-medium text-[var(--text-secondary)] mt-4 animate-pulse">
+              {loadingMessage}
+            </p>
           </div>
         </StepCard>
       )}
