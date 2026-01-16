@@ -112,8 +112,10 @@ export default function CreationsPage() {
 
           {/* Logos Grid */}
           {loadingLogos ? (
-            <div className="flex items-center justify-center py-16">
-              <div className="animate-spin text-4xl">🔄</div>
+            <div className="flex flex-col items-center justify-center py-16">
+              <div className="text-5xl mb-4 animate-bounce">🚀</div>
+              <h3 className="text-xl font-bold text-[var(--text-primary)] mb-2">Loading your gallery...</h3>
+              <div className="w-8 h-8 border-4 border-[var(--sky-blue)] border-t-transparent rounded-full animate-spin" />
             </div>
           ) : logos.length > 0 ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
