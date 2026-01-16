@@ -27,6 +27,7 @@ interface ChatMessage {
 interface ResponseOption {
   text: string
   type: 'bad' | 'good' | 'okay'
+  reason?: string
 }
 
 interface LocalizedText {
@@ -777,9 +778,17 @@ export default function SalesBuddyPage() {
                   <button
                     key={i}
                     onClick={() => handleUserReply(opt.text)}
-                    className="w-full text-left p-3 rounded-xl border border-[var(--border-light)] bg-white hover:bg-[var(--bg-sky-lighter)] hover:border-[var(--sky-blue)] transition-all text-[var(--text-primary)] text-sm shadow-[var(--shadow-low)] active:scale-[0.98]"
+                    className="w-full text-left p-3 rounded-xl border border-[var(--border-light)] bg-white hover:bg-[var(--bg-sky-lighter)] hover:border-[var(--sky-blue)] transition-all text-[var(--text-primary)] text-sm shadow-[var(--shadow-low)] active:scale-[0.98] flex flex-col gap-1 group"
                   >
-                    {opt.text}
+                    <span className="font-semibold leading-relaxed group-hover:text-[var(--sky-blue-dark)] transition-colors">
+                      {opt.text}
+                    </span>
+                    {opt.reason && (
+                      <span className="text-xs text-[var(--text-secondary)] italic flex items-center gap-1.5 bg-[var(--bg-muted)] px-2.5 py-1.5 rounded-lg w-fit mt-1 border border-[var(--border-light)] group-hover:bg-white group-hover:border-[var(--sky-blue-light)] transition-colors">
+                        <Lightbulb size={12} className="text-[var(--golden-yellow)] shrink-0" />
+                        {opt.reason}
+                      </span>
+                    )}
                   </button>
                 ))}
               </div>

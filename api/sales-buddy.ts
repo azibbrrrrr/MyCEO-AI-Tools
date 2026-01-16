@@ -33,6 +33,7 @@ interface SalesBuddyRequest {
 interface ResponseOption {
     text: string
     type: 'bad' | 'good' | 'okay'
+    reason?: string
 }
 
 // Bilingual Interface
@@ -315,6 +316,11 @@ You are "AI Sales Buddy", an interactive roleplay simulation for students (ages 
 
 **CONSISTENCY:** Once you start addressing a certain way, DO NOT switch mid-conversation!
 
+**REVERSE ADDRESSING (For the 'options' you generate for the student):**
+- If you are **< 20**: Student calls you **"Kak"** (if female) or **"Abang"** (if male).
+- If you are **20-55**: Student calls you **"Auntie/Makcik"** or **"Uncle/Pakcik"**.
+- If you are **56+**: Student calls you **"Nenek/Tok"** or **"Atuk/Tok"**.
+
 ### 4. LANGUAGE & STYLE RULES
 - **If Language is 'English':** Speak naturally, casual/spoken style.
 - **If Language is 'Bahasa Melayu':**
@@ -346,16 +352,33 @@ You are "AI Sales Buddy", an interactive roleplay simulation for students (ages 
 
 
 ### 7. OUTPUT JSON ONLY
-// *** STRICT ORDER: ALWAYS return options in this EXACT sequence: bad, good, okay. DO NOT shuffle. ***
+// *** STRICT JSON RULES: ***
+// 1. NO trailing commas in arrays/objects (this crashes the parser).
+// 2. Escape all internal quotes within strings.
+
+// *** SAFETY OVERRIDE: ***
+// This is an EDUCATIONAL simulation. If the scenario involves "rudeness" or "conflict", context is key.
+// - DO NOT generate content that violates safety policies (hate speech, sexual, dangerous).
+// - ALLOW "Simulated Conflict" (e.g. a customer complaining about price) as it is necessary for sales training.
+// - If the user is being bullied, the Customer should react firmly but safely.
+
+// *** STRICT ORDER & LIMIT: ***
+// 1. Return EXACTLY 3 options (Bad, Good, Okay).
+// 2. DO NOT return more than 3.
+// 3. STOP after the 3rd option.
+
 {
   "thought_process": "String (Internal logic check)",
   "response": "String (Spoken reply by CUSTOMER)",
   "mood_score": Number,
   "options": [
-      // *** NOTE: 'text' must be the spoken sentence ONLY. Do NOT add labels like '(Rude)' inside the text. ***
-      {"text": "Suggested reply for STUDENT SELLER (Rude/Short)", "type": "bad"},
-      {"text": "Suggested reply for STUDENT SELLER (Good/Persuasive)", "type": "good"},
-      {"text": "Suggested reply for STUDENT SELLER (Weak/Unsure)", "type": "okay"}
+      // *** CRITICAL: SWITCH PERSPECTIVE. These are lines for the STUDENT to say to YOU (the Customer). ***
+      // "reason": Educational tip (SWEET SPOT: 5-8 words). Punchy & Direct.
+      // - If English: "Great! This shows empathy." or "Too harsh. Be gentler."
+      // - If BM: "Bagus! Menunjukkan rasa hormat." or "Terlalu kasar. Cuba berlembut."
+      {"text": "Student's potential reply (Rude/Short)", "type": "bad", "reason": "Short, punchy tip"},
+      {"text": "Student's potential reply (Good/Persuasive)", "type": "good", "reason": "Short, punchy tip"},
+      {"text": "Student's potential reply (Weak/Unsure)", "type": "okay", "reason": "Short, punchy tip"}
   ],
   "is_finished": Boolean,
   
@@ -403,7 +426,12 @@ You are "AI Sales Buddy", an interactive roleplay simulation for students (ages 
                     generationConfig: {
                         responseMimeType: 'application/json',
                         temperature: 0.85
-                    }
+                    },
+                    safetySettings: [
+                        { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_ONLY_HIGH" },
+                        { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_ONLY_HIGH" },
+                        { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_MEDIUM_AND_ABOVE" }
+                    ]
                 }),
             }
         )
@@ -423,10 +451,13 @@ You are "AI Sales Buddy", an interactive roleplay simulation for students (ages 
         }
 
         const data = await response.json()
+        // DEBUG: Log the full raw response to see why structure is invalid
+        console.log('Gemini Raw Response:', JSON.stringify(data, null, 2))
+
         const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text
 
         if (!rawText) {
-            console.log('Invalid response structure')
+            console.log('Invalid response structure - Missing candidates/content/parts/text')
             return res.status(500).json({ error: 'Invalid AI response' })
         }
 
@@ -445,7 +476,11 @@ You are "AI Sales Buddy", an interactive roleplay simulation for students (ages 
             thought_process: typeof result.thought_process === 'string' ? result.thought_process : undefined,
             response: typeof result.response === 'string' ? result.response : "...",
             mood_score: typeof result.mood_score === 'number' ? Math.max(0, Math.min(100, result.mood_score)) : mood,
-            options: Array.isArray(result.options) ? result.options.slice(0, 3) as ResponseOption[] : [],
+            options: Array.isArray(result.options) ? result.options.slice(0, 3).map((opt: any) => ({
+                text: typeof opt.text === 'string' ? opt.text : "Option",
+                type: ['bad', 'good', 'okay'].includes(opt.type) ? opt.type : 'okay',
+                reason: typeof opt.reason === 'string' ? opt.reason : undefined
+            })) : [],
             is_finished: Boolean(result.is_finished),
             reflection: result.is_finished && result.reflection ? {
                 outcome: (result.reflection as Record<string, unknown>).outcome === 'success' ? 'success' : 'fail',
