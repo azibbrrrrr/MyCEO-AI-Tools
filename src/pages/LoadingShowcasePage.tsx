@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useLanguage } from '@/components/language-provider'
 import { Loader2 } from 'lucide-react'
 import { LogoCardSkeleton } from '@/components/LogoCard'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -102,11 +103,12 @@ function PulsingCounterDemoWrapper() {
 }
 
 export default function LoadingShowcasePage() {
+  const { t } = useLanguage()
   return (
     <div className="min-h-screen bg-sky-gradient p-8">
       <div className="max-w-4xl mx-auto space-y-8">
         <h1 className="text-3xl font-bold text-[var(--text-primary)] text-center mb-8">
-          Loading Style Showcase
+          {t("loading.title")}
         </h1>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -114,7 +116,7 @@ export default function LoadingShowcasePage() {
           {/* 1. Skeleton Loader */}
           <div className="bg-white p-6 rounded-3xl shadow-[var(--shadow-medium)]">
             <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-              <span className="text-2xl">💀</span> Skeleton Loader
+              <span className="text-2xl">💀</span> {t("loading.skeleton")}
             </h2>
             <div className="space-y-4">
               <div className="space-y-2">
@@ -126,50 +128,50 @@ export default function LoadingShowcasePage() {
               </div>
             </div>
             <p className="text-sm text-[var(--text-muted)] mt-4">
-              Used for: Content placeholders (cards, text)
+              {t("loading.skeleton.desc")}
             </p>
           </div>
 
           {/* 2. Tailwind Spinner (Rocket) */}
           <div className="bg-white p-6 rounded-3xl shadow-[var(--shadow-medium)] flex flex-col items-center justify-center text-center">
              <h2 className="text-xl font-bold mb-4 w-full text-left flex items-center gap-2">
-              <span className="text-2xl">🚀</span> Rocket Spinner
+              <span className="text-2xl">🚀</span> {t("loading.rocket")}
             </h2>
             <div className="py-8">
                 <div className="text-5xl mb-4 animate-bounce">🚀</div>
                 <h1 className="text-lg font-bold text-[var(--text-primary)] mb-2">
-                  Launching AI Tools...
+                  {t("loading.rocket.launching")}
                 </h1>
                 <div className="mt-4 flex justify-center">
                   <div className="w-8 h-8 border-4 border-[var(--sky-blue)] border-t-transparent rounded-full animate-spin" />
                 </div>
             </div>
             <p className="text-sm text-[var(--text-muted)] mt-4">
-              Used for: Full page loads, "launching" states
+              {t("loading.rocket.desc")}
             </p>
           </div>
 
            {/* 3. Lucide Spinner */}
            <div className="bg-white p-6 rounded-3xl shadow-[var(--shadow-medium)]">
             <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-              <span className="text-2xl">🔄</span> Lucide Spinner
+              <span className="text-2xl">🔄</span> {t("loading.lucide")}
             </h2>
             <div className="flex flex-col gap-4 items-center justify-center py-8">
                <Loader2 className="w-8 h-8 text-[var(--sky-blue)] animate-spin" />
                <button disabled className="bg-[var(--sky-blue)] text-white px-6 py-2 rounded-full flex items-center gap-2 opacity-80">
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  Saving...
+                  {t("loading.lucide.saving")}
                </button>
             </div>
             <p className="text-sm text-[var(--text-muted)] mt-4">
-              Used for: Buttons, inline actions
+              {t("loading.lucide.desc")}
             </p>
           </div>
 
           {/* 4. Typing Dots */}
           <div className="bg-white p-6 rounded-3xl shadow-[var(--shadow-medium)]">
             <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-              <span className="text-2xl">💬</span> Typing Dots
+              <span className="text-2xl">💬</span> {t("loading.typing")}
             </h2>
             <div className="py-8 flex justify-center">
                  <div className="bg-white px-4 py-3 rounded-2xl rounded-bl-none border border-[var(--border-light)] shadow-[var(--shadow-low)]">
@@ -181,14 +183,14 @@ export default function LoadingShowcasePage() {
                 </div>
             </div>
              <p className="text-sm text-[var(--text-muted)] mt-4">
-              Used for: Chat, AI thinking
+              {t("loading.typing.desc")}
             </p>
           </div>
 
           {/* 5. Circular Progress (Logo Maker) */}
           <div className="bg-white p-6 rounded-3xl shadow-[var(--shadow-medium)] md:col-span-2">
             <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-              <span className="text-2xl">🎨</span> Circular Progress (Logo Maker)
+              <span className="text-2xl">🎨</span> {t("loading.circular")}
             </h2>
             <div className="flex flex-wrap justify-center gap-8 py-8">
                {/* 0% */}
@@ -202,7 +204,7 @@ export default function LoadingShowcasePage() {
                          <span className="text-2xl font-bold text-[var(--text-primary)]">0%</span>
                       </div>
                     </div>
-                    <span className="mt-3 text-sm font-semibold text-[var(--text-primary)]">Starting...</span>
+                    <span className="mt-3 text-sm font-semibold text-[var(--text-primary)]">{t("loading.circular.starting")}</span>
                </div>
 
                {/* 65% */}
@@ -216,7 +218,7 @@ export default function LoadingShowcasePage() {
                          <span className="text-2xl font-bold text-[var(--text-primary)]">65%</span>
                       </div>
                     </div>
-                    <span className="mt-3 text-sm font-semibold text-[var(--text-primary)]">Generating...</span>
+                    <span className="mt-3 text-sm font-semibold text-[var(--text-primary)]">{t("loading.circular.generating")}</span>
                </div>
 
                 {/* 100% */}
@@ -230,11 +232,11 @@ export default function LoadingShowcasePage() {
                          <div className="text-3xl text-[var(--sky-blue)]">✓</div>
                       </div>
                     </div>
-                    <span className="mt-3 text-sm font-semibold text-[var(--text-primary)]">Done!</span>
+                    <span className="mt-3 text-sm font-semibold text-[var(--text-primary)]">{t("loading.circular.done")}</span>
                </div>
             </div>
             <p className="text-sm text-[var(--text-muted)] mt-4 text-center">
-              Used for: Multi-step or long-running generation processes where progress is tracked.
+              {t("loading.circular.desc")}
             </p>
           </div>
 
@@ -242,13 +244,13 @@ export default function LoadingShowcasePage() {
           {/* Section: New Premium Concepts */}
           <div className="md:col-span-2 mt-8">
             <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-6 text-center">
-              ✨ New Premium Concepts
+              ✨ {t("loading.premium.title")}
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 
               {/* Option A: Orbiting Rings */}
               <div className="bg-white p-6 rounded-3xl shadow-[var(--shadow-medium)] flex flex-col items-center">
-                <h3 className="text-lg font-bold mb-6 text-[var(--text-primary)]">Option A: Orbiting Rings</h3>
+                <h3 className="text-lg font-bold mb-6 text-[var(--text-primary)]">{t("loading.premium.a")}</h3>
                 <div className="relative w-32 h-32 flex items-center justify-center py-8">
                   {/* Outer Ring */}
                   <div className="absolute inset-0 border-4 border-transparent border-t-[var(--sky-blue)] border-r-[var(--sky-blue)] rounded-full animate-spin" style={{ animationDuration: '3s' }} />
@@ -258,7 +260,7 @@ export default function LoadingShowcasePage() {
                   <div className="w-4 h-4 bg-[var(--text-primary)] rounded-full animate-pulse shadow-[0_0_15px_rgba(var(--sky-blue-rgb),0.5)]" />
                 </div>
                 <p className="text-sm text-[var(--text-muted)] mt-6 text-center">
-                  Tech-forward, precise, elegant.
+                  {t("loading.premium.a.desc")}
                 </p>
               </div>
 
@@ -267,18 +269,18 @@ export default function LoadingShowcasePage() {
                  <div className="absolute top-0 right-0 bg-[var(--sky-blue)] text-white text-xs font-bold px-3 py-1 rounded-bl-xl">
                   SELECTED
                 </div>
-                <h3 className="text-lg font-bold mb-6 text-[var(--text-primary)]">Option B: Pulsing Brand</h3>
+                <h3 className="text-lg font-bold mb-6 text-[var(--text-primary)]">{t("loading.premium.b")}</h3>
                 <div className="py-8">
                   <PulsingBrandLoader />
                 </div>
                 <p className="text-sm text-[var(--text-muted)] mt-6 text-center">
-                  Minimalist, brand-focused.
+                  {t("loading.premium.b.desc")}
                 </p>
               </div>
 
               {/* Option C: Floating Orbs */}
               <div className="bg-white p-6 rounded-3xl shadow-[var(--shadow-medium)] flex flex-col items-center">
-                <h3 className="text-lg font-bold mb-6 text-[var(--text-primary)]">Option C: Floating Orbs</h3>
+                <h3 className="text-lg font-bold mb-6 text-[var(--text-primary)]">{t("loading.premium.c")}</h3>
                 <div className="relative w-32 h-32 flex items-center justify-center py-8">
                   <div className="relative w-16 h-16 animate-spin" style={{ animationDuration: '4s' }}>
                     {/* Orb 1 */}
@@ -290,7 +292,7 @@ export default function LoadingShowcasePage() {
                   </div>
                 </div>
                 <p className="text-sm text-[var(--text-muted)] mt-6 text-center">
-                  Playful, creative, fluid.
+                  {t("loading.premium.c.desc")}
                 </p>
               </div>
 

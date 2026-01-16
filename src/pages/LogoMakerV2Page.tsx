@@ -17,7 +17,7 @@ import { PulsingBrandLoader } from '@/components/PulsingBrandLoader'
 import { Celebration } from "@/components/celebration"
 
 export default function LogoMakerV2Page() {
-  useLanguage() // For context
+  const { t } = useLanguage()
   const { child, updateCompanyLogoUrl } = useChildSession()
 
   // Form inputs - all visible at once
@@ -148,13 +148,13 @@ export default function LogoMakerV2Page() {
   // Generate logos
   const handleGenerate = async (plan: PlanType) => {
     if (!shopName.trim()) {
-      setError('Please enter a business name')
+      setError(t("logoV2.error.noName"))
       return
     }
 
     // Check premium credits
     if (plan === 'premium' && premiumCreditsLeft !== null && premiumCreditsLeft <= 0) {
-      setError('You have used all your premium generations.')
+      setError(t("logoV2.error.noPremium"))
       return
     }
 
@@ -302,11 +302,11 @@ export default function LogoMakerV2Page() {
               to="/"
               className="px-4 py-2 bg-white rounded-full shadow-[var(--shadow-low)] hover:shadow-[var(--shadow-medium)] transition-shadow text-[var(--text-secondary)] font-semibold"
             >
-              ← Back
+              <span className="font-bold text-[var(--text-primary)]">{t("logoV2.header.back")}</span>
             </Link>
             <div className="flex items-center gap-2">
               <span className="text-3xl">🎨</span>
-              <span className="text-xl font-bold text-[var(--text-primary)]">Logo Maker Studio</span>
+              <span className="text-xl font-bold text-[var(--text-primary)]">{t("logoV2.header.title")}</span>
             </div>
           </div>
           
@@ -314,7 +314,7 @@ export default function LogoMakerV2Page() {
             <div className="flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-[var(--shadow-low)]">
               <span className="text-lg">👑</span>
               <span className={`font-bold ${premiumCreditsLeft > 0 ? 'text-[var(--mint-green)]' : 'text-red-500'}`}>
-                {premiumCreditsLeft}/{QUOTA_LIMITS.premium.maxGenerations} Premium
+                {premiumCreditsLeft}/{QUOTA_LIMITS.premium.maxGenerations} {t("logoV2.premium.count")}
               </span>
             </div>
           )}
@@ -332,13 +332,13 @@ export default function LogoMakerV2Page() {
               {/* Business Name */}
               <div>
                 <label className="flex items-center gap-2 text-sm font-semibold text-[var(--text-primary)] mb-2">
-                  📝 Business Name
+                  📝 {t("logoV2.label.businessName")}
                 </label>
                 <input
                   type="text"
                   value={shopName}
                   onChange={(e) => setShopName(e.target.value)}
-                  placeholder="e.g., Rainbow Stars"
+                  placeholder={t("logoV2.placeholder.businessName")}
                   className="w-full px-4 py-3 rounded-2xl border-2 border-[var(--border-light)] focus:border-[var(--sky-blue)] focus:outline-none transition-colors text-[var(--text-primary)]"
                   maxLength={30}
                 />
@@ -347,7 +347,7 @@ export default function LogoMakerV2Page() {
               {/* Business Type */}
               <div>
                 <label className="flex items-center gap-2 text-sm font-semibold text-[var(--text-primary)] mb-2">
-                  🏪 What do you sell?
+                  🏪 {t("logoV2.label.businessType")}
                 </label>
                 <div className="grid grid-cols-5 gap-2">
                   {BUSINESS_TYPES.map((item) => (
@@ -370,7 +370,7 @@ export default function LogoMakerV2Page() {
               {/* Logo Style */}
               <div>
                 <label className="flex items-center gap-2 text-sm font-semibold text-[var(--text-primary)] mb-2">
-                  🎯 Logo Style
+                  🎯 {t("logoV2.label.logoStyle")}
                 </label>
                 <div className="grid grid-cols-4 gap-2">
                   {LOGO_STYLES.map((item) => (
@@ -393,7 +393,7 @@ export default function LogoMakerV2Page() {
               {/* Vibe */}
               <div>
                 <label className="flex items-center gap-2 text-sm font-semibold text-[var(--text-primary)] mb-2">
-                  ✨ Vibe
+                  ✨ {t("logoV2.label.vibe")}
                 </label>
                 <div className="grid grid-cols-5 gap-2">
                   {VIBES.map((item) => (
@@ -416,7 +416,7 @@ export default function LogoMakerV2Page() {
               {/* Colors */}
               <div>
                 <label className="flex items-center gap-2 text-sm font-semibold text-[var(--text-primary)] mb-2">
-                  🎨 Colors
+                  🎨 {t("logoV2.label.colors")}
                 </label>
                 <div className="grid grid-cols-5 gap-2">
                   {COLOR_PRESETS.map((preset) => (
@@ -446,7 +446,7 @@ export default function LogoMakerV2Page() {
               {/* Symbols */}
               <div>
                 <label className="flex items-center gap-2 text-sm font-semibold text-[var(--text-primary)] mb-2">
-                  ⭐ Add Icons (up to 3)
+                  ⭐ {t("logoV2.label.icons")}
                 </label>
                 <div className="grid grid-cols-6 gap-2">
                   {SYMBOLS.map((item) => {
@@ -478,20 +478,20 @@ export default function LogoMakerV2Page() {
                   })}
                 </div>
                 <p className="text-xs text-[var(--text-secondary)] mt-1">
-                  {symbols.length}/3 selected
+                  {symbols.length}/3 {t("logoV2.text.selected")}
                 </p>
               </div>
 
               {/* Slogan */}
               <div>
                 <label className="flex items-center gap-2 text-sm font-semibold text-[var(--text-primary)] mb-2">
-                  💬 Slogan (optional)
+                  💬 {t("logoV2.label.slogan")}
                 </label>
                 <input
                   type="text"
                   value={slogan}
                   onChange={(e) => setSlogan(e.target.value)}
-                  placeholder="e.g., Play with magic!"
+                  placeholder={t("logoV2.placeholder.slogan")}
                   className="w-full px-4 py-3 rounded-2xl border-2 border-[var(--border-light)] focus:border-[var(--sky-blue)] focus:outline-none transition-colors text-[var(--text-primary)]"
                   maxLength={50}
                 />
@@ -515,7 +515,7 @@ export default function LogoMakerV2Page() {
                     : "bg-gray-200 text-gray-400 cursor-not-allowed"
                 }`}
               >
-                {generating ? "✨ Creating..." : "🎨 Generate Free (3 logos)"}
+                {generating ? `✨ ${t("logoV2.button.creating")}` : `🎨 ${t("logoV2.button.generateFree")}`}
               </button>
 
               <button
@@ -529,7 +529,7 @@ export default function LogoMakerV2Page() {
                       : "bg-gray-200 text-gray-400 cursor-not-allowed"
                 }`}
               >
-                {isPremiumDisabled ? "🔒 Out of Premium Credits" : generating ? "✨ Creating..." : "👑 Generate Premium (1 logo)"}
+                {isPremiumDisabled ? `🔒 ${t("logoV2.premium.out")}` : generating ? `✨ ${t("logoV2.button.creating")}` : `👑 ${t("logoV2.button.generatePremium")}`}
               </button>
             </div>
           </div>
@@ -581,7 +581,7 @@ export default function LogoMakerV2Page() {
                   )}
                   {!shopName && (
                     <span className="text-[var(--text-secondary)]">
-                      Start by entering your business name...
+                      {t("logoV2.preview.start")}
                     </span>
                   )}
                 </div>
@@ -592,7 +592,7 @@ export default function LogoMakerV2Page() {
             {generating && (
               <div className="bg-white rounded-3xl shadow-[var(--shadow-medium)] p-6">
                 <h3 className="text-lg font-bold text-[var(--text-primary)] mb-4 flex items-center gap-2">
-                  ✨ Creating your logos...
+                  ✨ {t("logoV2.generating.title")}
                 </h3>
                 <div className="flex justify-center py-8">
                   <PulsingBrandLoader size="lg" icon="✨" />
@@ -604,7 +604,7 @@ export default function LogoMakerV2Page() {
             {logos.length > 0 && !generating && (
               <div className="bg-white rounded-3xl shadow-[var(--shadow-medium)] p-6">
                 <h3 className="text-lg font-bold text-[var(--text-primary)] mb-4 flex items-center gap-2">
-                  🎉 Your Logos
+                  🎉 {t("logoV2.results.title")}
                 </h3>
                 <div className={`grid gap-4 ${logos.length === 1 ? 'grid-cols-1 max-w-xs mx-auto' : 'grid-cols-3'}`}>
                   {logos.map((logo, index) => (
@@ -639,7 +639,7 @@ export default function LogoMakerV2Page() {
                               : "bg-white/90 text-[var(--text-primary)] hover:bg-[var(--sky-blue)] hover:text-white"
                           }`}
                         >
-                          {selectedLogo === index ? "✓ Selected!" : "Pick This!"}
+                          {selectedLogo === index ? `✓ ${t("logoV2.results.selected")}` : t("logoV2.results.pick")}
                         </button>
                       </div>
                     </div>
@@ -652,7 +652,7 @@ export default function LogoMakerV2Page() {
             {selectedLogo !== null && logos[selectedLogo] && (
               <div className="bg-white rounded-3xl shadow-[var(--shadow-medium)] p-6">
                 <h3 className="text-lg font-bold text-[var(--text-primary)] mb-4 flex items-center gap-2">
-                  🎉 Your Logo is Ready!
+                  🎉 {t("logoV2.selection.title")}
                 </h3>
                 <div className="flex flex-col items-center">
                   <div className="w-32 h-32 rounded-2xl overflow-hidden border-3 border-[var(--sunshine-orange)] shadow-lg mb-4">
@@ -666,13 +666,13 @@ export default function LogoMakerV2Page() {
                   {slogan && <p className="text-[var(--text-secondary)] mb-4">"{slogan}"</p>}
                   <div className="flex gap-3">
                     <button className="px-6 py-3 rounded-full bg-[var(--sky-blue)] text-white font-bold hover:scale-105 transition-transform">
-                      Download
+                      {t("logoV2.button.download")}
                     </button>
                     <Link
                       to="/"
                       className="px-6 py-3 rounded-full bg-white text-[var(--text-primary)] font-bold hover:scale-105 transition-transform border-2 border-[var(--border-light)]"
                     >
-                      🏠 Dashboard
+                      🏠 {t("logoV2.button.dashboard")}
                     </Link>
                   </div>
                 </div>
@@ -684,10 +684,10 @@ export default function LogoMakerV2Page() {
               <div className="bg-white rounded-3xl shadow-[var(--shadow-medium)] p-12 text-center">
                 <div className="text-6xl mb-4">🎨</div>
                 <h3 className="text-xl font-bold text-[var(--text-primary)] mb-2">
-                  Ready to create your logo!
+                  {t("logoV2.empty.title")}
                 </h3>
                 <p className="text-[var(--text-secondary)]">
-                  Fill in your business details on the left and click Generate
+                  {t("logoV2.empty.desc")}
                 </p>
               </div>
             )}
@@ -703,7 +703,7 @@ export default function LogoMakerV2Page() {
           title={`Option ${zoomLogoIndex + 1}`}
           onClose={closeZoomModal}
           showPickButton={true}
-          pickButtonLabel="Pick This One! 🎨"
+          pickButtonLabel={`${t("logoV2.results.pick")} 🎨`}
           onPick={() => {
             handleSelectLogo(zoomLogoIndex)
             closeZoomModal()

@@ -110,9 +110,10 @@ export default function Dashboard() {
         <a
           href={import.meta.env.VITE_MAIN_PORTAL_URL}
           className="flex items-center gap-2 bg-white rounded-full px-4 py-2 shadow-[var(--shadow-low)] hover:shadow-[var(--shadow-medium)] transition-all"
+
         >
           <span className="text-2xl">🏠</span>
-          <span className="font-bold text-[var(--text-primary)] hidden sm:inline">Home</span>
+          <span className="font-bold text-[var(--text-primary)] hidden sm:inline">{t("dashboard.backToPortal")}</span>
         </a>
 
         <div className="flex items-center gap-4">

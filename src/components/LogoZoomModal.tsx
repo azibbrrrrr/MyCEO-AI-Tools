@@ -4,6 +4,7 @@
  */
 
 import { useState } from "react"
+import { useLanguage } from "@/components/language-provider"
 
 export interface LogoZoomModalProps {
   isOpen: boolean
@@ -27,11 +28,14 @@ export function LogoZoomModal({
   onClose,
   onPick,
   showPickButton = false,
-  pickButtonLabel = "Pick This One! 🎨",
+  pickButtonLabel,
   pickButtonColor,
   onDelete,
   showDeleteButton = false,
 }: LogoZoomModalProps) {
+  const { t } = useLanguage()
+  const resolvedPickButtonLabel = pickButtonLabel || `${t("modal.zoom.pick")} 🎨`
+
   // ... existing state ...
   const [zoomLevel, setZoomLevel] = useState(100)
   const [dragPosition, setDragPosition] = useState({ x: 0, y: 0 })
@@ -172,14 +176,14 @@ export function LogoZoomModal({
             onClick={handleDownload}
             className="flex-1 px-4 py-3 rounded-full bg-gray-100 text-[var(--text-primary)] font-bold hover:bg-gray-200 transition-colors flex items-center justify-center gap-2"
           >
-           Download
+           {t("modal.zoom.download")}
           </button>
           {showPickButton && onPick && (
             <button
               onClick={onPick}
               className={`flex-1 px-4 py-3 rounded-full text-white font-bold hover:scale-105 transition-transform ${pickButtonColor || "bg-[var(--sunshine-orange)]"}`}
             >
-              {pickButtonLabel}
+              {resolvedPickButtonLabel}
             </button>
           )}
         </div>
@@ -190,7 +194,7 @@ export function LogoZoomModal({
             onClick={onDelete}
             className="w-full mt-3 px-4 py-2.5 rounded-full border-2 border-red-400 text-red-500 font-semibold hover:bg-red-50 transition-colors flex items-center justify-center gap-2"
           >
-            Delete Logo
+            {t("modal.zoom.delete")}
           </button>
         )}
       </div>

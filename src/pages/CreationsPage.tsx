@@ -10,15 +10,15 @@ import { LogoZoomModal } from "@/components/LogoZoomModal"
 import { ConfirmDialog } from "@/components/ConfirmDialog"
 
 // Helper to format date
-function formatDate(dateStr: string): string {
+function formatDate(dateStr: string, t: (key: string) => string): string {
   const date = new Date(dateStr)
   const now = new Date()
   const diff = now.getTime() - date.getTime()
   const days = Math.floor(diff / (1000 * 60 * 60 * 24))
   
-  if (days === 0) return "Today"
-  if (days === 1) return "Yesterday"
-  if (days < 7) return `${days} days ago`
+  if (days === 0) return t("creations.date.today")
+  if (days === 1) return t("creations.date.yesterday")
+  if (days < 7) return `${days} ${t("creations.date.daysAgo")}`
   return date.toLocaleDateString()
 }
 
@@ -103,10 +103,10 @@ export default function CreationsPage() {
           {/* Title */}
           <div className="text-center mb-8">
             <h1 className="text-3xl md:text-4xl font-extrabold text-[var(--text-primary)] mb-2">
-              🎨 My Creations
+              🎨 {t("creations.title")}
             </h1>
             <p className="text-[var(--text-secondary)]">
-              All the amazing logos you've created!
+              {t("creations.subtitle")}
             </p>
           </div>
 
@@ -114,7 +114,7 @@ export default function CreationsPage() {
           {loadingLogos ? (
             <div className="flex flex-col items-center justify-center py-16">
               <div className="text-5xl mb-4 animate-bounce">🚀</div>
-              <h3 className="text-xl font-bold text-[var(--text-primary)] mb-2">Loading your gallery...</h3>
+              <h3 className="text-xl font-bold text-[var(--text-primary)] mb-2">{t("creations.loading")}</h3>
               <div className="w-8 h-8 border-4 border-[var(--sky-blue)] border-t-transparent rounded-full animate-spin" />
             </div>
           ) : logos.length > 0 ? (
@@ -126,7 +126,7 @@ export default function CreationsPage() {
                   title={logo.company_name || "My Logo"}
                   subtitle={`${logo.business_type || ''} • ${logo.logo_style || ''}`}
                   showDate
-                  date={formatDate(logo.created_at)}
+                  date={formatDate(logo.created_at, t)}
                   planType={logo.plan_type as 'free' | 'premium'}
                   onClick={() => openZoomModal(index)}
                 />
@@ -135,15 +135,15 @@ export default function CreationsPage() {
           ) : (
             <div className="bg-white/70 rounded-3xl p-12 text-center">
               <div className="text-6xl mb-4">🎨</div>
-              <h3 className="text-xl font-bold text-[var(--text-primary)] mb-2">No creations yet!</h3>
+              <h3 className="text-xl font-bold text-[var(--text-primary)] mb-2">{t("creations.empty.title")}</h3>
               <p className="text-[var(--text-secondary)] mb-6">
-                Start your creative journey by making your first logo.
+                {t("creations.empty.desc")}
               </p>
               <Link 
                 to="/tools/logo-maker"
                 className="inline-block px-8 py-3 bg-[var(--sky-blue)] text-white font-bold rounded-full hover:scale-105 transition-transform shadow-[var(--shadow-medium)]"
               >
-                Create My First Logo 🚀
+                {t("creations.button.create")} 🚀
               </Link>
             </div>
           )}
@@ -156,10 +156,10 @@ export default function CreationsPage() {
           isOpen={zoomModalOpen}
           imageUrl={logos[zoomLogoIndex].image_url}
           title={logos[zoomLogoIndex].company_name || "My Logo"}
-          subtitle={`Created ${formatDate(logos[zoomLogoIndex].created_at)}`}
+          subtitle={`Created ${formatDate(logos[zoomLogoIndex].created_at, t)}`}
           onClose={closeZoomModal}
           showPickButton={true}
-          pickButtonLabel="Set as Company Logo ✨"
+          pickButtonLabel={`${t("modal.zoom.setCompany")} ✨`}
           onPick={async () => {
             const logo = logos[zoomLogoIndex]
             console.log('🔵 Set Company Logo clicked:', { logoId: logo.id, childId: child?.id, companyId: child?.companies?.[0]?.id })
@@ -192,10 +192,10 @@ export default function CreationsPage() {
       {/* Delete Confirmation Dialog */}
       <ConfirmDialog
         isOpen={deleteConfirmOpen}
-        title="Delete Logo?"
-        message="This will permanently remove this logo from your creations. This action cannot be undone."
-        confirmLabel="Delete"
-        cancelLabel="Keep It"
+        title={t("creations.dialog.delete.title")}
+        message={t("creations.dialog.delete.message")}
+        confirmLabel={t("creations.dialog.delete.confirm")}
+        cancelLabel={t("creations.dialog.delete.cancel")}
         confirmVariant="danger"
         onConfirm={handleConfirmDelete}
         onCancel={() => {
