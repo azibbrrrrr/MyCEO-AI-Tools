@@ -771,7 +771,7 @@ export default function LogoMakerPage() {
       {/* Step 6: Select logo */}
       {step === 6 && (
         <StepCard title={logos.length > 0 ? t("logo.step5.title") : "Oops!"} subtitle={logos.length > 0 ? t("logo.step5.subtitle") : "Something went wrong"} icon={logos.length > 0 ? "👑" : "😅"}>
-          {logos.length === 0 && (
+          {logos.length === 0 ? (
             <div className="flex flex-col items-center py-8">
                 <div className="text-5xl mb-4">😅</div>
                 <h3 className="text-xl font-bold text-[var(--text-primary)] mb-2">No logos generated</h3>
@@ -785,134 +785,137 @@ export default function LogoMakerPage() {
                   Try Again
                 </button>
             </div>
-          )}
-          <div className="grid gap-6 w-full grid-cols-1 max-w-xs mx-auto">
-            {logos.map((logo, index) => {
-               const isSelected = selectedLogo === index
-               return (
-                  <div 
-                    key={logo.id}
-                    onClick={() => openZoomModal(index)}
-                    className={`bg-white p-6 rounded-3xl shadow-[var(--shadow-medium)] flex flex-col items-center border-4 relative overflow-hidden transition-all duration-300 transform hover:scale-[1.02] cursor-pointer ${
-                      isSelected ? 'border-[var(--sky-blue)]' : 'border-gray-200'
-                    }`}
-                  >
-                    {isSelected && (
-                      <div className="absolute top-0 right-0 bg-[var(--sky-blue)] text-white text-xs font-bold px-3 py-1 rounded-bl-xl">
-                        SELECTED
+          ) : (
+            <>
+              <div className="grid gap-6 w-full grid-cols-1 max-w-xs mx-auto">
+                {logos.map((logo, index) => {
+                  const isSelected = selectedLogo === index
+                  return (
+                      <div 
+                        key={logo.id}
+                        onClick={() => openZoomModal(index)}
+                        className={`bg-white p-6 rounded-3xl shadow-[var(--shadow-medium)] flex flex-col items-center border-4 relative overflow-hidden transition-all duration-300 transform hover:scale-[1.02] cursor-pointer ${
+                          isSelected ? 'border-[var(--sky-blue)]' : 'border-gray-200'
+                        }`}
+                      >
+                        {isSelected && (
+                          <div className="absolute top-0 right-0 bg-[var(--sky-blue)] text-white text-xs font-bold px-3 py-1 rounded-bl-xl">
+                            SELECTED
+                          </div>
+                        )}
+                        
+                        <h3 className="text-lg font-bold mb-4 text-[var(--text-primary)]">
+                          {plan === 'premium' ? 'Premium Logo' : 'Your Draft Logo'}
+                        </h3>
+
+                        <div className="relative w-full aspect-square rounded-xl overflow-hidden shadow-sm">
+                          <img src={logo.imageUrl} alt="Logo" className="w-full h-full object-cover" />
+                        </div>
                       </div>
-                    )}
+                  )
+                })}
+              </div>
+              
+              {/* Regenerate button */}
+              <div className="flex justify-center mt-4">
+                <button
+                  onClick={async () => {
+                    setSelectedLogo(null)
+                    setLogos([])
+                    // Go back to step 4 momentarily then trigger next to regenerate
+                    setStep(4)
+                    // Small delay then trigger handleNext
+                    await new Promise(r => setTimeout(r, 50))
+                    // Directly trigger generation with same settings
+                    setStep(5)
+                    setGenerating(true)
+                    setError(null)
+                    setCardProgress([0])
                     
-                    <h3 className="text-lg font-bold mb-4 text-[var(--text-primary)]">
-                       {plan === 'premium' ? 'Premium Logo' : 'Your Draft Logo'}
-                    </h3>
+                    try {
+                      const response = await fetch('/api/predict', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                          logoWizardData: {
+                            businessName: shopName,
+                            businessType,
+                            logoStyle,
+                            vibe,
+                            colorPalette: colorPreset,
+                            icons: symbols,
+                            slogan,
+                          },
+                          plan,
+                        }),
+                      })
 
-                    <div className="relative w-full aspect-square rounded-xl overflow-hidden shadow-sm">
-                       <img src={logo.imageUrl} alt="Logo" className="w-full h-full object-cover" />
-                    </div>
-                  </div>
-               )
-            })}
-          </div>
-          
-          {/* Regenerate button */}
-          <div className="flex justify-center mt-4">
-            <button
-              onClick={async () => {
-                setSelectedLogo(null)
-                setLogos([])
-                // Go back to step 4 momentarily then trigger next to regenerate
-                setStep(4)
-                // Small delay then trigger handleNext
-                await new Promise(r => setTimeout(r, 50))
-                // Directly trigger generation with same settings
-                setStep(5)
-                setGenerating(true)
-                setError(null)
-                setCardProgress([0])
-                
-                try {
-                  const response = await fetch('/api/predict', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                      logoWizardData: {
-                        businessName: shopName,
-                        businessType,
-                        logoStyle,
-                        vibe,
-                        colorPalette: colorPreset,
-                        icons: symbols,
-                        slogan,
-                      },
-                      plan,
-                    }),
-                  })
-
-                  if (!response.ok) {
-                    const errorData = await response.json()
-                    // Try to translate using the error code
-                    if (errorData.code) {
-                      const translationKey = `error.${errorData.code}`
-                      const translatedMessage = t(translationKey)
-                      if (translatedMessage !== translationKey) {
-                          throw new Error(translatedMessage)
+                      if (!response.ok) {
+                        const errorData = await response.json()
+                        // Try to translate using the error code
+                        if (errorData.code) {
+                          const translationKey = `error.${errorData.code}`
+                          const translatedMessage = t(translationKey)
+                          if (translatedMessage !== translationKey) {
+                              throw new Error(translatedMessage)
+                          }
+                        }
+                        // Fallback to error message from API or generic
+                        throw new Error(errorData.error || 'Failed to start regeneration')
                       }
+
+                        const data = await response.json()
+                        const { mode } = data
+
+                        let tempUrls: string[] = []
+                        let isDirect = false
+
+                        if (mode === 'direct') {
+                            const { images } = data
+                            if (images && Array.isArray(images)) {
+                                  tempUrls = images
+                                  isDirect = true
+                                  setCardProgress([100])
+                            }
+                        } else {
+                            const { ids } = data
+                            tempUrls = await pollPredictions(mode, ids)
+                        }
+                        
+                        // Upload to permanent storage (skip if direct)
+                        const permanentUrls = isDirect ? tempUrls : await uploadImages(tempUrls)
+                        
+                        const generatedLogos: Logo[] = permanentUrls.map((url, i) => ({
+                          id: `logo-${Date.now()}-${i}`,
+                          imageUrl: url,
+                          prompt: '',
+                          createdAt: new Date().toISOString(),
+                          plan: plan,
+                        }))
+
+                        setLogos(generatedLogos)
+
+                        // Save to DB
+                        await saveLogosToDb(generatedLogos)
+
+                      setGenerating(false)
+                      setStep(6)
+                    } catch (err) {
+                      console.error('Regeneration error:', err)
+                      setError(err instanceof Error ? err.message : 'Regeneration failed')
+                      setGenerating(false)
+                      setStep(6)
                     }
-                    // Fallback to error message from API or generic
-                    throw new Error(errorData.error || 'Failed to start regeneration')
-                  }
-
-                    const data = await response.json()
-                    const { mode } = data
-
-                    let tempUrls: string[] = []
-                    let isDirect = false
-
-                    if (mode === 'direct') {
-                         const { images } = data
-                         if (images && Array.isArray(images)) {
-                              tempUrls = images
-                              isDirect = true
-                              setCardProgress([100])
-                         }
-                    } else {
-                         const { ids } = data
-                         tempUrls = await pollPredictions(mode, ids)
-                    }
-                    
-                    // Upload to permanent storage (skip if direct)
-                    const permanentUrls = isDirect ? tempUrls : await uploadImages(tempUrls)
-                    
-                    const generatedLogos: Logo[] = permanentUrls.map((url, i) => ({
-                      id: `logo-${Date.now()}-${i}`,
-                      imageUrl: url,
-                      prompt: '',
-                      createdAt: new Date().toISOString(),
-                      plan: plan,
-                    }))
-
-                    setLogos(generatedLogos)
-
-                    // Save to DB
-                    await saveLogosToDb(generatedLogos)
-
-                  setGenerating(false)
-                  setStep(6)
-                } catch (err) {
-                  console.error('Regeneration error:', err)
-                  setError(err instanceof Error ? err.message : 'Regeneration failed')
-                  setGenerating(false)
-                  setStep(6)
-                }
-              }}
-              className="px-5 py-2.5 rounded-full border-2 border-[var(--sky-blue)] text-[var(--sky-blue)] font-semibold hover:bg-[var(--sky-blue)]/10 transition-colors flex items-center gap-2"
-            >
-              Generate Again
-            </button>
-          </div>
-          
-          <WizardNav onPrevious={() => setStep(4)} onNext={handleNext} canGoNext={canProceed()} />
+                  }}
+                  className="px-5 py-2.5 rounded-full border-2 border-[var(--sky-blue)] text-[var(--sky-blue)] font-semibold hover:bg-[var(--sky-blue)]/10 transition-colors flex items-center gap-2"
+                >
+                  Generate Again
+                </button>
+              </div>
+              
+              <WizardNav onPrevious={() => setStep(4)} onNext={handleNext} canGoNext={canProceed()} />
+            </>
+          )}
         </StepCard>
       )}
 
