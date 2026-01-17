@@ -348,6 +348,33 @@ const translations: Record<string, Record<Language, string>> = {
   "loading.premium.b.desc": { EN: "Minimalist, brand-focused.", BM: "Minimalis, fokus jenama." },
   "loading.premium.c": { EN: "Option C: Floating Orbs", BM: "Pilihan C: Orb Terapung" },
   "loading.premium.c.desc": { EN: "Playful, creative, fluid.", BM: "Ceria, kreatif, cair." },
+
+
+  // Errors
+  "error.RATE_LIMITED_LOW_BALANCE": {
+    EN: "We are experiencing high demand. Please try again in 10-15 seconds.",
+    BM: "Kami sedang mengalami permintaan tinggi. Sila cuba lagi dalam 10-15 saat."
+  },
+  "error.PREMIUM_QUOTA_EXCEEDED": {
+    EN: "Our premium design studio is at capacity! Please try the 'Free' mode for unlimited drafts.",
+    BM: "Server Premium tengah 'cooldown'! Jangan stop, sambung buat draf guna mod 'Free' sepuas hati korang."
+  },
+  "error.RATE_LIMITED": {
+    EN: "Our AI is a bit busy right now! Please wait a moment and try again.",
+    BM: "AI kami agak sibuk sekarang! Sila tunggu sebentar dan cuba lagi."
+  },
+  "error.INSUFFICIENT_CREDITS": {
+    EN: "Generation credits temporarily unavailable. Please try again later.",
+    BM: "Kredit janaan tidak tersedia buat sementara waktu. Sila cuba lagi kemudian."
+  },
+  "error.AUTH_ERROR": {
+    EN: "Service configuration error. Please contact support.",
+    BM: "Ralat konfigurasi perkhidmatan. Sila hubungi sokongan."
+  },
+  "error.GENERATION_ERROR": {
+    EN: "Failed to start generation. Please try again.",
+    BM: "Gagal memulakan janaan. Sila cuba lagi."
+  },
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined)

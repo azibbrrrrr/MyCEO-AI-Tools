@@ -288,7 +288,19 @@ export default function LogoMakerPage() {
 
         if (!response.ok) {
           const errorData = await response.json()
-          throw new Error(errorData.error || 'Failed to start generation')
+          
+          // Try to translate using the error code
+          if (errorData.code) {
+             const translationKey = `error.${errorData.code}`
+             const translatedMessage = t(translationKey)
+             
+             // If t() returns something different than key, it means translation found.
+             if (translatedMessage !== translationKey) {
+                 throw new Error(translatedMessage)
+             }
+          }
+
+          throw new Error(errorData.error || t('logoV2.error.noPremium'))
         }
 
         const data = await response.json()
@@ -757,8 +769,23 @@ export default function LogoMakerPage() {
       )}
 
       {/* Step 6: Select logo */}
-      {step === 6 && logos.length > 0 && (
-        <StepCard title={t("logo.step5.title")} subtitle={t("logo.step5.subtitle")} icon="👑">
+      {step === 6 && (
+        <StepCard title={logos.length > 0 ? t("logo.step5.title") : "Oops!"} subtitle={logos.length > 0 ? t("logo.step5.subtitle") : "Something went wrong"} icon={logos.length > 0 ? "👑" : "😅"}>
+          {logos.length === 0 && (
+            <div className="flex flex-col items-center py-8">
+                <div className="text-5xl mb-4">😅</div>
+                <h3 className="text-xl font-bold text-[var(--text-primary)] mb-2">No logos generated</h3>
+                <p className="text-[var(--text-secondary)] mb-6 text-center max-w-md">
+                  {error || "We couldn't generate your logos this time. Please try again."}
+                </p>
+                <button
+                  onClick={() => setStep(4)}
+                  className="px-6 py-3 rounded-full bg-[var(--sky-blue)] text-white font-bold hover:scale-105 transition-transform"
+                >
+                  Try Again
+                </button>
+            </div>
+          )}
           <div className="grid gap-6 w-full grid-cols-1 max-w-xs mx-auto">
             {logos.map((logo, index) => {
                const isSelected = selectedLogo === index
@@ -823,7 +850,17 @@ export default function LogoMakerPage() {
                   })
 
                   if (!response.ok) {
-                    throw new Error('Failed to start regeneration')
+                    const errorData = await response.json()
+                    // Try to translate using the error code
+                    if (errorData.code) {
+                      const translationKey = `error.${errorData.code}`
+                      const translatedMessage = t(translationKey)
+                      if (translatedMessage !== translationKey) {
+                          throw new Error(translatedMessage)
+                      }
+                    }
+                    // Fallback to error message from API or generic
+                    throw new Error(errorData.error || 'Failed to start regeneration')
                   }
 
                     const data = await response.json()

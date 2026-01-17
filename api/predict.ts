@@ -170,6 +170,8 @@ Typography:
 - ${vibe.typography}
 
 Layout:
+- The ONLY text in the logo must be the company name "${data.businessName}".
+- Do not write the business type or industry name as text.
 - Company name "${data.businessName}" is the main focus.
 ${data.slogan ? `- slogan "${data.slogan}" appears smaller.` : ''}
 - Balanced and easy to recognize at small sizes.
@@ -453,6 +455,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                     retryAfter: 15
                 })
             }
+
+            // Check for Google GenAI Quota Exceeded
+            if (combinedErrorDetails.includes('RESOURCE_EXHAUSTED') || combinedErrorDetails.includes('quota')) {
+                return res.status(429).json({
+                    error: 'Our premium design studio is at capacity! Please try the "Free" mode for unlimited drafts.',
+                    code: 'PREMIUM_QUOTA_EXCEEDED'
+                })
+            }
+
 
             // Generic rate limit return
             return res.status(429).json({
