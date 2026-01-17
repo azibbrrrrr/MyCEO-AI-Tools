@@ -22,7 +22,11 @@ type BusinessType = 'food' | 'crafts' | 'toys' | 'accessories' | 'diy'
 type LogoStyle = 'wordmark' | 'symbol' | 'emblem' | 'mascot'
 type VibeType = 'cheerful' | 'premium' | 'minimal' | 'playful' | 'traditional'
 type ColorPalette = 'pastel' | 'bold' | 'earth' | 'bright' | 'premium'
-type IconType = 'star' | 'fire' | 'leaf' | 'lightning' | 'heart' | 'animal'
+type IconType =
+    | 'star' | 'sun' | 'moon' | 'rainbow' | 'flower' | 'leaf'
+    | 'cat' | 'dog' | 'unicorn' | 'butterfly' | 'paw'
+    | 'heart' | 'crown' | 'rocket' | 'lightning' | 'fire'
+    | 'diamond' | 'sparkle'
 
 // ============================================
 // Prompt Mappings
@@ -43,12 +47,35 @@ const LOGO_STYLE_PROMPTS: Record<string, string> = {
     mascot: 'mascot style (character-based)',
 }
 
-const COLOR_PALETTE_PROMPTS: Record<string, string> = {
-    pastel: 'soft pastel pink, mint green, and light sky blue colors',
-    bold: 'coral red, teal, and dark teal colors',
-    earth: 'earth brown, sage green, and cream beige colors',
-    bright: 'hot magenta pink, bright cyan, and vibrant yellow colors',
-    premium: 'dark navy blue, gold, and black colors',
+const PALETTE_CONFIG: Record<string, { description: string; textColor: string; iconColors: string }> = {
+    pastel: {
+        description: 'soft pastel pink, mint green, and light sky blue',
+        // INTERVENTION: Pastels are too light for white bg, force dark grey
+        textColor: 'dark charcoal grey',
+        iconColors: 'soft pastel pink and mint green'
+    },
+    bold: {
+        description: 'coral red, teal, and dark teal',
+        // Dark teal is strong enough for text
+        textColor: 'dark teal',
+        iconColors: 'coral red'
+    },
+    earth: {
+        description: 'earth brown, sage green, and cream beige',
+        textColor: 'dark earth brown',
+        iconColors: 'sage green'
+    },
+    bright: {
+        description: 'hot magenta pink, bright cyan, and vibrant yellow',
+        // Cyan/Yellow too light for text, use Magenta or Black
+        textColor: 'black',
+        iconColors: 'hot magenta pink and bright cyan'
+    },
+    premium: {
+        description: 'dark navy blue, gold, and black',
+        textColor: 'black',
+        iconColors: 'dark navy blue and gold'
+    }
 }
 
 // Each vibe controls the overall energy, typography style, and visual feel
@@ -113,7 +140,9 @@ function buildPrompt(data: LogoWizardData): string {
     const businessType = BUSINESS_TYPE_PROMPTS[data.businessType as BusinessType] || data.businessType
     const logoStyle = LOGO_STYLE_PROMPTS[data.logoStyle as LogoStyle] || 'modern'
     const vibe = VIBE_PROMPTS[data.vibe as VibeType] || VIBE_PROMPTS.playful
-    const colors = data.colorPalette ? COLOR_PALETTE_PROMPTS[data.colorPalette as ColorPalette] : 'vibrant colors'
+    const paletteKey = (data.colorPalette as ColorPalette) || 'bold'
+    const palette = PALETTE_CONFIG[paletteKey] || PALETTE_CONFIG.bold
+
     // Build symbols list from icons array
     const iconsList = data.icons?.map(icon => SYMBOL_PROMPTS[icon as IconType]).filter(Boolean) || []
     const symbolsText = iconsList.length > 0
@@ -135,7 +164,7 @@ Symbol / Icon:
 - If included, the symbols should visually represent the business and match the vibe.
 
 Color palette:
-- ${colors}
+- ${palette.description}
 
 Typography:
 - ${vibe.typography}
@@ -159,30 +188,40 @@ Output quality:
 // Optimized prompt for Flux Schnell (Text-First Structure)
 function buildFluxPrompt(data: LogoWizardData): string {
     const businessType = BUSINESS_TYPE_PROMPTS[data.businessType as BusinessType] || data.businessType
-    const logoStyle = LOGO_STYLE_PROMPTS[data.logoStyle as LogoStyle] || 'modern'
+    const logoStyle = LOGO_STYLE_PROMPTS[data.logoStyle as LogoStyle] || 'modern vector logo'
     const vibe = VIBE_PROMPTS[data.vibe as VibeType] || VIBE_PROMPTS.playful
-    const colors = data.colorPalette ? COLOR_PALETTE_PROMPTS[data.colorPalette as ColorPalette] : 'vibrant colors'
 
-    // Build icons text
+    // Resolve Color Strategy with Contrast Intervention
+    const paletteKey = (data.colorPalette as ColorPalette) || 'bold'
+    const palette = PALETTE_CONFIG[paletteKey] || PALETTE_CONFIG.bold
+
+    // Build icons text with STRICT icon colors
     const iconsList = data.icons?.map(icon => SYMBOL_PROMPTS[icon as IconType]).filter(Boolean) || []
-    const iconDescription = iconsList.length > 0
-        ? `a simple vector icon of ${iconsList.join(' and ')}`
-        : `a design element representing a ${businessType}`
-
-    // Text-First structural formula:
-    // "A logo design with text "[NAME]" written in [Font Style]. The text is in the center. Above the text is [Icon Description]. [Style Context]. [Quality Modifiers]."
-
-    let prompt = `A logo design with the text "${data.businessName.toUpperCase()}" written in clear ${vibe.typography}. `
-    prompt += `The text is in the center. `
-    prompt += `Above the text is ${iconDescription}. `
-
-    if (data.slogan) {
-        prompt += `Below the main text is the slogan "${data.slogan}" in smaller font. `
+    let iconSection = ''
+    if (iconsList.length > 0) {
+        iconSection = `Above the text is a simple vector icon of ${iconsList.join(' and ')} colored in ${palette.iconColors}.`
+    } else {
+        iconSection = `Above the text is a design element representing a ${businessType} colored in ${palette.iconColors}.`
     }
 
-    prompt += `This is for a ${businessType} in a ${logoStyle}. `
-    prompt += `Style: Professional minimalist vector art, ${vibe.style}, white background. `
-    prompt += `Colors: ${colors}. High contrast, sharp lines, clean composition.`
+    // Text-First structural formula:
+    // [Overall Vibe & Background] [Text Content & Strict Color] [Icon/Graphic Details & Strict Colors] [Technical Style Keywords]
+
+    let prompt = `A ${vibe.mood} ${logoStyle} for a ${businessType} on a clean white background. `
+
+    // [Text Content & Strict Color]
+    prompt += `The text "${data.businessName.toUpperCase()}" is written in the center in ${vibe.typography}. `
+    prompt += `The text color is ${palette.textColor} to ensure high visibility against the white background. `
+
+    if (data.slogan) {
+        prompt += `Below the main text is the slogan "${data.slogan}" in a smaller ${palette.textColor} font. `
+    }
+
+    // [Icon/Graphic Details & Strict Colors]
+    prompt += `${iconSection} `
+
+    // [Technical Style Keywords]
+    prompt += `Style: Flat vector, professional minimalist vector art, ${vibe.style}, no shading, sharp lines, high contrast.`
 
     console.log('Generated Flux prompt (Structured):', prompt)
     return prompt
@@ -387,46 +426,61 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             })
         }
 
-    } catch (error: unknown) {
+    } catch (error: any) {
         console.error('Error starting prediction:', error)
 
-        // Handle specific error types
-        if (error && typeof error === 'object' && 'response' in error) {
-            const apiError = error as { response?: { status?: number }; message?: string }
-            const status = apiError.response?.status
+        // Try to check for Replicate API error structure
+        // Often comes as error.response.status or error.message
 
-            if (status === 429) {
-                // Rate limit error
+        let status = 500
+
+        // Check if it's a specific API error object from Replicate SDK or similar
+        if (error?.response?.status) {
+            status = error.response.status
+        }
+
+        // Check string message for keywords
+        const errorString = error?.toString() || ''
+        const errorJSON = error?.response?.data || {} // sometimes axios/fetch error data is here
+        const combinedErrorDetails = JSON.stringify(errorJSON) + errorString
+
+        if (status === 429 || combinedErrorDetails.includes('429') || combinedErrorDetails.includes('throttled')) {
+            if (combinedErrorDetails.includes('less than $5') || combinedErrorDetails.includes('account')) {
+                // Low balance specific message
                 return res.status(429).json({
-                    error: 'Our AI is a bit busy right now! Please wait a moment and try again.',
-                    code: 'RATE_LIMITED',
+                    error: 'We are experiencing high demand. Please try again in 10-15 seconds.',
+                    code: 'RATE_LIMITED_LOW_BALANCE',
                     retryAfter: 15
                 })
             }
 
-            if (status === 402) {
-                // Payment/credit error
-                return res.status(402).json({
-                    error: 'Generation credits temporarily unavailable. Please try again later.',
-                    code: 'INSUFFICIENT_CREDITS'
-                })
-            }
+            // Generic rate limit return
+            return res.status(429).json({
+                error: 'Our AI is a bit busy right now! Please wait a moment and try again.',
+                code: 'RATE_LIMITED',
+                retryAfter: 15
+            })
+        }
 
-            if (status === 401 || status === 403) {
-                // Auth error
-                return res.status(500).json({
-                    error: 'Service configuration error. Please contact support.',
-                    code: 'AUTH_ERROR'
-                })
-            }
+        if (status === 402 || combinedErrorDetails.includes('billing') || combinedErrorDetails.includes('credit')) {
+            return res.status(402).json({
+                error: 'Generation credits temporarily unavailable. Please try again later.',
+                code: 'INSUFFICIENT_CREDITS'
+            })
+        }
+
+        if (status === 401 || status === 403) {
+            return res.status(500).json({
+                error: 'Service configuration error. Please contact support.',
+                code: 'AUTH_ERROR'
+            })
         }
 
         // Generic fallback
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error'
         return res.status(500).json({
-            error: 'Failed to start generation. Please try again.',
+            error: error instanceof Error ? error.message : 'Unknown error',
             code: 'GENERATION_ERROR',
-            details: process.env.NODE_ENV === 'development' ? errorMessage : undefined
+            details: process.env.NODE_ENV === 'development' ? errorString : undefined
         })
     }
 }
