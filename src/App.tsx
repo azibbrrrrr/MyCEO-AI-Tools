@@ -1,3 +1,4 @@
+import { Analytics } from '@vercel/analytics/react'
 import { Routes, Route } from 'react-router-dom'
 import Dashboard from './pages/Dashboard'
 import LogoMakerPage from './pages/LogoMakerPage'
@@ -18,7 +19,8 @@ import LoadingShowcasePage from './pages/LoadingShowcasePage'
 
 function App() {
   return (
-    <Routes>
+    <>
+      <Routes>
       {/* SSO Auth callback - handles ticket exchange */}
       <Route path="/auth/callback" element={<AuthCallbackPage />} />
       <Route path="/loading-showcase" element={<LoadingShowcasePage />} />
@@ -42,7 +44,9 @@ function App() {
       
       {/* Catch-all: show 404 page for unknown routes */}
       <Route path="*" element={<NotFoundPage />} />
-    </Routes>
+      </Routes>
+      <Analytics />
+    </>
   )
 }
 
