@@ -170,7 +170,7 @@ Typography:
 - ${vibe.typography}
 
 Layout:
-- The ONLY text in the logo must be the company name "${data.businessName}".
+- The text in the logo must be the company name "${data.businessName}".
 - Do not write the business type or industry name as text.
 - Company name "${data.businessName}" is the main focus.
 ${data.slogan ? `- slogan "${data.slogan}" appears smaller.` : ''}
