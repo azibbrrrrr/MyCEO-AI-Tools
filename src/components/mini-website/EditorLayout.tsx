@@ -446,35 +446,38 @@ export const EditorLayout = ({ siteConfig }: EditorLayoutProps) => {
                     <div className="w-px h-5 bg-slate-200" />
 
                     <button
-                        onClick={handleQuickPublish}
-                        disabled={isPublishing || (isPublished && !hasUnsavedChanges)}
+                        onClick={() => {
+                            if (isPublished && liveUrl) {
+                                window.open(liveUrl, '_blank');
+                            } else {
+                                handleQuickPublish();
+                            }
+                        }}
+                        disabled={isPublishing}
                         className={`
                             flex items-center gap-2 px-5 py-2 rounded-full text-sm font-semibold transition-all duration-200
                             ${isPublishing 
                                 ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
-                                : isPublished && !hasUnsavedChanges
-                                    ? 'bg-emerald-50 text-emerald-600 border border-emerald-200 cursor-default shadow-none' // Published & Synced
-                                    : isPublished && hasUnsavedChanges
-                                        ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-md hover:shadow-lg hover:-translate-y-0.5' // Update needed
-                                        : 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-md hover:shadow-lg hover:-translate-y-0.5' // First publish
+                                : isPublished
+                                    ? 'bg-emerald-50 text-emerald-600 border border-emerald-200 hover:bg-emerald-100 hover:shadow-sm cursor-pointer' // Published triggers visit
+                                    : 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-md hover:shadow-lg hover:-translate-y-0.5' // First publish
                             }
                         `}
+                        title={isPublished && !hasUnsavedChanges ? (language === 'EN' ? "Visit Live Site" : "Lawat Laman Langsung") : undefined}
                     >
                         {isPublishing ? (
                             <Loader2 className="w-4 h-4 animate-spin" /> 
-                        ) : isPublished && !hasUnsavedChanges ? (
-                            <Check className="w-4 h-4" />
+                        ) : isPublished ? (
+                            <ExternalLink className="w-4 h-4" />
                         ) : (
                             <Globe className="w-4 h-4" />
                         )}
                         <span>
                             {isPublishing 
                                 ? (language === 'EN' ? 'Publishing...' : 'Menerbitkan...') 
-                                : isPublished && !hasUnsavedChanges
-                                    ? (language === 'EN' ? 'Published' : 'Diterbitkan')
-                                    : isPublished && hasUnsavedChanges
-                                        ? (language === 'EN' ? 'Update Live Site' : 'Kemaskini Laman')
-                                        : (language === 'EN' ? 'Publish' : 'Terbitkan')
+                                : isPublished
+                                    ? (language === 'EN' ? 'Visit Site' : 'Lihat Laman')
+                                    : (language === 'EN' ? 'Publish' : 'Terbitkan')
                             }
                         </span>
                     </button>

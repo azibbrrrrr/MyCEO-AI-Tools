@@ -5,6 +5,10 @@
             "dest": "/api/$1"
         },
         {
+            "src": "/site/(?<slug>[^/]+)",
+            "dest": "/api/site-proxy?slug=$slug"
+        },
+        {
             "src": "/[^.]+",
             "dest": "/",
             "status": 200
