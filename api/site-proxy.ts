@@ -42,7 +42,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             const host = req.headers['x-forwarded-host'] || req.headers['host'];
             const baseUrl = `${protocol}://${host}`;
 
-            imageUrl = `${baseUrl}/api/og?slug=${encodeURIComponent(slug)}`;
+            imageUrl = `${baseUrl}/api/og-screenshot?slug=${encodeURIComponent(slug)}`;
             description = `Visit ${title} to see the products!`;
         }
     }
