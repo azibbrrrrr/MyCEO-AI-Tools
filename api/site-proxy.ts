@@ -9,6 +9,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(400).send('Missing slug');
     }
 
+    const escapeHtml = (value: string) =>
+        value
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+
     // 1. Fetch site data
     const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
     const supabaseKey = process.env.VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY;
@@ -34,8 +42,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             const host = req.headers['x-forwarded-host'] || req.headers['host'];
             const baseUrl = `${protocol}://${host}`;
 
-            imageUrl = `${baseUrl}/api/og?slug=${slug}`;
-            description = `Visit ${title} to see their products!`;
+            imageUrl = `${baseUrl}/api/og?slug=${encodeURIComponent(slug)}`;
+            description = `Visit ${title} to see the products!`;
         }
     }
 
@@ -54,16 +62,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         // 3. Inject Meta Tags
         // Replace existing tags or append to head
+        const safeTitle = escapeHtml(title);
+        const safeDescription = escapeHtml(description);
+        const safeSlug = encodeURIComponent(slug);
         const metaTags = `
-        <title>${title}</title>
-        <meta name="description" content="${description}" />
-        <meta property="og:title" content="${title}" />
-        <meta property="og:description" content="${description}" />
+        <title>${safeTitle}</title>
+        <meta name="description" content="${safeDescription}" />
+        <meta property="og:title" content="${safeTitle}" />
+        <meta property="og:description" content="${safeDescription}" />
         <meta property="og:image" content="${imageUrl}" />
-        <meta property="og:url" content="${appUrl}/site/${slug}" />
+        <meta property="og:url" content="${appUrl}/site/${safeSlug}" />
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="MyCEO Tools" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
         <meta property="twitter:card" content="summary_large_image" />
-        <meta property="twitter:title" content="${title}" />
-        <meta property="twitter:description" content="${description}" />
+        <meta property="twitter:title" content="${safeTitle}" />
+        <meta property="twitter:description" content="${safeDescription}" />
         <meta property="twitter:image" content="${imageUrl}" />
         `;
 
@@ -72,6 +87,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         // Serve the modified HTML
         res.setHeader('Content-Type', 'text/html');
+        res.setHeader('Cache-Control', 'public, max-age=0, s-maxage=300, stale-while-revalidate=86400');
         return res.status(200).send(html);
 
     } catch (error) {

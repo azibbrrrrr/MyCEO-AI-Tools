@@ -11,7 +11,7 @@ export const config = {
 export default async function handler(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
-    const slug = searchParams.get('slug');
+    const slug = searchParams.get('slug')?.trim();
 
     if (!slug) {
       return new ImageResponse(
@@ -35,6 +35,9 @@ export default async function handler(req: Request) {
         {
           width: 1200,
           height: 630,
+          headers: {
+            'Cache-Control': 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800',
+          },
         },
       );
     }
@@ -47,21 +50,29 @@ export default async function handler(req: Request) {
     // If process.env is undefined, try import.meta.env if bundled with Vite, but this is a standalone function.
     // For Vercel Edge functions, strict env access is required. safely handle it.
     
-    if (!supabaseUrl || !supabaseKey) {
-        throw new Error("Missing Supabase Config");
-    }
+    let websiteTitle: string | null = null;
+    if (supabaseUrl && supabaseKey) {
+      const supabase = createClient(supabaseUrl, supabaseKey);
 
-    const supabase = createClient(supabaseUrl, supabaseKey);
-
-    const { data: website } = await supabase
+      const { data: website } = await supabase
         .from('mini_websites')
         .select('data, title, url_slug')
         .eq('url_slug', slug)
         .eq('is_published', true)
         .single();
 
-    if (!website) {
-       return new ImageResponse(
+      if (website) {
+        websiteTitle = website.title || null;
+      }
+    }
+
+    if (!websiteTitle) {
+      const fallbackTitle = slug
+        ? slug
+            .replace(/[-_]+/g, ' ')
+            .replace(/\b\w/g, (char) => char.toUpperCase())
+        : 'MyCEO Tools';
+      return new ImageResponse(
         (
           <div
             style={{
@@ -77,17 +88,20 @@ export default async function handler(req: Request) {
               justifyContent: 'center',
             }}
           >
-            <h1>Store Not Found</h1>
+            <h1>{fallbackTitle}</h1>
           </div>
         ),
         {
           width: 1200,
           height: 630,
+          headers: {
+            'Cache-Control': 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800',
+          },
         },
       );
     }
 
-    const { title } = website;
+    const title = websiteTitle;
     // Parse config if needed, or just use the title
     // const config = website.data; 
 
@@ -142,6 +156,9 @@ export default async function handler(req: Request) {
       {
         width: 1200,
         height: 630,
+        headers: {
+          'Cache-Control': 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800',
+        },
       },
     );
   } catch (e: any) {
