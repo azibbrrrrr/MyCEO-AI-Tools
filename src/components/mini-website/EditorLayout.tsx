@@ -22,9 +22,11 @@ import {
 import { ExternalLink } from 'lucide-react'; 
 
 import type { UseSiteConfigReturn, SiteConfig } from '@/hooks/useSiteConfig';
+import { createInitialConfig } from '@/hooks/useSiteConfig';
 import { SitePreview } from './preview/SitePreview';
 import { MarketingCoachWidget } from './MarketingCoachWidget';
-import { EditorSidebarContent } from './EditorSidebarContent';
+import { BossModePanel } from './boss/BossModePanel';
+import { QuestFlow } from './quests/QuestFlow';
 import { useChildSession } from '@/hooks/useChildSession'; 
 import { saveWebsite, publishWebsite, getWebsite } from '@/lib/supabase/mini-website'; 
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -36,6 +38,17 @@ import { Skeleton } from "@/components/ui/skeleton";
 interface EditorLayoutProps {
   siteConfig: UseSiteConfigReturn;
 }
+
+const mergeConfigWithDefaults = (loadedConfig: SiteConfig): SiteConfig => {
+  const defaults = createInitialConfig();
+  return {
+    ...defaults,
+    ...loadedConfig,
+    layouts: { ...defaults.layouts, ...(loadedConfig.layouts ?? {}) },
+    styles: { ...defaults.styles, ...(loadedConfig.styles ?? {}) },
+    content: { ...defaults.content, ...(loadedConfig.content ?? {}) },
+  };
+};
 
 export const EditorLayout = ({ siteConfig }: EditorLayoutProps) => {
   const { config, setMode } = siteConfig;
@@ -56,6 +69,15 @@ export const EditorLayout = ({ siteConfig }: EditorLayoutProps) => {
   const { child } = useChildSession();
   const isMobile = useIsMobile();
   const { t, language } = useLanguage();
+  const isPublished = Boolean(savedSlug);
+  const isBossMode = isPublished && config.bossMode;
+  const liveUrl = publishedUrl || (savedSlug ? `${window.location.origin}/site/${savedSlug}` : null);
+
+  useEffect(() => {
+    if (!isPublished && config.bossMode) {
+      siteConfig.toggleBossMode();
+    }
+  }, [isPublished, config.bossMode, siteConfig]);
 
   // Check for unsaved changes
   const hasUnsavedChanges = savedConfig 
@@ -73,7 +95,7 @@ export const EditorLayout = ({ siteConfig }: EditorLayoutProps) => {
         try {
             const savedSite = await getWebsite(child.id);
             if (savedSite && savedSite.data) {
-                const loadedConfig = savedSite.data as unknown as SiteConfig;
+                const loadedConfig = mergeConfigWithDefaults(savedSite.data as unknown as SiteConfig);
                 siteConfig.setConfig(loadedConfig);
                 setSavedConfig(loadedConfig); 
                 setLastSaved(new Date(savedSite.updated_at));
@@ -159,6 +181,7 @@ export const EditorLayout = ({ siteConfig }: EditorLayoutProps) => {
     if (result.success) {
         const url = `${window.location.origin}/site/${slugInput}`;
         setPublishedUrl(url);
+        setSavedSlug(slugInput);
         // Note: We keep the modal open to show the success state
     } else {
         alert(`Failed to publish: ${result.error}`);
@@ -227,7 +250,22 @@ export const EditorLayout = ({ siteConfig }: EditorLayoutProps) => {
           <span className="font-bold text-[var(--text-primary)] hidden sm:block">{t("tool.miniWebsite")}</span>
         </div>
         
-        <div className="z-20">
+        <div className="z-20 flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => {
+              if (!isPublished) return;
+              siteConfig.toggleBossMode();
+            }}
+            disabled={!isPublished}
+            className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all border ${
+              isBossMode
+                ? 'bg-blue-600 text-white border-blue-600'
+                : 'bg-white text-slate-600 border-slate-200'
+            } ${!isPublished ? 'opacity-50 cursor-not-allowed' : 'hover:border-blue-300'}`}
+          >
+            {language === 'EN' ? 'Boss Mode' : 'Boss Mode'}
+          </button>
           <LanguageToggle />
         </div>
       </header>
@@ -236,12 +274,26 @@ export const EditorLayout = ({ siteConfig }: EditorLayoutProps) => {
       <div className="flex flex-1 relative items-start">
         {/* Desktop Sidebar - Sticky */}
         {!isMobile && (
-          <aside className="sticky top-20 h-[calc(100vh-5rem)] overflow-y-auto no-scrollbar w-full md:w-80 lg:w-96 bg-card border-r shrink-0 hidden md:block z-20">
-            <EditorSidebarContent
-              siteConfig={siteConfig}
-              activeTab={activeTab}
-              setActiveTab={setActiveTab}
-            />
+          <aside className="sticky top-20 h-[calc(100vh-5rem)] overflow-y-auto no-scrollbar w-full md:w-80 lg:w-96 bg-card border-r shrink-0 hidden md:block z-20 p-4">
+            {isBossMode ? (
+              <BossModePanel
+                siteConfig={siteConfig}
+                activeTab={activeTab}
+                setActiveTab={setActiveTab}
+              />
+            ) : (
+              <QuestFlow
+                siteConfig={siteConfig}
+                isPublished={isPublished}
+                liveUrl={liveUrl}
+                onPublish={handleOpenPublishModal}
+                onEnterBossMode={() => {
+                  if (isPublished && !isBossMode) {
+                    siteConfig.toggleBossMode();
+                  }
+                }}
+              />
+            )}
           </aside>
         )}
 
@@ -252,17 +304,37 @@ export const EditorLayout = ({ siteConfig }: EditorLayoutProps) => {
               <div className="fixed bottom-0 left-0 right-0 z-50 p-4 bg-transparent pointer-events-none">
                 <button className="w-full bg-primary text-primary-foreground p-4 rounded-xl shadow-2xl hover:bg-primary/90 transition-all flex items-center justify-center gap-2 font-bold pointer-events-auto">
                   <ChevronUp className="w-5 h-5" />
-                  {language === 'EN' ? 'Edit Content' : 'Edit Kandungan'}
+                  {isBossMode
+                    ? language === 'EN'
+                      ? 'Boss Mode'
+                      : 'Boss Mode'
+                    : language === 'EN'
+                      ? 'Build Site'
+                      : 'Bina Laman'}
                 </button>
               </div>
             </DrawerTrigger>
             <DrawerContent className="h-[80vh] flex flex-col bg-white">
               <div className="p-4 flex-1 min-h-0 overflow-y-auto">
-                <EditorSidebarContent
-                  siteConfig={siteConfig}
-                  activeTab={activeTab}
-                  setActiveTab={setActiveTab}
-                />
+                {isBossMode ? (
+                  <BossModePanel
+                    siteConfig={siteConfig}
+                    activeTab={activeTab}
+                    setActiveTab={setActiveTab}
+                  />
+                ) : (
+                  <QuestFlow
+                    siteConfig={siteConfig}
+                    isPublished={isPublished}
+                    liveUrl={liveUrl}
+                    onPublish={handleOpenPublishModal}
+                    onEnterBossMode={() => {
+                      if (isPublished && !isBossMode) {
+                        siteConfig.toggleBossMode();
+                      }
+                    }}
+                  />
+                )}
               </div>
             </DrawerContent>
           </Drawer>
@@ -332,23 +404,27 @@ export const EditorLayout = ({ siteConfig }: EditorLayoutProps) => {
                         </span>
                     </button>
                     
-                    <div className="w-px h-5 bg-slate-200" />
+                    {isBossMode && (
+                      <>
+                        <div className="w-px h-5 bg-slate-200" />
 
-                    <button
-                        onClick={handleOpenPublishModal}
-                        disabled={isPublishing}
-                        className={`
-                            flex items-center gap-2 px-5 py-2 rounded-full text-sm font-semibold transition-all duration-200
-                            ${isPublishing 
-                                ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
-                                : 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-md hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 active:shadow-sm'}
-                        `}
-                    >
-                        {isPublishing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Globe className="w-4 h-4" />}
-                        <span>
-                            {isPublishing ? (language === 'EN' ? 'Publishing...' : 'Menerbitkan...') : (language === 'EN' ? 'Publish' : 'Terbitkan')}
-                        </span>
-                    </button>
+                        <button
+                            onClick={handleOpenPublishModal}
+                            disabled={isPublishing}
+                            className={`
+                                flex items-center gap-2 px-5 py-2 rounded-full text-sm font-semibold transition-all duration-200
+                                ${isPublishing 
+                                    ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                                    : 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-md hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 active:shadow-sm'}
+                            `}
+                        >
+                            {isPublishing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Globe className="w-4 h-4" />}
+                            <span>
+                                {isPublishing ? (language === 'EN' ? 'Publishing...' : 'Menerbitkan...') : (language === 'EN' ? 'Publish' : 'Terbitkan')}
+                            </span>
+                        </button>
+                      </>
+                    )}
                 </div>
 
                 <div className="w-px h-8 bg-slate-200 mx-1" />

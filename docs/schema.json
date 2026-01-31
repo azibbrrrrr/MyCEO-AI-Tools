@@ -1,0 +1,2086 @@
+{
+    "database": "supabase_postgres",
+    "schema": "public",
+    "schema_version": "1.1",
+    "generated_for": "ai_context",
+    "tables": {
+        "achievements": {
+            "columns": {
+                "id": {
+                    "type": "uuid",
+                    "nullable": false,
+                    "default": "uuid_generate_v4()",
+                    "primary_key": true
+                },
+                "name": {
+                    "type": "text",
+                    "nullable": false
+                },
+                "description": {
+                    "type": "text",
+                    "nullable": true
+                },
+                "icon_url": {
+                    "type": "text",
+                    "nullable": true
+                },
+                "achievement_type": {
+                    "type": "enum:text",
+                    "nullable": false,
+                    "values": [
+                        "milestone",
+                        "performance",
+                        "company",
+                        "engagement"
+                    ]
+                },
+                "rarity": {
+                    "type": "enum:text",
+                    "nullable": true,
+                    "default": "common",
+                    "values": [
+                        "common",
+                        "rare",
+                        "epic",
+                        "legendary"
+                    ]
+                },
+                "xp_bonus": {
+                    "type": "integer",
+                    "nullable": true,
+                    "default": 0
+                },
+                "criteria": {
+                    "type": "jsonb",
+                    "nullable": true
+                },
+                "created_at": {
+                    "type": "timestamptz",
+                    "nullable": false,
+                    "default": "now()"
+                }
+            },
+            "constraints": {
+                "primary_key": [
+                    "id"
+                ]
+            }
+        },
+        "activities": {
+            "columns": {
+                "id": {
+                    "type": "uuid",
+                    "nullable": false,
+                    "default": "uuid_generate_v4()",
+                    "primary_key": true
+                },
+                "child_id": {
+                    "type": "uuid",
+                    "nullable": false
+                },
+                "activity_type": {
+                    "type": "enum:text",
+                    "nullable": false,
+                    "values": [
+                        "module_start",
+                        "lesson_complete",
+                        "quiz_attempt",
+                        "module_complete"
+                    ]
+                },
+                "module_id": {
+                    "type": "uuid",
+                    "nullable": true
+                },
+                "lesson_id": {
+                    "type": "uuid",
+                    "nullable": true
+                },
+                "quiz_score": {
+                    "type": "integer",
+                    "nullable": true
+                },
+                "xp_earned": {
+                    "type": "integer",
+                    "nullable": true,
+                    "default": 0
+                },
+                "metadata": {
+                    "type": "jsonb",
+                    "nullable": true
+                },
+                "created_at": {
+                    "type": "timestamptz",
+                    "nullable": false,
+                    "default": "now()"
+                }
+            },
+            "constraints": {
+                "primary_key": [
+                    "id"
+                ],
+                "foreign_keys": [
+                    {
+                        "columns": [
+                            "child_id"
+                        ],
+                        "references": "children(id)"
+                    },
+                    {
+                        "columns": [
+                            "module_id"
+                        ],
+                        "references": "modules(id)"
+                    },
+                    {
+                        "columns": [
+                            "lesson_id"
+                        ],
+                        "references": "lessons(id)"
+                    }
+                ]
+            }
+        },
+        "ai_tool_usage": {
+            "columns": {
+                "id": {
+                    "type": "uuid",
+                    "nullable": false,
+                    "default": "uuid_generate_v4()",
+                    "primary_key": true
+                },
+                "child_id": {
+                    "type": "uuid",
+                    "nullable": false
+                },
+                "tool_id": {
+                    "type": "uuid",
+                    "nullable": false
+                },
+                "plan_type": {
+                    "type": "enum:text",
+                    "nullable": false,
+                    "default": "free",
+                    "values": [
+                        "free",
+                        "premium"
+                    ]
+                },
+                "provider": {
+                    "type": "text",
+                    "nullable": true
+                },
+                "generation_count": {
+                    "type": "integer",
+                    "nullable": false,
+                    "default": 0,
+                    "checks": [
+                        "generation_count >= 0"
+                    ]
+                },
+                "image_count": {
+                    "type": "integer",
+                    "nullable": false,
+                    "default": 0,
+                    "checks": [
+                        "image_count >= 0"
+                    ]
+                },
+                "last_used_at": {
+                    "type": "timestamptz",
+                    "nullable": true
+                },
+                "created_at": {
+                    "type": "timestamptz",
+                    "nullable": false,
+                    "default": "now()"
+                },
+                "updated_at": {
+                    "type": "timestamptz",
+                    "nullable": false,
+                    "default": "now()"
+                }
+            },
+            "constraints": {
+                "primary_key": [
+                    "id"
+                ],
+                "foreign_keys": [
+                    {
+                        "columns": [
+                            "child_id"
+                        ],
+                        "references": "children(id)"
+                    },
+                    {
+                        "columns": [
+                            "tool_id"
+                        ],
+                        "references": "ai_tools(id)"
+                    }
+                ]
+            }
+        },
+        "ai_tools": {
+            "columns": {
+                "id": {
+                    "type": "uuid",
+                    "nullable": false,
+                    "default": "uuid_generate_v4()",
+                    "primary_key": true
+                },
+                "key": {
+                    "type": "text",
+                    "nullable": false,
+                    "unique": true
+                },
+                "name": {
+                    "type": "text",
+                    "nullable": false
+                },
+                "description": {
+                    "type": "text",
+                    "nullable": true
+                },
+                "is_active": {
+                    "type": "boolean",
+                    "nullable": false,
+                    "default": true
+                },
+                "created_at": {
+                    "type": "timestamptz",
+                    "nullable": false,
+                    "default": "now()"
+                }
+            },
+            "constraints": {
+                "primary_key": [
+                    "id"
+                ],
+                "unique": [
+                    [
+                        "key"
+                    ]
+                ]
+            }
+        },
+        "child_achievements": {
+            "columns": {
+                "id": {
+                    "type": "uuid",
+                    "nullable": false,
+                    "default": "uuid_generate_v4()",
+                    "primary_key": true
+                },
+                "child_id": {
+                    "type": "uuid",
+                    "nullable": false
+                },
+                "achievement_id": {
+                    "type": "uuid",
+                    "nullable": false
+                },
+                "earned_at": {
+                    "type": "timestamptz",
+                    "nullable": false,
+                    "default": "now()"
+                }
+            },
+            "constraints": {
+                "primary_key": [
+                    "id"
+                ],
+                "foreign_keys": [
+                    {
+                        "columns": [
+                            "child_id"
+                        ],
+                        "references": "children(id)"
+                    },
+                    {
+                        "columns": [
+                            "achievement_id"
+                        ],
+                        "references": "achievements(id)"
+                    }
+                ]
+            }
+        },
+        "child_lesson_progress": {
+            "columns": {
+                "id": {
+                    "type": "uuid",
+                    "nullable": false,
+                    "default": "uuid_generate_v4()",
+                    "primary_key": true
+                },
+                "child_id": {
+                    "type": "uuid",
+                    "nullable": false
+                },
+                "lesson_id": {
+                    "type": "uuid",
+                    "nullable": false
+                },
+                "is_completed": {
+                    "type": "boolean",
+                    "nullable": true,
+                    "default": false
+                },
+                "completed_at": {
+                    "type": "timestamptz",
+                    "nullable": true
+                },
+                "quiz_score": {
+                    "type": "integer",
+                    "nullable": true
+                },
+                "created_at": {
+                    "type": "timestamptz",
+                    "nullable": false,
+                    "default": "now()"
+                },
+                "updated_at": {
+                    "type": "timestamptz",
+                    "nullable": false,
+                    "default": "now()"
+                }
+            },
+            "constraints": {
+                "primary_key": [
+                    "id"
+                ],
+                "foreign_keys": [
+                    {
+                        "columns": [
+                            "child_id"
+                        ],
+                        "references": "children(id)"
+                    },
+                    {
+                        "columns": [
+                            "lesson_id"
+                        ],
+                        "references": "lessons(id)"
+                    }
+                ]
+            }
+        },
+        "child_locked_modules": {
+            "columns": {
+                "id": {
+                    "type": "uuid",
+                    "nullable": false,
+                    "default": "uuid_generate_v4()",
+                    "primary_key": true
+                },
+                "child_id": {
+                    "type": "uuid",
+                    "nullable": false
+                },
+                "module_id": {
+                    "type": "uuid",
+                    "nullable": false
+                },
+                "locked_by": {
+                    "type": "uuid",
+                    "nullable": true
+                },
+                "locked_at": {
+                    "type": "timestamptz",
+                    "nullable": false,
+                    "default": "now()"
+                }
+            },
+            "constraints": {
+                "primary_key": [
+                    "id"
+                ],
+                "foreign_keys": [
+                    {
+                        "columns": [
+                            "child_id"
+                        ],
+                        "references": "children(id)"
+                    },
+                    {
+                        "columns": [
+                            "module_id"
+                        ],
+                        "references": "modules(id)"
+                    },
+                    {
+                        "columns": [
+                            "locked_by"
+                        ],
+                        "references": "users(id)"
+                    }
+                ]
+            }
+        },
+        "child_logos": {
+            "columns": {
+                "id": {
+                    "type": "uuid",
+                    "nullable": false,
+                    "default": "uuid_generate_v4()",
+                    "primary_key": true
+                },
+                "child_id": {
+                    "type": "uuid",
+                    "nullable": false
+                },
+                "company_id": {
+                    "type": "uuid",
+                    "nullable": true
+                },
+                "tool_id": {
+                    "type": "uuid",
+                    "nullable": false
+                },
+                "plan_type": {
+                    "type": "enum:text",
+                    "nullable": false,
+                    "default": "free",
+                    "values": [
+                        "free",
+                        "premium"
+                    ]
+                },
+                "provider": {
+                    "type": "text",
+                    "nullable": true
+                },
+                "company_name": {
+                    "type": "text",
+                    "nullable": true
+                },
+                "business_type": {
+                    "type": "text",
+                    "nullable": true
+                },
+                "logo_style": {
+                    "type": "text",
+                    "nullable": true
+                },
+                "vibe": {
+                    "type": "text",
+                    "nullable": true
+                },
+                "color_palette": {
+                    "type": "jsonb",
+                    "nullable": true
+                },
+                "slogan": {
+                    "type": "text",
+                    "nullable": true
+                },
+                "symbol": {
+                    "type": "text",
+                    "nullable": true
+                },
+                "image_url": {
+                    "type": "text",
+                    "nullable": false
+                },
+                "is_selected": {
+                    "type": "boolean",
+                    "nullable": false,
+                    "default": false
+                },
+                "created_at": {
+                    "type": "timestamptz",
+                    "nullable": false,
+                    "default": "now()"
+                }
+            },
+            "constraints": {
+                "primary_key": [
+                    "id"
+                ],
+                "foreign_keys": [
+                    {
+                        "columns": [
+                            "child_id"
+                        ],
+                        "references": "children(id)"
+                    },
+                    {
+                        "columns": [
+                            "company_id"
+                        ],
+                        "references": "companies(id)"
+                    },
+                    {
+                        "columns": [
+                            "tool_id"
+                        ],
+                        "references": "ai_tools(id)"
+                    }
+                ]
+            }
+        },
+        "child_module_progress": {
+            "columns": {
+                "id": {
+                    "type": "uuid",
+                    "nullable": false,
+                    "default": "uuid_generate_v4()",
+                    "primary_key": true
+                },
+                "child_id": {
+                    "type": "uuid",
+                    "nullable": false
+                },
+                "module_id": {
+                    "type": "uuid",
+                    "nullable": false
+                },
+                "status": {
+                    "type": "enum:text",
+                    "nullable": true,
+                    "default": "not_started",
+                    "values": [
+                        "not_started",
+                        "in_progress",
+                        "completed"
+                    ]
+                },
+                "progress_percentage": {
+                    "type": "integer",
+                    "nullable": true,
+                    "default": 0,
+                    "checks": [
+                        "progress_percentage >= 0",
+                        "progress_percentage <= 100"
+                    ]
+                },
+                "started_at": {
+                    "type": "timestamptz",
+                    "nullable": true
+                },
+                "completed_at": {
+                    "type": "timestamptz",
+                    "nullable": true
+                },
+                "xp_earned": {
+                    "type": "integer",
+                    "nullable": true,
+                    "default": 0
+                },
+                "created_at": {
+                    "type": "timestamptz",
+                    "nullable": false,
+                    "default": "now()"
+                },
+                "updated_at": {
+                    "type": "timestamptz",
+                    "nullable": false,
+                    "default": "now()"
+                }
+            },
+            "constraints": {
+                "primary_key": [
+                    "id"
+                ],
+                "foreign_keys": [
+                    {
+                        "columns": [
+                            "child_id"
+                        ],
+                        "references": "children(id)"
+                    },
+                    {
+                        "columns": [
+                            "module_id"
+                        ],
+                        "references": "modules(id)"
+                    }
+                ]
+            }
+        },
+        "children": {
+            "columns": {
+                "id": {
+                    "type": "uuid",
+                    "nullable": false,
+                    "default": "uuid_generate_v4()",
+                    "primary_key": true
+                },
+                "parent_id": {
+                    "type": "uuid",
+                    "nullable": false
+                },
+                "name": {
+                    "type": "text",
+                    "nullable": false
+                },
+                "age": {
+                    "type": "integer",
+                    "nullable": true,
+                    "checks": [
+                        "age >= 6",
+                        "age <= 16"
+                    ]
+                },
+                "gender": {
+                    "type": "enum:text",
+                    "nullable": true,
+                    "values": [
+                        "male",
+                        "female",
+                        "other",
+                        "prefer_not_to_say"
+                    ]
+                },
+                "profile_picture_url": {
+                    "type": "text",
+                    "nullable": true
+                },
+                "access_code": {
+                    "type": "text",
+                    "nullable": false,
+                    "unique": true
+                },
+                "total_xp": {
+                    "type": "integer",
+                    "nullable": true,
+                    "default": 0
+                },
+                "current_level": {
+                    "type": "integer",
+                    "nullable": true,
+                    "default": 1,
+                    "checks": [
+                        "current_level >= 1",
+                        "current_level <= 8"
+                    ]
+                },
+                "current_streak": {
+                    "type": "integer",
+                    "nullable": true,
+                    "default": 0
+                },
+                "last_activity_at": {
+                    "type": "timestamptz",
+                    "nullable": true
+                },
+                "created_at": {
+                    "type": "timestamptz",
+                    "nullable": false,
+                    "default": "now()"
+                },
+                "updated_at": {
+                    "type": "timestamptz",
+                    "nullable": false,
+                    "default": "now()"
+                },
+                "deleted_at": {
+                    "type": "timestamptz",
+                    "nullable": true
+                }
+            },
+            "constraints": {
+                "primary_key": [
+                    "id"
+                ],
+                "unique": [
+                    [
+                        "access_code"
+                    ]
+                ],
+                "foreign_keys": [
+                    {
+                        "columns": [
+                            "parent_id"
+                        ],
+                        "references": "parents(id)"
+                    }
+                ]
+            }
+        },
+        "companies": {
+            "columns": {
+                "id": {
+                    "type": "uuid",
+                    "nullable": false,
+                    "default": "uuid_generate_v4()",
+                    "primary_key": true
+                },
+                "child_id": {
+                    "type": "uuid",
+                    "nullable": false,
+                    "unique": true
+                },
+                "company_name": {
+                    "type": "text",
+                    "nullable": false
+                },
+                "product_name": {
+                    "type": "text",
+                    "nullable": true
+                },
+                "logo_url": {
+                    "type": "text",
+                    "nullable": true
+                },
+                "initial_capital": {
+                    "type": "numeric",
+                    "nullable": true,
+                    "default": 4750.0
+                },
+                "current_balance": {
+                    "type": "numeric",
+                    "nullable": true,
+                    "default": 4750.0
+                },
+                "total_revenue": {
+                    "type": "numeric",
+                    "nullable": true,
+                    "default": 0.0
+                },
+                "total_expenses": {
+                    "type": "numeric",
+                    "nullable": true,
+                    "default": 0.0
+                },
+                "specialty": {
+                    "type": "text",
+                    "nullable": true
+                },
+                "created_at": {
+                    "type": "timestamptz",
+                    "nullable": false,
+                    "default": "now()"
+                },
+                "updated_at": {
+                    "type": "timestamptz",
+                    "nullable": false,
+                    "default": "now()"
+                }
+            },
+            "constraints": {
+                "primary_key": [
+                    "id"
+                ],
+                "unique": [
+                    [
+                        "child_id"
+                    ]
+                ],
+                "foreign_keys": [
+                    {
+                        "columns": [
+                            "child_id"
+                        ],
+                        "references": "children(id)"
+                    }
+                ]
+            }
+        },
+        "company_transactions": {
+            "columns": {
+                "id": {
+                    "type": "uuid",
+                    "nullable": false,
+                    "default": "uuid_generate_v4()",
+                    "primary_key": true
+                },
+                "company_id": {
+                    "type": "uuid",
+                    "nullable": false
+                },
+                "transaction_type": {
+                    "type": "enum:text",
+                    "nullable": false,
+                    "values": [
+                        "revenue",
+                        "expense",
+                        "purchase",
+                        "sale"
+                    ]
+                },
+                "amount": {
+                    "type": "numeric",
+                    "nullable": false
+                },
+                "description": {
+                    "type": "text",
+                    "nullable": true
+                },
+                "metadata": {
+                    "type": "jsonb",
+                    "nullable": true
+                },
+                "created_at": {
+                    "type": "timestamptz",
+                    "nullable": false,
+                    "default": "now()"
+                }
+            },
+            "constraints": {
+                "primary_key": [
+                    "id"
+                ],
+                "foreign_keys": [
+                    {
+                        "columns": [
+                            "company_id"
+                        ],
+                        "references": "companies(id)"
+                    }
+                ]
+            }
+        },
+        "feature_flags": {
+            "columns": {
+                "id": {
+                    "type": "uuid",
+                    "nullable": false,
+                    "default": "uuid_generate_v4()",
+                    "primary_key": true
+                },
+                "name": {
+                    "type": "text",
+                    "nullable": false,
+                    "unique": true
+                },
+                "description": {
+                    "type": "text",
+                    "nullable": true
+                },
+                "enabled": {
+                    "type": "boolean",
+                    "nullable": false,
+                    "default": false
+                },
+                "created_at": {
+                    "type": "timestamptz",
+                    "nullable": false,
+                    "default": "now()"
+                },
+                "updated_at": {
+                    "type": "timestamptz",
+                    "nullable": false,
+                    "default": "now()"
+                }
+            },
+            "constraints": {
+                "primary_key": [
+                    "id"
+                ],
+                "unique": [
+                    [
+                        "name"
+                    ]
+                ]
+            }
+        },
+        "lessons": {
+            "columns": {
+                "id": {
+                    "type": "uuid",
+                    "nullable": false,
+                    "default": "uuid_generate_v4()",
+                    "primary_key": true
+                },
+                "module_id": {
+                    "type": "uuid",
+                    "nullable": false
+                },
+                "title": {
+                    "type": "text",
+                    "nullable": false
+                },
+                "content": {
+                    "type": "text",
+                    "nullable": true
+                },
+                "lesson_type": {
+                    "type": "enum:text",
+                    "nullable": false,
+                    "values": [
+                        "video",
+                        "text",
+                        "quiz",
+                        "pdf",
+                        "presentation"
+                    ]
+                },
+                "content_url": {
+                    "type": "text",
+                    "nullable": true
+                },
+                "order_index": {
+                    "type": "integer",
+                    "nullable": false
+                },
+                "duration_minutes": {
+                    "type": "integer",
+                    "nullable": true
+                },
+                "created_at": {
+                    "type": "timestamptz",
+                    "nullable": false,
+                    "default": "now()"
+                },
+                "updated_at": {
+                    "type": "timestamptz",
+                    "nullable": false,
+                    "default": "now()"
+                }
+            },
+            "constraints": {
+                "primary_key": [
+                    "id"
+                ],
+                "foreign_keys": [
+                    {
+                        "columns": [
+                            "module_id"
+                        ],
+                        "references": "modules(id)"
+                    }
+                ]
+            }
+        },
+        "marketplace_items": {
+            "columns": {
+                "id": {
+                    "type": "uuid",
+                    "nullable": false,
+                    "default": "uuid_generate_v4()",
+                    "primary_key": true
+                },
+                "seller_child_id": {
+                    "type": "uuid",
+                    "nullable": false
+                },
+                "item_name": {
+                    "type": "text",
+                    "nullable": false
+                },
+                "description": {
+                    "type": "text",
+                    "nullable": true
+                },
+                "price": {
+                    "type": "numeric",
+                    "nullable": false,
+                    "checks": [
+                        "price > 0"
+                    ]
+                },
+                "image_url": {
+                    "type": "text",
+                    "nullable": true
+                },
+                "status": {
+                    "type": "enum:text",
+                    "nullable": true,
+                    "default": "available",
+                    "values": [
+                        "available",
+                        "sold",
+                        "removed"
+                    ]
+                },
+                "quantity": {
+                    "type": "integer",
+                    "nullable": true,
+                    "default": 1,
+                    "checks": [
+                        "quantity >= 0"
+                    ]
+                },
+                "created_at": {
+                    "type": "timestamptz",
+                    "nullable": false,
+                    "default": "now()"
+                },
+                "updated_at": {
+                    "type": "timestamptz",
+                    "nullable": false,
+                    "default": "now()"
+                }
+            },
+            "constraints": {
+                "primary_key": [
+                    "id"
+                ],
+                "foreign_keys": [
+                    {
+                        "columns": [
+                            "seller_child_id"
+                        ],
+                        "references": "children(id)"
+                    }
+                ]
+            }
+        },
+        "marketplace_purchases": {
+            "columns": {
+                "id": {
+                    "type": "uuid",
+                    "nullable": false,
+                    "default": "uuid_generate_v4()",
+                    "primary_key": true
+                },
+                "buyer_child_id": {
+                    "type": "uuid",
+                    "nullable": false
+                },
+                "item_id": {
+                    "type": "uuid",
+                    "nullable": false
+                },
+                "purchase_date": {
+                    "type": "timestamptz",
+                    "nullable": false,
+                    "default": "now()"
+                },
+                "transaction_id": {
+                    "type": "uuid",
+                    "nullable": true
+                }
+            },
+            "constraints": {
+                "primary_key": [
+                    "id"
+                ],
+                "foreign_keys": [
+                    {
+                        "columns": [
+                            "transaction_id"
+                        ],
+                        "references": "company_transactions(id)"
+                    },
+                    {
+                        "columns": [
+                            "buyer_child_id"
+                        ],
+                        "references": "children(id)"
+                    },
+                    {
+                        "columns": [
+                            "item_id"
+                        ],
+                        "references": "marketplace_items(id)"
+                    }
+                ]
+            }
+        },
+        "mini_websites": {
+            "columns": {
+                "id": {
+                    "type": "uuid",
+                    "nullable": false,
+                    "default": "uuid_generate_v4()",
+                    "primary_key": true
+                },
+                "child_id": {
+                    "type": "uuid",
+                    "nullable": false
+                },
+                "title": {
+                    "type": "text",
+                    "nullable": false,
+                    "default": "My Amazing Store"
+                },
+                "data": {
+                    "type": "jsonb",
+                    "nullable": false
+                },
+                "is_published": {
+                    "type": "boolean",
+                    "nullable": false,
+                    "default": false
+                },
+                "url_slug": {
+                    "type": "text",
+                    "nullable": true,
+                    "unique": true,
+                    "checks": [
+                        "url_slug ~ '^[a-z0-9-]+$'"
+                    ]
+                },
+                "published_at": {
+                    "type": "timestamptz",
+                    "nullable": true
+                },
+                "created_at": {
+                    "type": "timestamptz",
+                    "nullable": false,
+                    "default": "now()"
+                },
+                "updated_at": {
+                    "type": "timestamptz",
+                    "nullable": false,
+                    "default": "now()"
+                }
+            },
+            "constraints": {
+                "primary_key": [
+                    "id"
+                ],
+                "unique": [
+                    [
+                        "url_slug"
+                    ]
+                ],
+                "foreign_keys": [
+                    {
+                        "columns": [
+                            "child_id"
+                        ],
+                        "references": "children(id)"
+                    }
+                ]
+            }
+        },
+        "module_prerequisites": {
+            "columns": {
+                "id": {
+                    "type": "uuid",
+                    "nullable": false,
+                    "default": "uuid_generate_v4()",
+                    "primary_key": true
+                },
+                "module_id": {
+                    "type": "uuid",
+                    "nullable": false
+                },
+                "prerequisite_module_id": {
+                    "type": "uuid",
+                    "nullable": false
+                },
+                "created_at": {
+                    "type": "timestamptz",
+                    "nullable": false,
+                    "default": "now()"
+                }
+            },
+            "constraints": {
+                "primary_key": [
+                    "id"
+                ],
+                "foreign_keys": [
+                    {
+                        "columns": [
+                            "module_id"
+                        ],
+                        "references": "modules(id)"
+                    },
+                    {
+                        "columns": [
+                            "prerequisite_module_id"
+                        ],
+                        "references": "modules(id)"
+                    }
+                ]
+            }
+        },
+        "modules": {
+            "columns": {
+                "id": {
+                    "type": "uuid",
+                    "nullable": false,
+                    "default": "uuid_generate_v4()",
+                    "primary_key": true
+                },
+                "title": {
+                    "type": "text",
+                    "nullable": false
+                },
+                "description": {
+                    "type": "text",
+                    "nullable": true
+                },
+                "track": {
+                    "type": "enum:text",
+                    "nullable": false,
+                    "values": [
+                        "money_basics",
+                        "entrepreneurship",
+                        "advanced",
+                        "project_based",
+                        "online_class",
+                        "recording"
+                    ]
+                },
+                "order_index": {
+                    "type": "integer",
+                    "nullable": false
+                },
+                "difficulty_level": {
+                    "type": "integer",
+                    "nullable": true,
+                    "default": 1,
+                    "checks": [
+                        "difficulty_level >= 1",
+                        "difficulty_level <= 5"
+                    ]
+                },
+                "xp_reward": {
+                    "type": "integer",
+                    "nullable": true,
+                    "default": 100
+                },
+                "is_published": {
+                    "type": "boolean",
+                    "nullable": true,
+                    "default": false
+                },
+                "published_at": {
+                    "type": "timestamptz",
+                    "nullable": true
+                },
+                "created_at": {
+                    "type": "timestamptz",
+                    "nullable": false,
+                    "default": "now()"
+                },
+                "updated_at": {
+                    "type": "timestamptz",
+                    "nullable": false,
+                    "default": "now()"
+                },
+                "thumbnail_url": {
+                    "type": "text",
+                    "nullable": true
+                },
+                "module_type": {
+                    "type": "text",
+                    "nullable": true,
+                    "default": "standard",
+                    "checks": [
+                        "module_type = 'standard'"
+                    ]
+                },
+                "is_locked": {
+                    "type": "boolean",
+                    "nullable": true,
+                    "default": false
+                }
+            },
+            "constraints": {
+                "primary_key": [
+                    "id"
+                ]
+            }
+        },
+        "notifications": {
+            "columns": {
+                "id": {
+                    "type": "uuid",
+                    "nullable": false,
+                    "default": "uuid_generate_v4()",
+                    "primary_key": true
+                },
+                "child_id": {
+                    "type": "uuid",
+                    "nullable": false
+                },
+                "notification_type": {
+                    "type": "enum:text",
+                    "nullable": false,
+                    "values": [
+                        "new_module",
+                        "achievement",
+                        "streak",
+                        "level_up",
+                        "system",
+                        "sale"
+                    ]
+                },
+                "title": {
+                    "type": "text",
+                    "nullable": false
+                },
+                "message": {
+                    "type": "text",
+                    "nullable": false
+                },
+                "module_id": {
+                    "type": "uuid",
+                    "nullable": true
+                },
+                "is_read": {
+                    "type": "boolean",
+                    "nullable": true,
+                    "default": false
+                },
+                "read_at": {
+                    "type": "timestamptz",
+                    "nullable": true
+                },
+                "created_at": {
+                    "type": "timestamptz",
+                    "nullable": false,
+                    "default": "now()"
+                },
+                "metadata": {
+                    "type": "jsonb",
+                    "nullable": true
+                }
+            },
+            "constraints": {
+                "primary_key": [
+                    "id"
+                ],
+                "foreign_keys": [
+                    {
+                        "columns": [
+                            "child_id"
+                        ],
+                        "references": "children(id)"
+                    },
+                    {
+                        "columns": [
+                            "module_id"
+                        ],
+                        "references": "modules(id)"
+                    }
+                ]
+            }
+        },
+        "quiz_questions": {
+            "columns": {
+                "id": {
+                    "type": "uuid",
+                    "nullable": false,
+                    "default": "uuid_generate_v4()",
+                    "primary_key": true
+                },
+                "lesson_id": {
+                    "type": "uuid",
+                    "nullable": false
+                },
+                "question": {
+                    "type": "text",
+                    "nullable": false
+                },
+                "options": {
+                    "type": "jsonb",
+                    "nullable": false
+                },
+                "correct_answer_index": {
+                    "type": "integer",
+                    "nullable": false
+                },
+                "explanation": {
+                    "type": "text",
+                    "nullable": true
+                },
+                "order_index": {
+                    "type": "integer",
+                    "nullable": false
+                },
+                "created_at": {
+                    "type": "timestamptz",
+                    "nullable": false,
+                    "default": "now()"
+                }
+            },
+            "constraints": {
+                "primary_key": [
+                    "id"
+                ],
+                "foreign_keys": [
+                    {
+                        "columns": [
+                            "lesson_id"
+                        ],
+                        "references": "lessons(id)"
+                    }
+                ]
+            }
+        },
+        "sales_sessions": {
+            "columns": {
+                "id": {
+                    "type": "uuid",
+                    "nullable": false,
+                    "default": "gen_random_uuid()",
+                    "primary_key": true
+                },
+                "child_id": {
+                    "type": "uuid",
+                    "nullable": false
+                },
+                "customer_type": {
+                    "type": "enum:text",
+                    "nullable": false,
+                    "values": [
+                        "friendly",
+                        "picky",
+                        "bargain"
+                    ]
+                },
+                "customer_name": {
+                    "type": "text",
+                    "nullable": false
+                },
+                "customer_age": {
+                    "type": "integer",
+                    "nullable": false
+                },
+                "customer_trait": {
+                    "type": "text",
+                    "nullable": true
+                },
+                "customer_goal": {
+                    "type": "text",
+                    "nullable": true
+                },
+                "customer_social": {
+                    "type": "text",
+                    "nullable": true
+                },
+                "product_name": {
+                    "type": "text",
+                    "nullable": false
+                },
+                "product_price": {
+                    "type": "numeric",
+                    "nullable": false
+                },
+                "product_desc": {
+                    "type": "text",
+                    "nullable": true
+                },
+                "final_mood": {
+                    "type": "integer",
+                    "nullable": true,
+                    "checks": [
+                        "final_mood >= 0",
+                        "final_mood <= 100"
+                    ]
+                },
+                "outcome": {
+                    "type": "enum:text",
+                    "nullable": true,
+                    "values": [
+                        "success",
+                        "fail",
+                        "abandoned"
+                    ]
+                },
+                "rating": {
+                    "type": "integer",
+                    "nullable": true,
+                    "checks": [
+                        "rating >= 1",
+                        "rating <= 5"
+                    ]
+                },
+                "reflection_review_en": {
+                    "type": "text",
+                    "nullable": true
+                },
+                "reflection_review_bm": {
+                    "type": "text",
+                    "nullable": true
+                },
+                "reflection_good_en": {
+                    "type": "text",
+                    "nullable": true
+                },
+                "reflection_good_bm": {
+                    "type": "text",
+                    "nullable": true
+                },
+                "reflection_tip_en": {
+                    "type": "text",
+                    "nullable": true
+                },
+                "reflection_tip_bm": {
+                    "type": "text",
+                    "nullable": true
+                },
+                "language": {
+                    "type": "enum:text",
+                    "nullable": true,
+                    "values": [
+                        "EN",
+                        "BM"
+                    ]
+                },
+                "created_at": {
+                    "type": "timestamptz",
+                    "nullable": true,
+                    "default": "now()"
+                },
+                "completed_at": {
+                    "type": "timestamptz",
+                    "nullable": true
+                }
+            },
+            "constraints": {
+                "primary_key": [
+                    "id"
+                ],
+                "foreign_keys": [
+                    {
+                        "columns": [
+                            "child_id"
+                        ],
+                        "references": "children(id)"
+                    }
+                ]
+            }
+        },
+        "sales_messages": {
+            "columns": {
+                "id": {
+                    "type": "uuid",
+                    "nullable": false,
+                    "default": "gen_random_uuid()",
+                    "primary_key": true
+                },
+                "session_id": {
+                    "type": "uuid",
+                    "nullable": false
+                },
+                "sender": {
+                    "type": "enum:text",
+                    "nullable": false,
+                    "values": [
+                        "user",
+                        "ai"
+                    ]
+                },
+                "message": {
+                    "type": "text",
+                    "nullable": false
+                },
+                "mood_after": {
+                    "type": "integer",
+                    "nullable": true,
+                    "checks": [
+                        "mood_after >= 0",
+                        "mood_after <= 100"
+                    ]
+                },
+                "turn_number": {
+                    "type": "integer",
+                    "nullable": true
+                },
+                "created_at": {
+                    "type": "timestamptz",
+                    "nullable": true,
+                    "default": "now()"
+                }
+            },
+            "constraints": {
+                "primary_key": [
+                    "id"
+                ],
+                "foreign_keys": [
+                    {
+                        "columns": [
+                            "session_id"
+                        ],
+                        "references": "sales_sessions(id)"
+                    }
+                ]
+            }
+        },
+        "sso_tokens": {
+            "columns": {
+                "id": {
+                    "type": "uuid",
+                    "nullable": false,
+                    "default": "gen_random_uuid()",
+                    "primary_key": true
+                },
+                "ticket": {
+                    "type": "text",
+                    "nullable": false,
+                    "unique": true
+                },
+                "actor_type": {
+                    "type": "enum:text",
+                    "nullable": false,
+                    "values": [
+                        "child",
+                        "parent",
+                        "admin"
+                    ]
+                },
+                "actor_id": {
+                    "type": "uuid",
+                    "nullable": false
+                },
+                "parent_id": {
+                    "type": "uuid",
+                    "nullable": true
+                },
+                "plan": {
+                    "type": "text",
+                    "nullable": true,
+                    "default": "free"
+                },
+                "expires_at": {
+                    "type": "timestamptz",
+                    "nullable": false
+                },
+                "used_at": {
+                    "type": "timestamptz",
+                    "nullable": true
+                },
+                "created_at": {
+                    "type": "timestamptz",
+                    "nullable": true,
+                    "default": "now()"
+                }
+            },
+            "constraints": {
+                "primary_key": [
+                    "id"
+                ],
+                "unique": [
+                    [
+                        "ticket"
+                    ]
+                ]
+            }
+        },
+        "subscriptions": {
+            "columns": {
+                "id": {
+                    "type": "uuid",
+                    "nullable": false,
+                    "default": "uuid_generate_v4()",
+                    "primary_key": true
+                },
+                "parent_id": {
+                    "type": "uuid",
+                    "nullable": false
+                },
+                "stripe_subscription_id": {
+                    "type": "text",
+                    "nullable": false,
+                    "unique": true
+                },
+                "stripe_price_id": {
+                    "type": "text",
+                    "nullable": false
+                },
+                "status": {
+                    "type": "text",
+                    "nullable": false
+                },
+                "current_period_start": {
+                    "type": "timestamptz",
+                    "nullable": true
+                },
+                "current_period_end": {
+                    "type": "timestamptz",
+                    "nullable": true
+                },
+                "cancel_at_period_end": {
+                    "type": "boolean",
+                    "nullable": true,
+                    "default": false
+                },
+                "created_at": {
+                    "type": "timestamptz",
+                    "nullable": false,
+                    "default": "now()"
+                },
+                "updated_at": {
+                    "type": "timestamptz",
+                    "nullable": false,
+                    "default": "now()"
+                }
+            },
+            "constraints": {
+                "primary_key": [
+                    "id"
+                ],
+                "unique": [
+                    [
+                        "stripe_subscription_id"
+                    ]
+                ],
+                "foreign_keys": [
+                    {
+                        "columns": [
+                            "parent_id"
+                        ],
+                        "references": "parents(id)"
+                    }
+                ]
+            }
+        },
+        "track_submissions": {
+            "columns": {
+                "id": {
+                    "type": "uuid",
+                    "nullable": false,
+                    "default": "uuid_generate_v4()",
+                    "primary_key": true
+                },
+                "child_id": {
+                    "type": "uuid",
+                    "nullable": false
+                },
+                "module_id": {
+                    "type": "uuid",
+                    "nullable": false
+                },
+                "file_url": {
+                    "type": "text",
+                    "nullable": true
+                },
+                "file_name": {
+                    "type": "text",
+                    "nullable": true
+                },
+                "file_size": {
+                    "type": "integer",
+                    "nullable": true
+                },
+                "mime_type": {
+                    "type": "text",
+                    "nullable": true
+                },
+                "notes": {
+                    "type": "text",
+                    "nullable": true
+                },
+                "submitted_at": {
+                    "type": "timestamptz",
+                    "nullable": false,
+                    "default": "now()"
+                },
+                "created_at": {
+                    "type": "timestamptz",
+                    "nullable": false,
+                    "default": "now()"
+                },
+                "updated_at": {
+                    "type": "timestamptz",
+                    "nullable": false,
+                    "default": "now()"
+                },
+                "youtube_url": {
+                    "type": "text",
+                    "nullable": true
+                },
+                "external_link": {
+                    "type": "text",
+                    "nullable": true
+                }
+            },
+            "constraints": {
+                "primary_key": [
+                    "id"
+                ],
+                "foreign_keys": [
+                    {
+                        "columns": [
+                            "child_id"
+                        ],
+                        "references": "children(id)"
+                    },
+                    {
+                        "columns": [
+                            "module_id"
+                        ],
+                        "references": "modules(id)"
+                    }
+                ]
+            }
+        },
+        "parents": {
+            "columns": {
+                "id": {
+                    "type": "uuid",
+                    "nullable": false,
+                    "default": "uuid_generate_v4()",
+                    "primary_key": true
+                },
+                "user_id": {
+                    "type": "uuid",
+                    "nullable": false,
+                    "unique": true
+                },
+                "stripe_customer_id": {
+                    "type": "text",
+                    "nullable": true,
+                    "unique": true
+                },
+                "subscription_tier": {
+                    "type": "enum:text",
+                    "nullable": true,
+                    "values": [
+                        "basic",
+                        "standard",
+                        "premium"
+                    ]
+                },
+                "subscription_status": {
+                    "type": "enum:text",
+                    "nullable": true,
+                    "default": "trialing",
+                    "values": [
+                        "trialing",
+                        "active",
+                        "past_due",
+                        "canceled",
+                        "unpaid"
+                    ]
+                },
+                "trial_ends_at": {
+                    "type": "timestamptz",
+                    "nullable": true
+                },
+                "created_at": {
+                    "type": "timestamptz",
+                    "nullable": false,
+                    "default": "now()"
+                },
+                "updated_at": {
+                    "type": "timestamptz",
+                    "nullable": false,
+                    "default": "now()"
+                }
+            },
+            "constraints": {
+                "primary_key": [
+                    "id"
+                ],
+                "unique": [
+                    [
+                        "user_id"
+                    ],
+                    [
+                        "stripe_customer_id"
+                    ]
+                ],
+                "foreign_keys": [
+                    {
+                        "columns": [
+                            "user_id"
+                        ],
+                        "references": "users(id)"
+                    }
+                ]
+            }
+        },
+        "users": {
+            "columns": {
+                "id": {
+                    "type": "uuid",
+                    "nullable": false,
+                    "primary_key": true,
+                    "foreign_key": "auth.users(id)"
+                },
+                "email": {
+                    "type": "text",
+                    "nullable": false,
+                    "unique": true
+                },
+                "full_name": {
+                    "type": "text",
+                    "nullable": true
+                },
+                "role": {
+                    "type": "enum:text",
+                    "nullable": false,
+                    "default": "parent",
+                    "values": [
+                        "parent",
+                        "admin",
+                        "child"
+                    ]
+                },
+                "created_at": {
+                    "type": "timestamptz",
+                    "nullable": false,
+                    "default": "now()"
+                },
+                "updated_at": {
+                    "type": "timestamptz",
+                    "nullable": false,
+                    "default": "now()"
+                }
+            },
+            "constraints": {
+                "primary_key": [
+                    "id"
+                ],
+                "unique": [
+                    [
+                        "email"
+                    ]
+                ],
+                "foreign_keys": [
+                    {
+                        "columns": [
+                            "id"
+                        ],
+                        "references": "auth.users(id)"
+                    }
+                ]
+            }
+        }
+    },
+    "foreign_key_graph": [
+        {
+            "from": "activities.child_id",
+            "to": "children.id"
+        },
+        {
+            "from": "activities.module_id",
+            "to": "modules.id"
+        },
+        {
+            "from": "activities.lesson_id",
+            "to": "lessons.id"
+        },
+        {
+            "from": "ai_tool_usage.child_id",
+            "to": "children.id"
+        },
+        {
+            "from": "ai_tool_usage.tool_id",
+            "to": "ai_tools.id"
+        },
+        {
+            "from": "child_achievements.child_id",
+            "to": "children.id"
+        },
+        {
+            "from": "child_achievements.achievement_id",
+            "to": "achievements.id"
+        },
+        {
+            "from": "child_lesson_progress.child_id",
+            "to": "children.id"
+        },
+        {
+            "from": "child_lesson_progress.lesson_id",
+            "to": "lessons.id"
+        },
+        {
+            "from": "child_locked_modules.child_id",
+            "to": "children.id"
+        },
+        {
+            "from": "child_locked_modules.module_id",
+            "to": "modules.id"
+        },
+        {
+            "from": "child_locked_modules.locked_by",
+            "to": "users.id"
+        },
+        {
+            "from": "child_logos.child_id",
+            "to": "children.id"
+        },
+        {
+            "from": "child_logos.company_id",
+            "to": "companies.id"
+        },
+        {
+            "from": "child_logos.tool_id",
+            "to": "ai_tools.id"
+        },
+        {
+            "from": "child_module_progress.child_id",
+            "to": "children.id"
+        },
+        {
+            "from": "child_module_progress.module_id",
+            "to": "modules.id"
+        },
+        {
+            "from": "companies.child_id",
+            "to": "children.id"
+        },
+        {
+            "from": "company_transactions.company_id",
+            "to": "companies.id"
+        },
+        {
+            "from": "lessons.module_id",
+            "to": "modules.id"
+        },
+        {
+            "from": "marketplace_items.seller_child_id",
+            "to": "children.id"
+        },
+        {
+            "from": "marketplace_purchases.buyer_child_id",
+            "to": "children.id"
+        },
+        {
+            "from": "marketplace_purchases.item_id",
+            "to": "marketplace_items.id"
+        },
+        {
+            "from": "marketplace_purchases.transaction_id",
+            "to": "company_transactions.id"
+        },
+        {
+            "from": "mini_websites.child_id",
+            "to": "children.id"
+        },
+        {
+            "from": "module_prerequisites.module_id",
+            "to": "modules.id"
+        },
+        {
+            "from": "module_prerequisites.prerequisite_module_id",
+            "to": "modules.id"
+        },
+        {
+            "from": "notifications.child_id",
+            "to": "children.id"
+        },
+        {
+            "from": "notifications.module_id",
+            "to": "modules.id"
+        },
+        {
+            "from": "parents.user_id",
+            "to": "users.id"
+        },
+        {
+            "from": "sales_sessions.child_id",
+            "to": "children.id"
+        },
+        {
+            "from": "sales_messages.session_id",
+            "to": "sales_sessions.id"
+        },
+        {
+            "from": "subscriptions.parent_id",
+            "to": "parents.id"
+        },
+        {
+            "from": "track_submissions.child_id",
+            "to": "children.id"
+        },
+        {
+            "from": "track_submissions.module_id",
+            "to": "modules.id"
+        },
+        {
+            "from": "children.parent_id",
+            "to": "parents.id"
+        },
+        {
+            "from": "users.id",
+            "to": "auth.users.id"
+        }
+    ],
+    "ai_notes": [
+        "Enums are represented as {type: 'enum:text', values:[...] }",
+        "FKs are duplicated in both table constraints and foreign_key_graph for easy traversal",
+        "Defaults are preserved as strings exactly as seen (e.g., now(), uuid_generate_v4(), gen_random_uuid())"
+    ]
+}

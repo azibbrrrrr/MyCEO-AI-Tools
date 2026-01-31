@@ -82,8 +82,8 @@ const defaultFeatures: Feature[] = [
 ];
 
 const defaultProducts: Product[] = [
-    { id: '1', name: 'Starter Pack', price: 29, originalPrice: 39 },
-    { id: '2', name: 'Pro Bundle', price: 59, originalPrice: 79 },
+    { id: '1', name: 'My Best Seller', price: 10 },
+    { id: '2', name: 'Special Bundle', price: 15 },
 ];
 
 export const createInitialConfig = (): SiteConfig => ({
@@ -103,15 +103,15 @@ export const createInitialConfig = (): SiteConfig => ({
         spacingDensity: 'normal',
     },
     content: {
-        heroHeading: 'Welcome to Your Store',
-        heroSubheading: 'Discover amazing products made just for you',
+        heroHeading: 'My Shop',
+        heroSubheading: 'Discover products made just for you',
         heroImage: null,
         heroBeforeImage: null,
         scarcityText: 'Only 3 left!',
         scarcityEnabled: true,
         reviews: [
-            { id: '1', name: 'Happy Customer', rating: 5, text: 'Absolutely loved it! Will buy again.' },
-            { id: '2', name: 'Satisfied Buyer', rating: 4, text: 'Great quality and fast delivery!' },
+            { id: '1', name: 'Happy Customer', rating: 5, text: 'Sedap sangat! Will buy again!' },
+            { id: '2', name: 'Satisfied Buyer', rating: 5, text: 'Fast delivery, nice packaging!' },
         ],
         features: defaultFeatures,
         products: defaultProducts,

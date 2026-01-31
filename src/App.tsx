@@ -11,6 +11,7 @@ import SalesBuddyPage from './pages/SalesBuddyPage'
 import SalesBuddyHistoryPage from './pages/SalesBuddyHistoryPage'
 import MiniWebsitePage from './pages/MiniWebsitePage'
 import AuthCallbackPage from './pages/AuthCallbackPage'
+import MagicCodeLoginPage from './pages/MagicCodeLoginPage'
 import CreationsPage from './pages/CreationsPage'
 import PublicWebsitePage from './pages/PublicWebsitePage'
 import NotFoundPage from './pages/NotFoundPage'
@@ -23,6 +24,7 @@ function App() {
       <Routes>
       {/* SSO Auth callback - handles ticket exchange */}
       <Route path="/auth/callback" element={<AuthCallbackPage />} />
+      <Route path="/magic-login" element={<MagicCodeLoginPage />} />
       <Route path="/loading-showcase" element={<LoadingShowcasePage />} />
       
       {/* Protected routes - shows login required if not authenticated */}

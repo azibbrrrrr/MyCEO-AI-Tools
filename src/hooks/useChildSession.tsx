@@ -31,6 +31,7 @@ interface SessionContextType {
   
   // Auth methods
   loginWithToken: (ticket: string) => Promise<boolean>
+  loginWithAccessCode: (code: string) => Promise<boolean>
   logout: () => void
   
   // Utility methods
@@ -167,6 +168,71 @@ export function ChildSessionProvider({ children }: { children: ReactNode }) {
     }
   }, [])
 
+
+
+  // Login with Magic Access Code
+  const loginWithAccessCode = useCallback(async (code: string): Promise<boolean> => {
+    setLoading(true)
+    try {
+      // 1. Find child by access code
+      const { data: childData, error: childError } = await supabase
+        .from('children')
+        .select(`
+          *,
+          companies (*)
+        `)
+        .eq('access_code', code)
+        .single()
+
+      if (childError || !childData) {
+        console.error('Magic code login failed:', childError?.message || 'Invalid code')
+        setLoading(false)
+        return false
+      }
+
+      // 2. Fetch parent email
+      const { data: parentData } = await supabase
+        .from('parents')
+        .select('users (email)')
+        .eq('id', childData.parent_id)
+        .single()
+
+      // 3. Construct session
+      const childWithCompany: ChildWithCompany = {
+        ...childData,
+        companies: Array.isArray(childData.companies) 
+          ? childData.companies 
+          : childData.companies 
+            ? [childData.companies] 
+            : [],
+        parent_email: (parentData?.users as { email: string } | null)?.email,
+      }
+
+      const sessionData: SessionData = {
+        actorType: 'child',
+        actorId: childData.id,
+        parentId: childData.parent_id,
+        plan: 'free', // Default/Fallback plan
+        child: childWithCompany,
+      }
+
+      // 4. Save session
+      setSession(sessionData)
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(sessionData))
+
+      console.log('✅ Magic code login successful', {
+        child_name: childData.name,
+      })
+
+      setLoading(false)
+      return true
+    } catch (error) {
+      console.error('Login error:', error)
+      setLoading(false)
+      return false
+    }
+  }, [])
+
   const logout = useCallback(() => {
     setSession(null)
     localStorage.removeItem(STORAGE_KEY)
@@ -203,6 +269,7 @@ export function ChildSessionProvider({ children }: { children: ReactNode }) {
         child: session?.child ?? null,
         loading,
         loginWithToken,
+        loginWithAccessCode,
         logout,
         updateCompanyLogoUrl,
       }}
