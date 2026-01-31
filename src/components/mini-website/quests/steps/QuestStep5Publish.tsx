@@ -30,18 +30,15 @@ export const QuestStep5Publish = ({
       steps={steps}
       currentIndex={currentIndex}
       onStepSelect={onStepSelect}
-      title={language === 'EN' ? 'Go Live!' : 'Terbitkan!'}
+      title={language === 'EN' ? 'Launch' : 'Lancar'}
       subtitle={
         language === 'EN'
-          ? 'Review your preview and publish your website.'
-          : 'Semak laman anda dan terbitkan sekarang.'
+          ? "You're ready. Let's make this official."
+          : 'Anda sudah bersedia. Mari jadikan ini rasmi.'
       }
       controls={
         <QuestControls
           onBack={onBack}
-          onUndo={onBack}
-          onSkip={onBack}
-          onReset={onBack}
           backLabel={language === 'EN' ? 'Back' : 'Kembali'}
         />
       }
@@ -49,25 +46,49 @@ export const QuestStep5Publish = ({
       <div className="space-y-4">
         {!isPublished && (
           <>
-            <p className="text-sm text-slate-600">
-              {language === 'EN'
-                ? 'Your website is ready. Publish when you are happy.'
-                : 'Laman web anda sudah siap. Terbitkan bila anda suka.'}
-            </p>
-            <button
-              type="button"
-              onClick={onPublish}
-              className="w-full rounded-xl bg-emerald-600 text-white py-3 font-semibold hover:bg-emerald-700 transition-colors"
-            >
-              {language === 'EN' ? 'Publish Website' : 'Terbitkan Website'}
-            </button>
-            <button
-              type="button"
-              onClick={onBack}
-              className="w-full text-sm text-slate-500 hover:text-slate-700 transition-colors"
-            >
-              {language === 'EN' ? 'Go back and edit' : 'Kembali untuk ubah'}
-            </button>
+            {language === 'EN' ? (
+              <div className="flex flex-col items-center text-center space-y-4 py-6">
+                <div className="w-20 h-20 bg-yellow-100 rounded-full flex items-center justify-center mb-2 animate-bounce-slow">
+                  <span className="text-4xl">🚀</span>
+                </div>
+                <div className="space-y-2">
+                  <h3 className="text-xl font-bold text-slate-900">Ready for liftoff?</h3>
+                  <p className="text-slate-600 max-w-[260px] mx-auto leading-relaxed">
+                    You've built a great site. Let's share it with the world.
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center text-center space-y-4 py-6">
+                <div className="w-20 h-20 bg-yellow-100 rounded-full flex items-center justify-center mb-2 animate-bounce-slow">
+                  <span className="text-4xl">🚀</span>
+                </div>
+                <div className="space-y-2">
+                  <h3 className="text-xl font-bold text-slate-900">Sedia untuk berlepas?</h3>
+                  <p className="text-slate-600 max-w-[260px] mx-auto leading-relaxed">
+                    Laman anda hebat. Mari kongsikan dengan dunia.
+                  </p>
+                </div>
+              </div>
+            )}
+            
+            <div className="space-y-3 pt-2">
+              <button
+                type="button"
+                onClick={onPublish}
+                className="w-full rounded-xl bg-slate-900 text-white py-3.5 font-bold shadow-lg hover:bg-slate-800 hover:shadow-xl hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2 group"
+              >
+                <span>{language === 'EN' ? 'Publish Now' : 'Terbitkan Sekarang'}</span>
+                <span className="group-hover:translate-x-1 transition-transform">→</span>
+              </button>
+              <button
+                type="button"
+                onClick={onBack}
+                className="w-full text-sm font-medium text-slate-500 hover:text-slate-800 transition-colors py-2"
+              >
+                {language === 'EN' ? 'Go back and edit' : 'Kembali untuk ubah'}
+              </button>
+            </div>
           </>
         )}
 

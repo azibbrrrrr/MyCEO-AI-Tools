@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import type { UseSiteConfigReturn } from '@/hooks/useSiteConfig';
 import { QuestStep1Name } from './steps/QuestStep1Name';
-import { QuestStep2Vibe } from './steps/QuestStep2Vibe';
+import { QuestStep2BusinessType } from './steps/QuestStep2BusinessType';
 import { QuestStep3Products } from './steps/QuestStep3Products';
 import { QuestStep4Reviews } from './steps/QuestStep4Reviews';
 import { QuestStep5Publish } from './steps/QuestStep5Publish';
@@ -15,11 +15,11 @@ interface QuestFlowProps {
 }
 
 const steps = [
-  { id: 'name', label: 'Name' },
-  { id: 'vibe', label: 'Vibe' },
+  { id: 'name', label: 'Company' },
+  { id: 'business', label: 'Business Type' },
   { id: 'products', label: 'Products' },
   { id: 'reviews', label: 'Reviews' },
-  { id: 'publish', label: 'Publish' },
+  { id: 'publish', label: 'Launch' },
 ];
 
 export const QuestFlow = ({
@@ -55,13 +55,14 @@ export const QuestFlow = ({
 
   if (currentIndex === 1) {
     return (
-      <QuestStep2Vibe
+      <QuestStep2BusinessType
         siteConfig={siteConfig}
         steps={steps}
         currentIndex={currentIndex}
         onStepSelect={handleStepSelect}
         onBack={goBack}
         onNext={goNext}
+        isPublished={isPublished}
       />
     );
   }

@@ -21,14 +21,20 @@ export const QuestShell = ({
   controls,
 }: QuestShellProps) => {
   return (
-    <div className="flex flex-col gap-4">
-      <QuestProgress steps={steps} currentIndex={currentIndex} onSelect={onStepSelect} />
-      <div>
-        <h2 className="text-lg font-semibold text-slate-900">{title}</h2>
-        {subtitle && <p className="text-sm text-slate-500">{subtitle}</p>}
+    <div className="flex flex-col gap-4 h-full">
+      <div className="shrink-0 space-y-4">
+        <QuestProgress steps={steps} currentIndex={currentIndex} onSelect={onStepSelect} />
+        <div>
+          <h2 className="text-lg font-semibold text-slate-900">{title}</h2>
+          {subtitle && <p className="text-sm text-slate-500">{subtitle}</p>}
+        </div>
       </div>
-      <div className="space-y-4">{children}</div>
-      {controls}
+      <div className="flex-1 overflow-y-auto min-h-0 pr-1 -mr-1">
+        <div className="space-y-4 pb-4">{children}</div>
+      </div>
+      <div className="shrink-0 pt-4 border-t border-slate-200 mt-auto bg-white">
+        {controls}
+      </div>
     </div>
   );
 };

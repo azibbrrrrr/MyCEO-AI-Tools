@@ -1,4 +1,4 @@
-import { useMemo, useRef } from 'react';
+import { useMemo } from 'react';
 import type { UseSiteConfigReturn, Review } from '@/hooks/useSiteConfig';
 import { useLanguage } from '@/components/language-provider';
 import { Input } from '@/components/ui/input';
@@ -17,8 +17,6 @@ interface QuestStepBaseProps {
   onNext: () => void;
 }
 
-const cloneReviews = (reviews: Review[]) => reviews.map(review => ({ ...review }));
-
 const matchesTemplate = (review: Review, template: Review) =>
   review.text === template.text && review.name === template.name;
 
@@ -33,11 +31,7 @@ export const QuestStep4Reviews = ({
   const { config, setContent } = siteConfig;
   const { language } = useLanguage();
 
-  const initialRef = useRef(cloneReviews(config.content.reviews));
-  const previousRef = useRef(cloneReviews(config.content.reviews));
-
-  const selectedReviews = config.content.reviews.slice(0, 2);
-  const extraReviews = config.content.reviews.slice(2);
+  const selectedReviews = config.content.reviews;
 
   const selectedTemplateIds = useMemo(() => {
     return QUEST_REVIEW_TEMPLATES.filter(template =>
@@ -46,23 +40,7 @@ export const QuestStep4Reviews = ({
   }, [selectedReviews]);
 
   const updateSelected = (nextSelected: Review[]) => {
-    previousRef.current = cloneReviews(config.content.reviews);
-    setContent('reviews', [...nextSelected, ...extraReviews]);
-  };
-
-  const handleUndo = () => {
-    const current = cloneReviews(config.content.reviews);
-    setContent('reviews', previousRef.current);
-    previousRef.current = current;
-  };
-
-  const handleReset = () => {
-    previousRef.current = cloneReviews(config.content.reviews);
-    setContent('reviews', initialRef.current);
-  };
-
-  const handleSkip = () => {
-    onNext();
+    setContent('reviews', nextSelected);
   };
 
   const toggleTemplate = (template: Review) => {
@@ -72,7 +50,6 @@ export const QuestStep4Reviews = ({
       updateSelected(next);
       return;
     }
-    if (selectedReviews.length >= 2) return;
     const next = [
       ...selectedReviews,
       { ...template, id: crypto.randomUUID() },
@@ -85,21 +62,19 @@ export const QuestStep4Reviews = ({
       steps={steps}
       currentIndex={currentIndex}
       onStepSelect={onStepSelect}
-      title={language === 'EN' ? 'Add Some Trust' : 'Tambah Kepercayaan'}
+      title={language === 'EN' ? 'Add Customer Reviews' : 'Tambah Ulasan Pelanggan'}
       subtitle={
         language === 'EN'
-          ? 'Pick up to 2 reviews to build trust.'
-          : 'Pilih hingga 2 ulasan untuk bina kepercayaan.'
+          ? 'Pick at least 1 review, then edit it to match your style.'
+          : 'Pilih sekurang-kurangnya 1 ulasan, kemudian ubah ikut gaya anda.'
       }
       controls={
         <QuestControls
           onBack={onBack}
-          onUndo={handleUndo}
-          onSkip={handleSkip}
-          onReset={handleReset}
           onNext={onNext}
           backLabel={language === 'EN' ? 'Back' : 'Kembali'}
           nextLabel={language === 'EN' ? 'Next' : 'Seterusnya'}
+          nextDisabled={selectedReviews.length === 0}
         />
       }
     >
@@ -129,9 +104,20 @@ export const QuestStep4Reviews = ({
           <div className="space-y-3">
             {selectedReviews.map((review, index) => (
               <div key={review.id} className="rounded-xl border border-slate-200 bg-white p-4">
-                <label className="block text-xs font-semibold text-slate-600 mb-1">
-                  {language === 'EN' ? `Review ${index + 1}` : `Ulasan ${index + 1}`}
-                </label>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-xs font-semibold text-slate-600">
+                    {language === 'EN' ? `Review ${index + 1}` : `Ulasan ${index + 1}`}
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      updateSelected(selectedReviews.filter(item => item.id !== review.id))
+                    }
+                    className="text-xs text-slate-400 hover:text-slate-600 transition-colors"
+                  >
+                    {language === 'EN' ? 'Remove' : 'Buang'}
+                  </button>
+                </div>
                 <Input
                   value={review.name}
                   onChange={(event) => {
@@ -141,7 +127,7 @@ export const QuestStep4Reviews = ({
                     );
                     updateSelected(next);
                   }}
-                  className="mb-2"
+                  className="mb-2 bg-white"
                 />
                 <Textarea
                   value={review.text}
@@ -153,6 +139,7 @@ export const QuestStep4Reviews = ({
                     updateSelected(next);
                   }}
                   rows={2}
+                  className="bg-white"
                 />
               </div>
             ))}

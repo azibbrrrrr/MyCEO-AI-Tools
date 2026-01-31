@@ -10,7 +10,9 @@ import {
   Globe,
   Loader2,
   Check,
+  Crown,
 } from 'lucide-react';
+import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
@@ -19,12 +21,18 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { ExternalLink } from 'lucide-react'; 
+import { ExternalLink, Lock, Edit2, Share2, Copy, MessageCircle, ChevronDown } from 'lucide-react'; 
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"; 
 
 import type { UseSiteConfigReturn, SiteConfig } from '@/hooks/useSiteConfig';
 import { createInitialConfig } from '@/hooks/useSiteConfig';
 import { SitePreview } from './preview/SitePreview';
-import { MarketingCoachWidget } from './MarketingCoachWidget';
+// import { MarketingCoachWidget } from './MarketingCoachWidget';
 import { BossModePanel } from './boss/BossModePanel';
 import { QuestFlow } from './quests/QuestFlow';
 import { useChildSession } from '@/hooks/useChildSession'; 
@@ -50,13 +58,21 @@ const mergeConfigWithDefaults = (loadedConfig: SiteConfig): SiteConfig => {
   };
 };
 
+const sanitizeSlug = (value: string) => {
+  return value
+    .toLowerCase()
+    .replace(/[^a-z0-9-]/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-+/, '')
+    .replace(/-+$/, '');
+};
+
 export const EditorLayout = ({ siteConfig }: EditorLayoutProps) => {
   const { config, setMode } = siteConfig;
   const [deviceView, setDeviceView] = useState<'desktop' | 'mobile'>('desktop');
   const [activeTab, setActiveTab] = useState('layouts');
   const [isSaving, setIsSaving] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
-  const [lastSaved, setLastSaved] = useState<Date | null>(null);
   // Track the config that is currently in the DB to determine if there are changes
   const [savedConfig, setSavedConfig] = useState<SiteConfig | null>(null);
   const [savedSlug, setSavedSlug] = useState<string | null>(null);
@@ -81,7 +97,14 @@ export const EditorLayout = ({ siteConfig }: EditorLayoutProps) => {
 
   // Check for unsaved changes
   const hasUnsavedChanges = savedConfig 
-    ? JSON.stringify(config) !== JSON.stringify(savedConfig) 
+    ? (() => {
+        // Exclude bossMode from comparison as it's a UI state, not content
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { bossMode: currentBossMode, ...currentRest } = config;
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { bossMode: savedBossMode, ...savedRest } = savedConfig;
+        return JSON.stringify(currentRest) !== JSON.stringify(savedRest);
+      })()
     : false; 
 
   // Load website data on mount
@@ -96,9 +119,12 @@ export const EditorLayout = ({ siteConfig }: EditorLayoutProps) => {
             const savedSite = await getWebsite(child.id);
             if (savedSite && savedSite.data) {
                 const loadedConfig = mergeConfigWithDefaults(savedSite.data as unknown as SiteConfig);
+                // Force bossMode to false on load so users always start in Quest/Editor mode
+                // "do not default to boss mode if website is published"
+                loadedConfig.bossMode = false;
+                
                 siteConfig.setConfig(loadedConfig);
-                setSavedConfig(loadedConfig); 
-                setLastSaved(new Date(savedSite.updated_at));
+                setSavedConfig(loadedConfig);
                 if (savedSite.url_slug) {
                     setSavedSlug(savedSite.url_slug);
                 }
@@ -141,7 +167,6 @@ export const EditorLayout = ({ siteConfig }: EditorLayoutProps) => {
     const result = await saveWebsite(child.id, config);
     setIsSaving(false);
     if (result) {
-        setLastSaved(new Date());
         setSavedConfig(config); // Update baseline
     } else {
         alert("Failed to save website. Please try again.");
@@ -154,14 +179,12 @@ export const EditorLayout = ({ siteConfig }: EditorLayoutProps) => {
         return;
     }
     // Pre-fill slug if available or from company name
-    const currentSlug = savedSlug || child.companies?.[0]?.company_name?.toLowerCase().replace(/\s+/g, '-') || 'my-store';
-    setSlugInput(currentSlug);
+    const baseSlug = savedSlug || child.companies?.[0]?.company_name || 'my-store';
+    setSlugInput(sanitizeSlug(baseSlug));
     setIsPublishModalOpen(true);
   };
 
-  const handleConfirmPublish = async () => {
-    if (!slugInput.trim()) return;
-    
+  const performPublish = async (slugToPublish: string) => {
     setIsPublishing(true);
 
     // FIRST: Save the current state
@@ -171,21 +194,52 @@ export const EditorLayout = ({ siteConfig }: EditorLayoutProps) => {
         alert("Failed to save before publishing.");
         return;
     }
-    setLastSaved(new Date());
     setSavedConfig(config);
 
     // SECOND: Publish
-    const result = await publishWebsite(saved.id, slugInput);
+    const result = await publishWebsite(saved.id, slugToPublish);
     setIsPublishing(false);
 
     if (result.success) {
-        const url = `${window.location.origin}/site/${slugInput}`;
+        const url = `${window.location.origin}/site/${slugToPublish}`;
         setPublishedUrl(url);
-        setSavedSlug(slugInput);
-        // Note: We keep the modal open to show the success state
+        setSavedSlug(slugToPublish);
+        setIsPublishModalOpen(true); // Show success modal
+        
+        // Show success message
+        toast.success(language === 'EN' ? "Website published successfully!" : "Laman web berjaya diterbitkan!");
     } else {
         alert(`Failed to publish: ${result.error}`);
     }
+  };
+
+  const handleConfirmPublish = async () => {
+    const cleanedSlug = sanitizeSlug(slugInput);
+    if (!cleanedSlug) return;
+    if (cleanedSlug !== slugInput) {
+      setSlugInput(cleanedSlug);
+    }
+    await performPublish(cleanedSlug);
+  };
+
+  const handleQuickPublish = () => {
+    if (savedSlug) {
+        performPublish(savedSlug);
+    } else {
+        handleOpenPublishModal();
+    }
+  };
+
+  const handleCopyLink = () => {
+    if (!liveUrl) return;
+    navigator.clipboard.writeText(liveUrl);
+    toast.success(language === 'EN' ? "Link copied to clipboard!" : "Pautan disalin ke papan keratan!");
+  };
+
+  const handleShareWhatsApp = () => {
+    if (!liveUrl) return;
+    const text = encodeURIComponent(`Check out my new website! ${liveUrl}`);
+    window.open(`https://wa.me/?text=${text}`, '_blank');
   };
 
   if (isLoading) {
@@ -251,21 +305,6 @@ export const EditorLayout = ({ siteConfig }: EditorLayoutProps) => {
         </div>
         
         <div className="z-20 flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => {
-              if (!isPublished) return;
-              siteConfig.toggleBossMode();
-            }}
-            disabled={!isPublished}
-            className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all border ${
-              isBossMode
-                ? 'bg-blue-600 text-white border-blue-600'
-                : 'bg-white text-slate-600 border-slate-200'
-            } ${!isPublished ? 'opacity-50 cursor-not-allowed' : 'hover:border-blue-300'}`}
-          >
-            {language === 'EN' ? 'Boss Mode' : 'Boss Mode'}
-          </button>
           <LanguageToggle />
         </div>
       </header>
@@ -274,7 +313,7 @@ export const EditorLayout = ({ siteConfig }: EditorLayoutProps) => {
       <div className="flex flex-1 relative items-start">
         {/* Desktop Sidebar - Sticky */}
         {!isMobile && (
-          <aside className="sticky top-20 h-[calc(100vh-5rem)] overflow-y-auto no-scrollbar w-full md:w-80 lg:w-96 bg-card border-r shrink-0 hidden md:block z-20 p-4">
+          <aside className="sticky top-20 h-[calc(100vh-5rem)] w-full md:w-80 lg:w-96 bg-card border-r shrink-0 hidden md:block z-20 p-4">
             {isBossMode ? (
               <BossModePanel
                 siteConfig={siteConfig}
@@ -382,8 +421,8 @@ export const EditorLayout = ({ siteConfig }: EditorLayoutProps) => {
                         className={`
                             flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200
                             ${hasUnsavedChanges 
-                                ? 'bg-blue-50 text-blue-600 hover:bg-blue-100 hover:shadow-inner' 
-                                : 'text-slate-400 cursor-default bg-transparent'}
+                                ? 'bg-blue-50 text-blue-600 hover:bg-blue-100 hover:shadow-sm' 
+                                : 'bg-slate-50 text-slate-500 cursor-default'}
                         `}
                         title={hasUnsavedChanges ? "Save your changes" : "All changes saved"}
                     >
@@ -398,36 +437,97 @@ export const EditorLayout = ({ siteConfig }: EditorLayoutProps) => {
                             {isSaving 
                                 ? (language === 'EN' ? 'Saving...' : 'Menyimpan...') 
                                 : !hasUnsavedChanges
-                                    ? (language === 'EN' ? `Saved ${lastSaved ? '' : ''}` : 'Disimpan') // Just referencing lastSaved to keep TS happy, or we can format it
+                                    ? (language === 'EN' ? 'Saved' : 'Disimpan') 
                                     : (language === 'EN' ? 'Save' : 'Simpan')
                             }
                         </span>
                     </button>
                     
-                    {isBossMode && (
-                      <>
-                        <div className="w-px h-5 bg-slate-200" />
+                    <div className="w-px h-5 bg-slate-200" />
 
-                        <button
-                            onClick={handleOpenPublishModal}
-                            disabled={isPublishing}
-                            className={`
-                                flex items-center gap-2 px-5 py-2 rounded-full text-sm font-semibold transition-all duration-200
-                                ${isPublishing 
-                                    ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
-                                    : 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-md hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 active:shadow-sm'}
-                            `}
-                        >
-                            {isPublishing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Globe className="w-4 h-4" />}
-                            <span>
-                                {isPublishing ? (language === 'EN' ? 'Publishing...' : 'Menerbitkan...') : (language === 'EN' ? 'Publish' : 'Terbitkan')}
-                            </span>
-                        </button>
-                      </>
+                    <button
+                        onClick={handleQuickPublish}
+                        disabled={isPublishing || (isPublished && !hasUnsavedChanges)}
+                        className={`
+                            flex items-center gap-2 px-5 py-2 rounded-full text-sm font-semibold transition-all duration-200
+                            ${isPublishing 
+                                ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                                : isPublished && !hasUnsavedChanges
+                                    ? 'bg-emerald-50 text-emerald-600 border border-emerald-200 cursor-default shadow-none' // Published & Synced
+                                    : isPublished && hasUnsavedChanges
+                                        ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-md hover:shadow-lg hover:-translate-y-0.5' // Update needed
+                                        : 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-md hover:shadow-lg hover:-translate-y-0.5' // First publish
+                            }
+                        `}
+                    >
+                        {isPublishing ? (
+                            <Loader2 className="w-4 h-4 animate-spin" /> 
+                        ) : isPublished && !hasUnsavedChanges ? (
+                            <Check className="w-4 h-4" />
+                        ) : (
+                            <Globe className="w-4 h-4" />
+                        )}
+                        <span>
+                            {isPublishing 
+                                ? (language === 'EN' ? 'Publishing...' : 'Menerbitkan...') 
+                                : isPublished && !hasUnsavedChanges
+                                    ? (language === 'EN' ? 'Published' : 'Diterbitkan')
+                                    : isPublished && hasUnsavedChanges
+                                        ? (language === 'EN' ? 'Update Live Site' : 'Kemaskini Laman')
+                                        : (language === 'EN' ? 'Publish' : 'Terbitkan')
+                            }
+                        </span>
+                    </button>
+                    {isPublished && (
+                        <>
+                            <div className="w-px h-5 bg-slate-200" />
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <button
+                                        className="flex items-center gap-2 px-5 py-2 rounded-full text-sm font-semibold bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 hover:border-slate-300 transition-all shadow-sm hover:shadow-md"
+                                    >
+                                        <Share2 className="w-4 h-4" />
+                                        <span>{language === 'EN' ? 'Share' : 'Kongsi'}</span>
+                                        <ChevronDown className="w-3 h-3 text-slate-400" />
+                                    </button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end" className="w-48 bg-white">
+                                    <DropdownMenuItem onClick={handleCopyLink} className="cursor-pointer">
+                                        <Copy className="w-4 h-4 mr-2" />
+                                        <span>{language === 'EN' ? 'Copy Link' : 'Salin Pautan'}</span>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem onClick={handleShareWhatsApp} className="cursor-pointer">
+                                        <MessageCircle className="w-4 h-4 mr-2" />
+                                        <span>WhatsApp</span>
+                                    </DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        </>
                     )}
                 </div>
 
                 <div className="w-px h-8 bg-slate-200 mx-1" />
+
+                <button
+                    onClick={() => {
+                        if (isPublished) siteConfig.toggleBossMode();
+                    }}
+                    disabled={!isPublished}
+                    className={`
+                        flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold transition-all duration-300 shadow-md hover:shadow-lg active:translate-y-0
+                        ${isBossMode 
+                            ? 'bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white ring-4 ring-violet-100 shadow-violet-200 scale-105' 
+                            : isPublished 
+                                ? 'bg-white text-violet-600 border-2 border-violet-100 hover:border-violet-300 hover:bg-violet-50 hover:-translate-y-0.5' 
+                                : 'bg-slate-100 text-slate-400 cursor-not-allowed hidden'} 
+                    `}
+                    title={!isPublished ? (language === 'EN' ? 'Publish first to unlock Boss Mode' : 'Terbitkan dahulu untuk buka Mod Boss') : ''}
+                >
+                    <Crown className={`w-4 h-4 ${isBossMode ? 'fill-white animate-pulse' : ''}`} />
+                    <span className="hidden sm:inline">{language === 'EN' ? 'Boss Mode' : 'Mod Boss'}</span>
+                </button>
+
+                {isPublished && <div className="w-px h-8 bg-slate-200 mx-1" />}
 
                 <button
                     onClick={() => setMode('preview')}
@@ -441,26 +541,53 @@ export const EditorLayout = ({ siteConfig }: EditorLayoutProps) => {
 
             {/* Preview Area */}
             <div className={`flex items-start justify-center ${isMobile ? 'p-0' : 'p-4 md:p-6'}`}>
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.2 }}
-                    className={`palette-${config.styles.palette} font-style-${config.styles.fontPair} spacing-${config.styles.spacingDensity} transition-all duration-300 ${
-                    isMobile 
-                        ? 'w-full h-full min-h-screen bg-background text-foreground' 
-                        : `bg-background text-foreground rounded-xl shadow-2xl ${
-                            deviceView === 'mobile' ? 'w-[375px] min-h-[667px] overflow-hidden' : 'w-full max-w-5xl min-h-[600px]'
-                        }`
-                    }`}
-                >
-                    <SitePreview config={config} siteConfig={siteConfig} isMobile={isMobile || deviceView === 'mobile'} />
-                </motion.div>
+                    <div className={`relative flex flex-col ${!isMobile && deviceView === 'mobile' ? 'w-[375px]' : 'w-full'} ${!isMobile && deviceView === 'desktop' ? 'max-w-5xl' : ''}`}>
+                      {/* Browser Bar */}
+                      {!isMobile && (
+                        <div className="bg-slate-800 rounded-t-xl px-4 py-3 flex items-center gap-4 shrink-0">
+                          <div className="flex items-center gap-1.5 shrink-0">
+                            <div className="w-3 h-3 rounded-full bg-red-500" />
+                            <div className="w-3 h-3 rounded-full bg-amber-500" />
+                            <div className="w-3 h-3 rounded-full bg-emerald-500" />
+                          </div>
+                          <div className="flex-1 flex justify-center min-w-0">
+                            <button
+                              onClick={handleOpenPublishModal}
+                              className={`bg-slate-900/50 hover:bg-slate-900 transition-colors text-slate-400 hover:text-white px-4 py-1.5 rounded-md text-xs font-mono flex items-center justify-center gap-2 group border border-transparent hover:border-slate-700 w-full ${deviceView === 'mobile' ? 'max-w-[300px]' : 'max-w-2xl'}`}
+                              title="Click to edit website address"
+                            >
+                              <Lock className="w-3 h-3 text-emerald-500 shrink-0" />
+                              <span className={deviceView === 'mobile' ? 'truncate' : ''}>
+                                {typeof window !== 'undefined' ? window.location.origin : 'https://my-ceo-ai-tools.vercel.app/'}/site/{savedSlug || (child?.companies?.[0]?.company_name ? sanitizeSlug(child.companies[0].company_name) : 'your-site')}
+                              </span>
+                              <Edit2 className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity ml-1 shrink-0" />
+                            </button>
+                          </div>
+                          <div className="w-10 shrink-0" /> {/* Spacer to balance traffic lights */}
+                        </div>
+                      )}
+
+                      <motion.div
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: 0.2 }}
+                          className={`palette-${config.styles.palette} font-style-${config.styles.fontPair} spacing-${config.styles.spacingDensity} transition-all duration-300 ${
+                          isMobile 
+                              ? 'w-full h-full min-h-screen bg-background text-foreground' 
+                              : `bg-background text-foreground shadow-2xl ${
+                                  deviceView === 'mobile' ? 'w-full min-h-[667px] overflow-hidden' : 'w-full min-h-[600px] rounded-b-xl'
+                              }`
+                          }`}
+                      >
+                          <SitePreview config={config} siteConfig={siteConfig} isMobile={isMobile || deviceView === 'mobile'} />
+                      </motion.div>
+                    </div>
             </div>
         </main>
       </div>
 
       {/* Marketing Coach Widget */}
-      <MarketingCoachWidget config={config} isMobile={isMobile} isPublished={isPublished} />
+      {/* <MarketingCoachWidget config={config} isMobile={isMobile} isPublished={isPublished} /> */}
 
       {/* Publish Modal */}
       <Dialog open={isPublishModalOpen} onOpenChange={setIsPublishModalOpen}>
@@ -482,8 +609,18 @@ export const EditorLayout = ({ siteConfig }: EditorLayoutProps) => {
                 </div>
               </div>
               <DialogFooter className="sm:justify-center flex-col sm:flex-row gap-2">
+                <button
+                    onClick={() => {
+                        navigator.clipboard.writeText(publishedUrl);
+                        toast.success(language === 'EN' ? "Link copied!" : "Pautan disalin!");
+                    }}
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-white border border-slate-200 text-slate-700 px-4 py-2 rounded-md font-medium hover:bg-slate-50 transition-colors"
+                >
+                    <Copy className="w-4 h-4" />
+                    {language === 'EN' ? 'Copy Link' : 'Salin Pautan'}
+                </button>
                 <a 
-                  href={publishedUrl} 
+                  href={publishedUrl}  
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-md font-medium hover:bg-primary/90 transition-colors"
@@ -517,7 +654,7 @@ export const EditorLayout = ({ siteConfig }: EditorLayoutProps) => {
                       className="flex-1 bg-transparent border-none focus:outline-none p-0 text-sm font-medium"
                       placeholder="my-store"
                       value={slugInput}
-                      onChange={(e) => setSlugInput(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-'))}
+                      onChange={(e) => setSlugInput(sanitizeSlug(e.target.value))}
                       autoFocus
                     />
                   </div>

@@ -71,11 +71,10 @@ export default {
                     to: { height: "0" },
                 },
             },
-            animation: {
-                "accordion-down": "accordion-down 0.2s ease-out",
-                "accordion-up": "accordion-up 0.2s ease-out",
-            },
+            "accordion-down": "accordion-down 0.2s ease-out",
+            "accordion-up": "accordion-up 0.2s ease-out",
+            "bounce-slow": "bounce 3s infinite",
         },
     },
-    plugins: [require("tailwindcss-animate")],
 }
+plugins: [require("tailwindcss-animate")]

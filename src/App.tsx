@@ -18,9 +18,12 @@ import NotFoundPage from './pages/NotFoundPage'
 import { RequireAuth } from './components/RequireAuth'
 import LoadingShowcasePage from './pages/LoadingShowcasePage'
 
+import { Toaster } from 'sonner'
+
 function App() {
   return (
     <>
+      <Toaster />
       <Routes>
       {/* SSO Auth callback - handles ticket exchange */}
       <Route path="/auth/callback" element={<AuthCallbackPage />} />

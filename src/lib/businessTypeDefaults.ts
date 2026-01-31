@@ -7,7 +7,7 @@ interface BusinessTypeDefaults {
   content?: Partial<SiteConfig['content']>;
 }
 
-// Defaults used when a business type is selected in Quest 1.
+// Defaults used when a business type is selected in Quest 2.
 // Only applied to fields that still match the base defaults.
 export const BUSINESS_TYPE_DEFAULTS: Record<BusinessTypeKey, BusinessTypeDefaults> = {
   food: {
@@ -15,7 +15,7 @@ export const BUSINESS_TYPE_DEFAULTS: Record<BusinessTypeKey, BusinessTypeDefault
       hero: 'split',
       usp: 'badges',
       socialProof: 'cards',
-      product: 'list',
+      product: 'carousel',
     },
     styles: {
       palette: 'warm',
@@ -87,7 +87,7 @@ export const BUSINESS_TYPE_DEFAULTS: Record<BusinessTypeKey, BusinessTypeDefault
       hero: 'beforeAfter',
       usp: 'timeline',
       socialProof: 'chatBubbles',
-      product: 'bundle',
+      product: 'carousel',
     },
     styles: {
       palette: 'warm',

@@ -263,9 +263,9 @@ const ProductsEditor = ({ siteConfig }: { siteConfig: UseSiteConfigReturn }) => 
                 <div className="flex-1 min-w-0">
                   <p className="font-semibold text-sm text-gray-900 truncate mb-1">{product.name}</p>
                   <p className="text-sm flex items-center gap-2">
-                    <span className="font-bold text-gray-900">${product.price}</span>
+                    <span className="font-bold text-gray-900">RM{product.price}</span>
                     {product.originalPrice && (
-                      <span className="text-xs text-gray-400 line-through decoration-gray-400">${product.originalPrice}</span>
+                      <span className="text-xs text-gray-400 line-through decoration-gray-400">RM{product.originalPrice}</span>
                     )}
                   </p>
                 </div>

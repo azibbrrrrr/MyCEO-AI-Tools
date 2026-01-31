@@ -47,9 +47,9 @@ const GridProduct = ({ config, isMobile }: ProductSectionProps) => {
             <div className="p-4">
               <h3 className="font-semibold mb-2">{product.name}</h3>
               <div className="flex items-center gap-2 mb-3">
-                <span className="text-lg font-bold text-primary">${product.price}</span>
+                <span className="text-lg font-bold text-primary">RM{product.price}</span>
                 {product.originalPrice && (
-                  <span className="text-sm text-muted-foreground line-through">${product.originalPrice}</span>
+                  <span className="text-sm text-muted-foreground line-through">RM{product.originalPrice}</span>
                 )}
               </div>
               <button className={buttonClasses}>Add to Cart</button>
@@ -105,8 +105,8 @@ const CarouselProduct = ({ config }: ProductSectionProps) => {
               <div className="p-4">
                 <h3 className="font-medium">{product.name}</h3>
                 <div className="flex items-center gap-2 mt-2">
-                  <span className="text-lg font-semibold">${product.price}</span>
-                  {product.originalPrice && <span className="text-sm text-muted-foreground line-through">${product.originalPrice}</span>}
+                  <span className="text-lg font-semibold">RM{product.price}</span>
+                  {product.originalPrice && <span className="text-sm text-muted-foreground line-through">RM{product.originalPrice}</span>}
                 </div>
               </div>
             </motion.div>
@@ -161,11 +161,11 @@ const BundleProduct = ({ config, isMobile }: ProductSectionProps) => {
           
           <div className="text-foreground">
             <div className="flex items-center justify-center gap-4 mb-4">
-              <span className="text-2xl text-muted-foreground line-through">${totalOriginal}</span>
-              <span className="text-5xl font-bold text-primary">${totalBundle}</span>
+              <span className="text-2xl text-muted-foreground line-through">RM{totalOriginal}</span>
+              <span className="text-5xl font-bold text-primary">RM{totalBundle}</span>
             </div>
             <div className="inline-block px-4 py-2 bg-primary/10 text-primary rounded-full font-semibold mb-6 animate-bounce-gentle">
-              You Save ${savings}! 🎉
+              You Save RM{savings}! 🎉
             </div>
             <button className={`${buttonClasses} w-full max-w-md mx-auto py-4 text-lg`}>
               Get the Bundle →
@@ -200,8 +200,8 @@ const ListProduct = ({ config }: ProductSectionProps) => {
                 <span className="font-semibold text-lg">{product.name}</span>
                 <span className="flex-1 border-b border-dotted border-muted-foreground/30 mx-3 mb-1" />
                 <div className="text-right">
-                  {product.originalPrice && <span className="text-sm text-muted-foreground line-through mr-2">${product.originalPrice}</span>}
-                  <span className="font-bold text-xl text-primary">${product.price}</span>
+                  {product.originalPrice && <span className="text-sm text-muted-foreground line-through mr-2">RM{product.originalPrice}</span>}
+                  <span className="font-bold text-xl text-primary">RM{product.price}</span>
                 </div>
               </div>
             ))}
@@ -244,8 +244,8 @@ const ComparisonProduct = ({ config, isMobile }: ProductSectionProps) => {
               )}
               <h3 className="text-xl font-bold mb-2">{product.name}</h3>
               <div className="mb-4">
-                <span className="text-4xl font-bold">${product.price}</span>
-                {product.originalPrice && <span className={`text-sm ml-2 ${index === 1 ? 'opacity-70' : 'text-muted-foreground'} line-through`}>${product.originalPrice}</span>}
+                <span className="text-4xl font-bold">RM{product.price}</span>
+                {product.originalPrice && <span className={`text-sm ml-2 ${index === 1 ? 'opacity-70' : 'text-muted-foreground'} line-through`}>RM{product.originalPrice}</span>}
               </div>
               <ul className="space-y-2 mb-6">
                 {['Feature one', 'Feature two', 'Feature three'].map((f, i) => (
