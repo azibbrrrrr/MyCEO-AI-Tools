@@ -25,12 +25,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         browser = await playwrightChromium.launch({
             args: chromium.args,
             executablePath: await chromium.executablePath(),
-            headless: chromium.headless,
+            headless: chromium.headless === 'new' ? true : chromium.headless,
         });
 
-        const page = await browser.newPage({
-            viewport: { width: 1200, height: 630, deviceScaleFactor: 2 },
-        });
+        const page = await browser.newPage();
+        await page.setViewportSize({ width: 1200, height: 630 });
 
         await page.goto(targetUrl, { waitUntil: 'networkidle', timeout: 30000 });
         await page.waitForTimeout(1000);
