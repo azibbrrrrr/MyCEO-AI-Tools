@@ -38,9 +38,11 @@ export const QuestStep5Publish = ({
       }
       controls={
         <QuestControls
+          onBack={onBack}
           onUndo={onBack}
           onSkip={onBack}
           onReset={onBack}
+          backLabel={language === 'EN' ? 'Back' : 'Kembali'}
         />
       }
     >

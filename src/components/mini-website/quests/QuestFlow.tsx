@@ -48,6 +48,7 @@ export const QuestFlow = ({
         currentIndex={currentIndex}
         onStepSelect={handleStepSelect}
         onNext={goNext}
+        isPublished={isPublished}
       />
     );
   }
@@ -59,6 +60,7 @@ export const QuestFlow = ({
         steps={steps}
         currentIndex={currentIndex}
         onStepSelect={handleStepSelect}
+        onBack={goBack}
         onNext={goNext}
       />
     );
@@ -71,6 +73,7 @@ export const QuestFlow = ({
         steps={steps}
         currentIndex={currentIndex}
         onStepSelect={handleStepSelect}
+        onBack={goBack}
         onNext={goNext}
       />
     );
@@ -83,6 +86,7 @@ export const QuestFlow = ({
         steps={steps}
         currentIndex={currentIndex}
         onStepSelect={handleStepSelect}
+        onBack={goBack}
         onNext={goNext}
       />
     );

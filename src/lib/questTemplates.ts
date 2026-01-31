@@ -1,37 +1,5 @@
 import type { Product, Review } from '@/hooks/useSiteConfig';
 
-export interface NameTemplate {
-  id: string;
-  label: string;
-  value: string;
-  exampleEn: string;
-  exampleBm: string;
-}
-
-export const QUEST_NAME_TEMPLATES: NameTemplate[] = [
-  {
-    id: 'product-by-name',
-    label: '{Product} by {Name}',
-    value: 'Cookies by Aisyah',
-    exampleEn: 'Cookies by Aisyah',
-    exampleBm: 'Kuih by Siti',
-  },
-  {
-    id: 'name-product-shop',
-    label: "{Name}'s {Product} Shop",
-    value: "Hafiz's Slime Shop",
-    exampleEn: "Hafiz's Slime Shop",
-    exampleBm: 'Kedai Gelang Aishah',
-  },
-  {
-    id: 'the-adjective-product',
-    label: 'The {Adjective} {Product}',
-    value: 'The Yummy Cupcakes',
-    exampleEn: 'The Yummy Cupcakes',
-    exampleBm: 'The Yummy Cupcakes',
-  },
-];
-
 export const QUEST_DEFAULT_SHOP_NAME = 'My Shop';
 
 export const QUEST_PRODUCT_TEMPLATES: Product[] = [

@@ -13,6 +13,7 @@ interface QuestStepBaseProps {
   steps: { id: string; label: string }[];
   currentIndex: number;
   onStepSelect: (index: number) => void;
+  onBack: () => void;
   onNext: () => void;
 }
 
@@ -26,6 +27,7 @@ export const QuestStep4Reviews = ({
   steps,
   currentIndex,
   onStepSelect,
+  onBack,
   onNext,
 }: QuestStepBaseProps) => {
   const { config, setContent } = siteConfig;
@@ -91,10 +93,12 @@ export const QuestStep4Reviews = ({
       }
       controls={
         <QuestControls
+          onBack={onBack}
           onUndo={handleUndo}
           onSkip={handleSkip}
           onReset={handleReset}
           onNext={onNext}
+          backLabel={language === 'EN' ? 'Back' : 'Kembali'}
           nextLabel={language === 'EN' ? 'Next' : 'Seterusnya'}
         />
       }

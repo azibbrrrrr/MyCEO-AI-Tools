@@ -460,7 +460,7 @@ export const EditorLayout = ({ siteConfig }: EditorLayoutProps) => {
       </div>
 
       {/* Marketing Coach Widget */}
-      <MarketingCoachWidget config={config} isMobile={isMobile} />
+      <MarketingCoachWidget config={config} isMobile={isMobile} isPublished={isPublished} />
 
       {/* Publish Modal */}
       <Dialog open={isPublishModalOpen} onOpenChange={setIsPublishModalOpen}>

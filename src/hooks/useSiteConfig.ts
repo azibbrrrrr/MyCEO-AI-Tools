@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import type { HeroVariant, USPVariant, SocialProofVariant, ProductVariant } from '@/lib/layoutRegistry';
+import type { BusinessTypeKey } from '@/lib/businessTypes';
 
 export type Mode = 'editor' | 'preview';
 export type Palette = 'warm' | 'pastel' | 'neon' | 'dark';
@@ -46,6 +47,7 @@ export interface CTAButton {
 export interface SiteConfig {
     mode: Mode;
     bossMode: boolean;
+    businessType: BusinessTypeKey | null;
     layouts: {
         hero: HeroVariant;
         usp: USPVariant;
@@ -89,6 +91,7 @@ const defaultProducts: Product[] = [
 export const createInitialConfig = (): SiteConfig => ({
     mode: 'editor',
     bossMode: false,
+    businessType: null,
     layouts: {
         hero: 'split',
         usp: 'badges',

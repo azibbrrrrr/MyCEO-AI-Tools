@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, type ChangeEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { FloatingElements } from '@/components/floating-elements'
 import { useChildSession } from '@/hooks/useChildSession'
@@ -9,6 +9,17 @@ export default function MagicCodeLoginPage() {
   const [isLoading, setIsLoading] = useState(false)
   const { loginWithAccessCode } = useChildSession()
   const navigate = useNavigate()
+
+  const handleCodeChange = (e: ChangeEvent<HTMLInputElement>) => {
+    let raw = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '')
+    if (raw.length > 6) raw = raw.slice(0, 6)
+    
+    if (raw.length > 3) {
+      setCode(raw.slice(0, 3) + '-' + raw.slice(3))
+    } else {
+      setCode(raw)
+    }
+  }
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -45,7 +56,7 @@ export default function MagicCodeLoginPage() {
             <input
               type="text"
               value={code}
-              onChange={(e) => setCode(e.target.value)}
+              onChange={handleCodeChange}
               placeholder="Enter Magic Code (e.g. ABC-123)"
               className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 outline-none transition-all text-lg text-center tracking-widest uppercase placeholder:tracking-normal placeholder:capitalize"
               disabled={isLoading}

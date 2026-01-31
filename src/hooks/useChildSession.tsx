@@ -181,7 +181,7 @@ export function ChildSessionProvider({ children }: { children: ReactNode }) {
           *,
           companies (*)
         `)
-        .eq('access_code', code)
+        .ilike('access_code', code)
         .single()
 
       if (childError || !childData) {
